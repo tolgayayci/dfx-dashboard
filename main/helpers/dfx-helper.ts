@@ -5,10 +5,12 @@ export function executeDfxCommand(command: string, path?: string): Promise<strin
     return new Promise((resolve, reject) => {
         exec(`dfx ${command}`,{cwd: path}, (error, stdout, stderr) => {
             if (error) {
+                console.error('Error:', error);
                 reject(error);
                 return;
             }
             if (stderr) {
+                console.error('DFX Error:', stderr);
                 reject(new Error(stderr));
                 return;
             }
