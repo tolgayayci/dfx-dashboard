@@ -62,15 +62,19 @@ import {
   AccordionTrigger,
 } from "@components/ui/accordion";
 
-import {
-  newIdentityForm,
-  onNewIdentityFormSubmit,
-} from "@components/identities/forms/createNewIdentity";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import {
-  importIdentityForm,
+  importIdentityFormSchema,
   onimportIdentityFormSubmit,
 } from "./identities/forms/importNewIdentity";
+
+import {
+  onNewIdentityFormSubmit,
+  newIdentityFormSchema,
+} from "@components/identities/forms/createNewIdentity";
 
 const groups = [
   {
@@ -105,9 +109,17 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
 
   const router = useRouter();
 
+  const newIdentityForm = useForm<z.infer<typeof newIdentityFormSchema>>({
+    resolver: zodResolver(newIdentityFormSchema),
+  });
+
+  const importIdentityForm = useForm<z.infer<typeof importIdentityFormSchema>>({
+    resolver: zodResolver(importIdentityFormSchema),
+  });
+
   async function getDirectoryPath() {
     try {
-      const result = await window.versions.openDirectory();
+      const result = await window.awesomeApi.openDirectory();
       return result;
     } catch (error) {
       console.error(`Error: ${error}`);
@@ -117,13 +129,16 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
   async function checkCurrentIdentity() {
     // Here we call the exposed method from preload.js
     try {
-      const result = await axios.get("/api/identity/?subcommand=whoami");
+      const result = await window.awesomeApi.runDfxCommand(
+        "identity",
+        "whoami"
+      );
 
-      groups[0].teams[0].label = result.data.result;
-      groups[0].teams[0].value = result.data.result;
+      groups[0].teams[0].label = result;
+      groups[0].teams[0].value = result;
       setSelectedIdentity({
-        label: result.data.result,
-        value: result.data.result,
+        label: result,
+        value: result,
       });
     } catch (error) {
       console.error("Error invoking remote method:", error);

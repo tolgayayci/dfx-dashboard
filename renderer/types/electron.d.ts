@@ -4,11 +4,15 @@ interface Versions {
     node: string;
     chrome: string;
     electron: string;
-    runDfxCommand: (command: string, path?: string) => Promise<string>;
+    runDfxCommand: (command,
+      subcommand,
+      args?,
+      flags?,
+      path?) => Promise<string>;
     openDirectory: () => Promise<string>;
   }
   
   interface Window {
-    versions: Versions;
+    awesomeApi: Versions;
   }
   

@@ -1,6 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 export const newIdentityFormSchema = z.object({
@@ -31,10 +29,6 @@ export const newIdentityFormSchema = z.object({
     force: z.boolean(),
   });
 
-  export const newIdentityForm = useForm<z.infer<typeof newIdentityFormSchema>>({
-    resolver: zodResolver(newIdentityFormSchema),
-  });
-
   export async function onNewIdentityFormSubmit(
     data: z.infer<typeof newIdentityFormSchema>
   ) {
@@ -49,8 +43,8 @@ export const newIdentityFormSchema = z.object({
         hsm_pkcs11_lib_path: data.hsm_pkcs11_lib_path
       }
       
-      axios.get(
-        `/api/${command}/?subcommand=${subcommand}&options=${options}`
+      axios.post(
+        `/api/${command}/?subcommand=${subcommand}&options=${JSON.stringify(options)}`
       )
       // log the result from main process
     } catch (error) {

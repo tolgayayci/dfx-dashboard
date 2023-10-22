@@ -35,9 +35,9 @@ if (isProd) {
     },
   })
 
-  ipcMain.handle('dfx-command', async (event, command, path?) => {
+  ipcMain.handle('dfx-command', async (event, command, subcommand, args?, flags?, path?) => {
     try {
-        const result = await executeDfxCommand(command, path);
+        const result = await executeDfxCommand(command, subcommand, args, flags, path);
         return result;
     } catch (error) {
         throw error;

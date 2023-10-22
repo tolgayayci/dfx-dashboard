@@ -1,9 +1,20 @@
 import { exec } from 'child_process';
 
-export function executeDfxCommand(command: string, path?: string): Promise<string> {
-    console.log(`Executing dfx ${command} in ${path}`)
+export function executeDfxCommand(
+    command: string,
+    subcommand: string,
+    args?: string[],
+    flags?: string[],
+    path?: string
+): Promise<string> {
+    const argStr = args?.join(' ') || '';
+    const flagStr = flags?.map(flag => `--${flag}`).join(' ') || '';
+    const fullCommand = `dfx ${command} ${subcommand} ${argStr} ${flagStr}`.trim();
+
+    console.log(`Executing: ${fullCommand} in ${path || 'current directory'}`);
+    
     return new Promise((resolve, reject) => {
-        exec(`dfx ${command}`,{cwd: path}, (error, stdout, stderr) => {
+        exec(fullCommand, { cwd: path }, (error, stdout, stderr) => {
             if (error) {
                 console.error('Error:', error);
                 reject(error);
