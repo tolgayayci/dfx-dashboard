@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 
 export function executeDfxCommand(
     command: string,
@@ -7,25 +7,38 @@ export function executeDfxCommand(
     flags?: string[],
     path?: string
 ): Promise<string> {
-    const argStr = args?.join(' ') || '';
-    const flagStr = flags?.map(flag => `--${flag}`).join(' ') || '';
-    const fullCommand = `dfx ${command} ${subcommand} ${argStr} ${flagStr}`.trim();
-
-    console.log(`Executing: ${fullCommand} in ${path || 'current directory'}`);
+    const argStr = args || [];
+    const flagStr = flags || [];
+    const allArgs = [command, subcommand, ...argStr, ...flagStr];
     
+    console.log(`Executing: dfx ${allArgs.join(' ')} in ${path || 'current directory'}`);
+
     return new Promise((resolve, reject) => {
-        exec(fullCommand, { cwd: path }, (error, stdout, stderr) => {
-            if (error) {
-                console.error('Error:', error);
-                reject(error);
-                return;
+        const child = spawn('dfx', allArgs, { cwd: path });
+
+        let stdoutData = '';
+        let stderrData = '';
+
+        child.stdout.on('data', (data) => {
+            stdoutData += data;
+        });
+
+        child.stderr.on('data', (data) => {
+            stderrData += data;
+        });
+
+        child.on('error', (error) => {
+            console.error('Error:', error);
+            reject(error);
+        });
+
+        child.on('close', (code) => {
+            if (code !== 0) {
+                console.error('DFX Error:', stderrData);
+                reject(new Error(stderrData));
+            } else {
+                resolve(stdoutData);
             }
-            if (stderr) {
-                console.error('DFX Error:', stderr);
-                reject(new Error(stderr));
-                return;
-            }
-            resolve(stdout);
         });
     });
 }

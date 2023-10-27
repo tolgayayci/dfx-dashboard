@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   CaretSortIcon,
@@ -69,14 +68,14 @@ import * as z from "zod";
 import {
   importIdentityFormSchema,
   onimportIdentityFormSubmit,
-} from "./identities/forms/importNewIdentity";
+} from "@components/identities/forms/importNewIdentity";
 
 import {
   onNewIdentityFormSubmit,
   newIdentityFormSchema,
 } from "@components/identities/forms/createNewIdentity";
 
-const groups = [
+const initialGroups = [
   {
     label: "Active Identity",
     teams: [
@@ -88,11 +87,16 @@ const groups = [
   },
   {
     label: "Identities",
-    teams: [],
+    teams: [
+      {
+        label: "",
+        value: "",
+      },
+    ],
   },
 ];
 
-type Team = (typeof groups)[number]["teams"][number];
+type Team = (typeof initialGroups)[number]["teams"][number];
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
   typeof PopoverTrigger
@@ -104,8 +108,9 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
   const [open, setOpen] = React.useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
   const [selectedIdentity, setSelectedIdentity] = React.useState<Team>(
-    groups[0].teams[0]
+    initialGroups[0].teams[0]
   );
+  const [updatedGroups, setUpdatedGroups] = useState(initialGroups);
 
   const router = useRouter();
 
@@ -134,8 +139,8 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
         "whoami"
       );
 
-      groups[0].teams[0].label = result;
-      groups[0].teams[0].value = result;
+      initialGroups[0].teams[0].label = result;
+      initialGroups[0].teams[0].value = result;
       setSelectedIdentity({
         label: result,
         value: result,
@@ -145,8 +150,51 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
     }
   }
 
+  async function checkIdentities() {
+    try {
+      const result = await window.awesomeApi.runDfxCommand("identity", "list");
+
+      // Split the input string into an array of identities
+      const identities = result
+        .split("\n")
+        .filter((identity) => identity.trim() !== "");
+
+      // Find the "Identities" group and update its "teams" property
+      const newGroups = updatedGroups.map((group) => {
+        if (group.label === "Identities") {
+          return {
+            ...group,
+            teams: identities.map((identity) => ({
+              label: identity,
+              value: identity,
+            })),
+          };
+        }
+        return group;
+      });
+
+      // Update the state variable with the new groups data
+      setUpdatedGroups(newGroups);
+    } catch (error) {
+      console.error("Error invoking remote method:", error);
+    }
+  }
+
+  async function changeIdentity(newIdentity: string) {
+    try {
+      const identity = await window.awesomeApi.runDfxCommand(
+        "identity",
+        "use",
+        [newIdentity]
+      );
+    } catch (error) {
+      console.error("Error invoking remote method:", error);
+    }
+  }
+
   useEffect(() => {
     checkCurrentIdentity();
+    checkIdentities();
   }, []);
 
   return (
@@ -176,13 +224,16 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
             <CommandList>
               <CommandInput placeholder="Search team..." />
               <CommandEmpty>No identity found.</CommandEmpty>
-              {groups.map((group) => (
+              {updatedGroups.map((group) => (
                 <CommandGroup key={group.label} heading={group.label}>
                   {group.teams.map((team) => (
                     <CommandItem
                       key={team.value}
                       onSelect={() => {
-                        setSelectedIdentity(team);
+                        if (selectedIdentity.value !== team.value) {
+                          setSelectedIdentity(team);
+                          changeIdentity(team.value);
+                        }
                         setOpen(false);
                       }}
                       className="text-sm"
@@ -414,7 +465,12 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline">Cancel</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowNewTeamDialog(false)}
+                  >
+                    Cancel
+                  </Button>
                   <Button type="submit">Create</Button>
                 </DialogFooter>
               </form>

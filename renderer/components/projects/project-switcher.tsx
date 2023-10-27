@@ -116,13 +116,13 @@ export default function ProjectSwitcher({ className }: TeamSwitcherProps) {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       // Here we call the exposed method from preload.js
-      const result = await window.versions.runDfxCommand(
-        `new ${data.project_name} ${
-          data.frontend_status ? "--frontend" : "--no-frontend"
-        } ${data.dry_run ? "--dry-run" : ""}`,
-        data.path
-      );
-      console.log(result); // log the result from main process
+      // const result = await window.awesomeApi.runDfxCommand(
+      //   `new ${data.project_name} ${
+      //     data.frontend_status ? "--frontend" : "--no-frontend"
+      //   } ${data.dry_run ? "--dry-run" : ""}`,
+      //   data.path
+      // );
+      console.log("integrate that"); // log the result from main process
     } catch (error) {
       console.error(`Error: ${error}`); // log error
     }
@@ -130,7 +130,7 @@ export default function ProjectSwitcher({ className }: TeamSwitcherProps) {
 
   async function getDirectoryPath() {
     try {
-      const result = await window.versions.openDirectory();
+      const result = await window.awesomeApi.openDirectory();
       return result;
     } catch (error) {
       console.error(`Error: ${error}`);

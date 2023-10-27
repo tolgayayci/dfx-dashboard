@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
         enableSystem
         disableTransitionOnChange
       >
-        <div className="hidden space-y-2 md:block">
+        <div className="hidden space-y-2 md:block h-screen">
           <div className="flex flex-col space-y-2 lg:flex-row lg:space-y-0">
             <div className="grid lg:grid-cols-5 w-full">
               <div className="col-span-5">
@@ -26,10 +26,10 @@ export default function Layout({ children }: LayoutProps) {
                   <ModeToggle />
                 </header>
               </div>
-              <div className="col-span-1 h-full">
+              <div className="col-span-1">
                 <Sidebar />
               </div>
-              <div className="col-span-4 h-full">{children}</div>
+              <div className="col-span-4 p-8">{children}</div>
             </div>
           </div>
         </div>

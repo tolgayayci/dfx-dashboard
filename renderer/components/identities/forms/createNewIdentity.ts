@@ -1,53 +1,51 @@
-import axios from "axios";
 import * as z from "zod";
 
 export const newIdentityFormSchema = z.object({
-    identity_name: z
-      .string()
-      .min(3, {
-        message: "Identity name must be at least 3 characters long",
-      })
-      .max(255),
-    hsm_key_id: z
-      .string()
-      .min(3, {
-        message: "Identity name must be at least 3 characters long",
-      })
-      .max(255),
-    hsm_pkcs11_lib_path: z
-      .string()
-      .min(3, {
-        message: "Identity name must be at least 3 characters long",
-      })
-      .max(255),
-    storage_mode: z
-      .string()
-      .min(3, {
-        message: "Identity name must be at least 3 characters long",
-      })
-      .max(255),
-    force: z.boolean(),
-  });
+  identity_name: z
+    .string()
+    .min(3, "Identity name must be at least 3 characters long.")
+    .max(255, "Identity name must be at most 255 characters long.")
+    .regex(
+      /^[A-Za-z0-9.\-_@]+$/,
+      "Only the characters ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_@0123456789 are valid in identity names."
+    ),
+  hsm_key_id: z
+    .string()
+    .min(3, "HSM key ID must be at least 3 characters long.")
+    .max(255, "HSM key ID must be at most 255 characters long.")
+    .optional(),
+  hsm_pkcs11_lib_path: z
+    .string()
+    .min(3, "HSM PKCS#11 library path must be at least 3 characters long.")
+    .max(255, "HSM PKCS#11 library path must be at most 255 characters long.")
+    .optional(),
+  storage_mode: z
+    .string()
+    .min(3, "Storage mode must be at least 3 characters long.")
+    .max(255, "Storage mode must be at most 255 characters long.")
+    .optional(),
+  force: z.boolean().optional(),
+});
 
-  export async function onNewIdentityFormSubmit(
+export async function onNewIdentityFormSubmit(
     data: z.infer<typeof newIdentityFormSchema>
-  ) {
+) {
     try {
       const command = "identity"
       const subcommand = "new"
-      const options = {
-        identity_name : data.identity_name,
-        storage_mode: data.storage_mode,
-        force: data.force,
-        hsm_key_id: data.hsm_key_id,
-        hsm_pkcs11_lib_path: data.hsm_pkcs11_lib_path
-      }
-      
-      axios.post(
-        `/api/${command}/?subcommand=${subcommand}&options=${JSON.stringify(options)}`
-      )
-      // log the result from main process
+      const args = [data.identity_name]
+      const flags = [
+        data.hsm_key_id ? `hsm-key-id=${data.hsm_key_id}` : null,
+        data.hsm_pkcs11_lib_path ? `hsm-pkcs11-lib-path=${data.hsm_pkcs11_lib_path}` : null,
+        data.storage_mode ? `storage-mode=${data.storage_mode}` : null,
+        data.force === true ? 'force' : null,
+      ].filter(Boolean); // This will remove any null values from the array
+
+    const result = await window.awesomeApi.runDfxCommand(command, subcommand, args, flags)
+
+    console.log(result)
+            
     } catch (error) {
       console.error(`Error: ${error}`); // log error
     }
-  } 
+} 
