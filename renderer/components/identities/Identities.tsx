@@ -59,6 +59,8 @@ import {
   SelectValue,
 } from "@components/ui/select";
 
+import { Avatar, AvatarImage } from "@components/ui/avatar";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -133,8 +135,18 @@ export default function IdentitiesComponent() {
     return (
       <Card className="col-span-1" key={identity}>
         <CardHeader>
-          <CardTitle>{identity}</CardTitle>
-          <CardDescription>Card Description</CardDescription>
+          <div className="flex items-center">
+            <Avatar className="mr-4 h-10 w-10">
+              <AvatarImage
+                src={`https://avatar.vercel.sh/${identity}.png`}
+                alt={identity}
+              />
+            </Avatar>
+            <div className="flex flex-col space-y-1">
+              <CardTitle className="text-medium">{identity}</CardTitle>
+              <CardDescription>Card Description</CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="flex space-x-4">
           <Button

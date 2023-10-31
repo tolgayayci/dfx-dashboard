@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   HomeIcon,
   CubeIcon,
@@ -46,16 +47,25 @@ const sidebarNavItems = [
 ];
 
 export function Sidebar({ className }: { className?: string }) {
+  const router = useRouter();
+
   return (
-    <div className={cn("pb-12", className)}>
-      <div className="space-y-4 border-r border-gray">
+    <div
+      className={cn(
+        "flex flex-col justify-between h-full border-r border-gray",
+        className
+      )}
+    >
+      <div className="space-y-4">
         <div className="px-3">
           <div className="space-y-1 pt-4">
             {sidebarNavItems.map((item) => (
               <Link href={item.href} key={item.href}>
                 <Button
                   key={item.href}
-                  variant="ghost"
+                  variant={
+                    router.pathname === item.href ? "secondary" : "ghost"
+                  }
                   className="w-full justify-start"
                 >
                   <div className="mr-4 h-4 w-4">{item.icon}</div>
@@ -64,9 +74,12 @@ export function Sidebar({ className }: { className?: string }) {
               </Link>
             ))}
           </div>
-          <div className="mt-8">
-            <ProjectSwitcher />
-          </div>
+        </div>
+      </div>
+      <div className="pl-3 pr-2 mb-4">
+        <ProjectSwitcher />
+        <div>
+          <p className="text-xs text-center mt-3">DFX CLI GUI v1.0</p>
         </div>
       </div>
     </div>

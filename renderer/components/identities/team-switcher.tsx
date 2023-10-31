@@ -53,7 +53,7 @@ import {
   FormMessage,
 } from "@components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { Checkbox } from "./ui/checkbox";
+import { Checkbox } from "@components/ui/checkbox";
 import {
   Accordion,
   AccordionContent,
@@ -145,6 +145,8 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
         label: result,
         value: result,
       });
+
+      console.log();
     } catch (error) {
       console.error("Error invoking remote method:", error);
     }
@@ -182,11 +184,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
 
   async function changeIdentity(newIdentity: string) {
     try {
-      const identity = await window.awesomeApi.runDfxCommand(
-        "identity",
-        "use",
-        [newIdentity]
-      );
+      await window.awesomeApi.runDfxCommand("identity", "use", [newIdentity]);
     } catch (error) {
       console.error("Error invoking remote method:", error);
     }

@@ -2,14 +2,14 @@ import { spawn } from 'child_process';
 
 export function executeDfxCommand(
     command: string,
-    subcommand: string,
+    subcommand?: string,
     args?: string[],
     flags?: string[],
     path?: string
 ): Promise<string> {
     const argStr = args || [];
     const flagStr = flags || [];
-    const allArgs = [command, subcommand, ...argStr, ...flagStr];
+    const allArgs = [command, subcommand, ...argStr, ...flagStr].filter(Boolean);
     
     console.log(`Executing: dfx ${allArgs.join(' ')} in ${path || 'current directory'}`);
 

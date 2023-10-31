@@ -37,6 +37,7 @@
     "react-hook-form": "^7.47.0",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
+    "universal-analytics": "^0.5.3",
     "zod": "^3.22.4",
     "zx": "^7.2.3"
   },
