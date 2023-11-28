@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import NetworkComponent from "@components/network/Network";
 
 function Network() {
   return (
@@ -7,6 +8,7 @@ function Network() {
       <Head>
         <title>Network - DFX GUI</title>
       </Head>
+      <NetworkComponent />
     </React.Fragment>
   );
 }

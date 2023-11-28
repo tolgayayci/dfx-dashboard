@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import CanistersComponent from "@components/canisters/Canisters";
 
 function Canisters() {
   return (
@@ -7,6 +8,7 @@ function Canisters() {
       <Head>
         <title>Canisters - DFX GUI</title>
       </Head>
+      <CanistersComponent />
     </React.Fragment>
   );
 }

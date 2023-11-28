@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Sidebar } from "@components/sidebar-nav";
 import { ThemeProvider } from "@components/theme-provider";
 import { ModeToggle } from "@components/toggle-mode";
-import TeamSwitcher from "@components/identities/team-switcher";
+import IdentitySwitcher from "@components/identities/identity-switcher";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -26,7 +26,7 @@ export default function Layout({ children }: LayoutProps) {
               alt="icp_logo"
             />
             <div className="flex flex-row space-x-2">
-              <TeamSwitcher />
+              <IdentitySwitcher />
               <ModeToggle />
             </div>
           </header>

@@ -79,7 +79,7 @@ export function Sidebar({ className }: { className?: string }) {
       <div className="pl-3 pr-2 mb-4">
         <ProjectSwitcher />
         <div>
-          <p className="text-xs text-center mt-3">DFX CLI GUI v1.0</p>
+          <p className="text-xs text-center mt-3">DFX CLI GUI v0.1</p>
         </div>
       </div>
     </div>

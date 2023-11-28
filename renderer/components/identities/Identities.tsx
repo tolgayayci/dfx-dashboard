@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -25,19 +24,14 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@components/ui/card";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { Checkbox } from "@components/ui/checkbox";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@components/ui/accordion";
+import { Avatar, AvatarImage } from "@components/ui/avatar";
+import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
+import { Button } from "@components/ui/button";
+import { Input } from "@components/ui/input";
 
 import {
   AlertDialog,
@@ -51,29 +45,9 @@ import {
   AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@components/ui/select";
-
-import { Avatar, AvatarImage } from "@components/ui/avatar";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
-import {
-  onNewIdentityFormSubmit,
-  newIdentityFormSchema,
-} from "@components/identities/forms/createNewIdentity";
-
-import {
-  importIdentityFormSchema,
-  onimportIdentityFormSubmit,
-} from "@components/identities/forms/importNewIdentity";
 
 import {
   onRemoveIdentityFormSubmit,
@@ -85,27 +59,15 @@ import {
   renameIdentityFormSchema,
 } from "@components/identities/forms/renameIdentity";
 
-import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
-import { Button } from "@components/ui/button";
-import { Input } from "@components/ui/input";
-
 import { LucidePersonStanding } from "lucide-react";
+import IdentityModal from "@components/identities/identity-modal";
+import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 
 export default function IdentitiesComponent() {
   const [showCreateIdentityDialog, setShowCreateIdentityDialog] =
     useState(false);
-  const [showRenameIdentityDialog, setShowRenameIdentityDialog] =
-    useState(false);
-
-  const [identities, setIdentities] = useState<string[]>();
-
-  const newIdentityForm = useForm<z.infer<typeof newIdentityFormSchema>>({
-    resolver: zodResolver(newIdentityFormSchema),
-  });
-
-  const importIdentityForm = useForm<z.infer<typeof importIdentityFormSchema>>({
-    resolver: zodResolver(importIdentityFormSchema),
-  });
+  const [identities, setIdentities] = useState<any>();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const removeIdentityForm = useForm<z.infer<typeof removeIdentityFormSchema>>({
     resolver: zodResolver(removeIdentityFormSchema),
@@ -117,41 +79,61 @@ export default function IdentitiesComponent() {
 
   async function checkIdentities() {
     try {
-      const result = await window.awesomeApi.runDfxCommand("identity", "list");
+      const identities = await window.awesomeApi.manageIdentities("list", "");
 
-      // Split the input string into an array of identities
-      const identities = result
-        .split("\n")
-        .filter((identity) => identity.trim() !== "");
-
-      // Update the "Identities" group with the identities directly
       setIdentities(identities);
     } catch (error) {
       console.error("Error invoking remote method:", error);
     }
   }
 
-  const identityCard = (identity: string) => {
+  const handleSearchChange = (e: any) => {
+    e.preventDefault();
+    setSearchQuery(e.target.value);
+  };
+
+  const IdentityCard = ({
+    identity,
+  }: {
+    identity: {
+      name: string;
+      isInternetIdentity: boolean;
+      internetIdentityPrincipal: string;
+    };
+  }) => {
+    const [showRenameIdentityDialog, setShowRenameIdentityDialog] =
+      useState(false);
+
     return (
-      <Card className="col-span-1" key={identity}>
+      <Card className="col-span-1" key={identity.name}>
         <CardHeader>
           <div className="flex items-center">
             <Avatar className="mr-4 h-10 w-10">
               <AvatarImage
-                src={`https://avatar.vercel.sh/${identity}.png`}
-                alt={identity}
+                src={`https://avatar.vercel.sh/${identity.name}.png`}
+                alt={identity.name}
               />
             </Avatar>
             <div className="flex flex-col space-y-1">
-              <CardTitle className="text-medium">{identity}</CardTitle>
-              <CardDescription>Card Description</CardDescription>
+              <CardTitle className="text-medium">
+                {identity.isInternetIdentity
+                  ? identity.internetIdentityPrincipal.slice(0, 11)
+                  : identity.name}
+              </CardTitle>
+              <CardDescription>
+                {identity.isInternetIdentity
+                  ? "Internet Identity"
+                  : "Local Identity"}
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex space-x-4">
+        <CardContent className="grid grid-cols-2 gap-4">
           <Button
             variant="outline"
+            className="w-full"
             onClick={() => setShowRenameIdentityDialog(true)}
+            disabled={identity.isInternetIdentity}
           >
             Edit
           </Button>
@@ -167,7 +149,7 @@ export default function IdentitiesComponent() {
                   )}
                 >
                   <DialogHeader className="space-y-3">
-                    <DialogTitle>Rename "{identity}"</DialogTitle>
+                    <DialogTitle>Rename "{identity.name}"</DialogTitle>
                     <DialogDescription>
                       Identities are global. They are not confined to a specific
                       project context.
@@ -184,14 +166,16 @@ export default function IdentitiesComponent() {
                               <FormLabel className="text-small">
                                 Current Identity Name
                               </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  id="from_identity_name"
-                                  defaultValue={identity}
-                                  disabled
-                                />
-                              </FormControl>
+                              {identity ? (
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    id="from_identity_name"
+                                    defaultValue={identity.name}
+                                    disabled
+                                  />
+                                </FormControl>
+                              ) : null}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -225,26 +209,26 @@ export default function IdentitiesComponent() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">Create</Button>
+                    <Button type="submit">Rename</Button>
                   </DialogFooter>
                 </form>
               </Form>
             </DialogContent>
           </Dialog>
-          <Form {...removeIdentityForm}>
-            <form
-              onSubmit={removeIdentityForm.handleSubmit(
-                onRemoveIdentityFormSubmit
-              )}
-            >
-              <AlertDialog>
+          {/* <AlertDialog>
+            <Form {...removeIdentityForm}>
+              <form
+                onSubmit={removeIdentityForm.handleSubmit(
+                  onRemoveIdentityFormSubmit
+                )}
+              >
                 <AlertDialogTrigger>
-                  <Button className="w-full">Remove</Button>
+                  <Button>Remove</Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>
-                      Are you absolutely sure to remove "{identity}" ?
+                      Are you absolutely sure to remove "{identity.name}" ?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                       This action cannot be undone. This will permanently delete
@@ -253,12 +237,14 @@ export default function IdentitiesComponent() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <Button type="submit">Continue</Button>
+                    <AlertDialogAction type="submit">
+                      Continue
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
-            </form>
-          </Form>
+              </form>
+            </Form>
+          </AlertDialog> */}
         </CardContent>
       </Card>
     );
@@ -271,374 +257,69 @@ export default function IdentitiesComponent() {
 
   return (
     <div>
-      {identities ? (
-        <>
-          <div className="flex items-center justify-between">
-            <Alert>
-              <div className="flex items-center">
-                <LucidePersonStanding className="h-5 w-5 mr-4" />
-                <div>
-                  <AlertTitle>
-                    You have {identities.length} identities
-                  </AlertTitle>
-                  <AlertDescription>
-                    You can add, remove, or edit your identities on this page.
-                  </AlertDescription>
-                </div>
+      <>
+        <div className="flex items-center justify-between">
+          <Alert className="flex items-center justify-between py-6">
+            <div className="flex items-center">
+              <LucidePersonStanding className="h-5 w-5 mr-4" />
+              <div>
+                <AlertTitle>
+                  You have {identities?.length ? identities?.length : "0"}{" "}
+                  identities
+                </AlertTitle>
+                <AlertDescription>
+                  You can add, remove, or edit your identities on this page.
+                </AlertDescription>
               </div>
-              <div className="flex justify-end">
-                <Button onClick={() => setShowCreateIdentityDialog(true)}>
-                  Create New Identity
-                </Button>
+            </div>
+            <Button onClick={() => setShowCreateIdentityDialog(true)}>
+              Create New Identity
+            </Button>
+          </Alert>
+          <IdentityModal
+            showCreateIdentityDialog={showCreateIdentityDialog}
+            setShowCreateIdentityDialog={setShowCreateIdentityDialog}
+          />
+        </div>
+
+        {identities ? (
+          <div>
+            <div className="my-6">
+              <Input
+                type="search"
+                placeholder={`${"=>"} Search for an identity between ${
+                  identities.length
+                } identities`}
+                onChange={handleSearchChange}
+                value={searchQuery}
+              />
+            </div>
+            <ScrollArea className="max-h-[350px] overflow-y-auto">
+              <div className="grid grid-cols-3 gap-6">
+                {identities
+                  .filter((identity) =>
+                    identity.name
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase())
+                  )
+                  .map((identity) => (
+                    <IdentityCard
+                      key={
+                        identity.name
+                          ? identity.name
+                          : identity.internetIdentityPrincipal
+                      }
+                      identity={identity}
+                    />
+                  ))}
               </div>
-            </Alert>
-            <Dialog open={showCreateIdentityDialog}>
-              <DialogContent>
-                <Tabs defaultValue="new-identity">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="new-identity">New Identity</TabsTrigger>
-                    <TabsTrigger value="import">Import Existing</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="new-identity">
-                    <Form {...newIdentityForm}>
-                      <form
-                        onSubmit={newIdentityForm.handleSubmit(
-                          onNewIdentityFormSubmit
-                        )}
-                      >
-                        <DialogHeader className="space-y-3">
-                          <DialogTitle>Create New Identity</DialogTitle>
-                          <DialogDescription>
-                            Identities you will add are global. They are not
-                            confined to a specific project context.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div>
-                          <div className="py-4 pb-6">
-                            <div className="space-y-3">
-                              <FormField
-                                control={newIdentityForm.control}
-                                name="identity_name"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-small">
-                                      Identity Name
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        id="identity_name"
-                                        placeholder="alice"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <Accordion type="single" collapsible>
-                              <AccordionItem value="item-1">
-                                <AccordionTrigger>Options</AccordionTrigger>
-                                <AccordionContent>
-                                  <div className="space-y-4">
-                                    <div className="space-y-3">
-                                      <FormField
-                                        control={newIdentityForm.control}
-                                        name="hsm_key_id"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-small">
-                                              HSM Key Id (Optional)
-                                            </FormLabel>
-                                            <FormControl>
-                                              <Input
-                                                {...field}
-                                                id="hsm_key_id"
-                                                placeholder="xxxx"
-                                              />
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                    <div className="space-y-3">
-                                      <FormField
-                                        control={newIdentityForm.control}
-                                        name="hsm_pkcs11_lib_path"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel className="text-small">
-                                              opensc-pkcs11 Lib Path (Optional)
-                                            </FormLabel>
-                                            <FormControl>
-                                              <div className="flex w-full items-center space-x-2">
-                                                <Input
-                                                  type="text"
-                                                  readOnly
-                                                  value={field.value}
-                                                />
-                                                <Button
-                                                  onClick={() => {
-                                                    // getDirectoryPath().then(
-                                                    //   (path) => {
-                                                    //     if (path) {
-                                                    //       field.onChange(path);
-                                                    //     }
-                                                    //   }
-                                                    // );
-                                                  }}
-                                                >
-                                                  Select
-                                                </Button>
-                                              </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                    <div className="space-y-3">
-                                      <FormField
-                                        control={newIdentityForm.control}
-                                        name="storage_mode"
-                                        render={({ field }) => (
-                                          <FormItem className="space-y-3">
-                                            <FormLabel>
-                                              Storage Mode (Optional)
-                                            </FormLabel>
-                                            <Select
-                                              onValueChange={field.onChange}
-                                              defaultValue={field.value}
-                                            >
-                                              <FormControl>
-                                                <SelectTrigger>
-                                                  <SelectValue placeholder="Select a storage mode" />
-                                                </SelectTrigger>
-                                              </FormControl>
-                                              <SelectContent>
-                                                <SelectItem value="password-protected">
-                                                  Password Protected
-                                                </SelectItem>
-                                                <SelectItem value="plain-text">
-                                                  Plain Text
-                                                </SelectItem>
-                                                <SelectItem value="null">
-                                                  No Storage Mode
-                                                </SelectItem>
-                                              </SelectContent>
-                                            </Select>
-                                            <FormDescription>
-                                              Plaintext PEM files are still
-                                              available (e.g. for use in
-                                              non-interactive situations like
-                                              CI), but not recommended for use
-                                              since they put the keys at risk.
-                                            </FormDescription>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                    <div className="space-y-3">
-                                      <FormField
-                                        control={newIdentityForm.control}
-                                        name="force"
-                                        render={({ field }) => (
-                                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                                            <FormControl>
-                                              <Checkbox
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                              />
-                                            </FormControl>
-                                            <div className="space-y-1 leading-none">
-                                              <FormLabel>Force</FormLabel>
-                                              <FormDescription>
-                                                If the identity already exists,
-                                                remove and re-import it.
-                                              </FormDescription>
-                                            </div>
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                  </div>
-                                </AccordionContent>
-                              </AccordionItem>
-                            </Accordion>
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button
-                            variant="outline"
-                            onClick={() => setShowCreateIdentityDialog(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button type="submit">Create</Button>
-                        </DialogFooter>
-                      </form>
-                    </Form>
-                  </TabsContent>
-                  <TabsContent value="import">
-                    <Form {...importIdentityForm}>
-                      <form
-                        onSubmit={importIdentityForm.handleSubmit(
-                          onimportIdentityFormSubmit
-                        )}
-                      >
-                        <DialogHeader className="space-y-3">
-                          <DialogTitle>Import Identity</DialogTitle>
-                          <DialogDescription>
-                            Create a user identity by importing the user’s key
-                            information or security certificate from a PEM file.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div>
-                          <div className="space-y-4 py-4 pb-6">
-                            <div className="space-y-3">
-                              <FormField
-                                control={newIdentityForm.control}
-                                name="identity_name"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-small">
-                                      Identity Name
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        id="identity_name"
-                                        placeholder="alice"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <div className="space-y-3">
-                              <FormField
-                                control={importIdentityForm.control}
-                                name="pem_identity"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-small">
-                                      Pem File
-                                    </FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        id="pem_identity"
-                                        type="file"
-                                        placeholder="alice"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <Accordion type="single" collapsible>
-                              <AccordionItem value="item-1">
-                                <AccordionTrigger>Options</AccordionTrigger>
-                                <AccordionContent>
-                                  <div className="space-y-4">
-                                    <div className="space-y-3">
-                                      <FormField
-                                        control={importIdentityForm.control}
-                                        name="storage_mode"
-                                        render={({ field }) => (
-                                          <FormItem className="space-y-3">
-                                            <FormLabel>
-                                              Storage Mode (Optional)
-                                            </FormLabel>
-                                            <Select
-                                              onValueChange={field.onChange}
-                                              defaultValue={field.value}
-                                            >
-                                              <FormControl>
-                                                <SelectTrigger>
-                                                  <SelectValue placeholder="Select a storage mode" />
-                                                </SelectTrigger>
-                                              </FormControl>
-                                              <SelectContent>
-                                                <SelectItem value="password-protected">
-                                                  Password Protected
-                                                </SelectItem>
-                                                <SelectItem value="plain-text">
-                                                  Plain Text
-                                                </SelectItem>
-                                                <SelectItem value="null">
-                                                  No Storage Mode
-                                                </SelectItem>
-                                              </SelectContent>
-                                            </Select>
-                                            <FormDescription>
-                                              Plaintext PEM files are still
-                                              available (e.g. for use in
-                                              non-interactive situations like
-                                              CI), but not recommended for use
-                                              since they put the keys at risk.
-                                            </FormDescription>
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                    <div className="space-y-3">
-                                      <FormField
-                                        control={importIdentityForm.control}
-                                        name="force"
-                                        render={({ field }) => (
-                                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                                            <FormControl>
-                                              <Checkbox
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                              />
-                                            </FormControl>
-                                            <div className="space-y-1 leading-none">
-                                              <FormLabel>Force</FormLabel>
-                                              <FormDescription>
-                                                If the identity already exists,
-                                                remove and re-import it.
-                                              </FormDescription>
-                                            </div>
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                  </div>
-                                </AccordionContent>
-                              </AccordionItem>
-                            </Accordion>
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button
-                            variant="outline"
-                            onClick={() => setShowCreateIdentityDialog(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button type="submit">Import</Button>
-                        </DialogFooter>
-                      </form>
-                    </Form>
-                  </TabsContent>
-                </Tabs>
-              </DialogContent>
-            </Dialog>
+              <ScrollBar />
+            </ScrollArea>
           </div>
-          <div className="grid grid-cols-3 gap-6 mt-8">
-            {identities.slice(0, 6).map((identity) => identityCard(identity))}
-          </div>
-        </>
-      ) : (
-        <div>"No identities found"</div>
-      )}
+        ) : (
+          <div>"No identities found"</div>
+        )}
+      </>
     </div>
   );
 }
