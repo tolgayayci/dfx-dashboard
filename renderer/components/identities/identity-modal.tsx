@@ -263,6 +263,7 @@ export default function IdentityModal({
                 <DialogFooter>
                   <Button
                     variant="outline"
+                    type="button"
                     onClick={() => setShowCreateIdentityDialog(false)}
                   >
                     Cancel
@@ -411,6 +412,7 @@ export default function IdentityModal({
                 <DialogFooter>
                   <Button
                     variant="outline"
+                    type="button"
                     onClick={() => setShowCreateIdentityDialog(false)}
                   >
                     Cancel
@@ -455,6 +457,7 @@ export default function IdentityModal({
                 <DialogFooter>
                   <Button
                     variant="outline"
+                    type="button"
                     onClick={() => setShowCreateIdentityDialog(false)}
                   >
                     Cancel

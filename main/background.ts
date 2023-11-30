@@ -23,7 +23,7 @@ const schema = {
       properties: {
         name: { type: "string" },
         path: { type: "string" },
-        selected: { type: "boolean" },
+        active: { type: "boolean" },
       },
       required: ["name", "path"],
     },
@@ -97,7 +97,7 @@ if (isProd) {
       const result = await handleProjects(store, action, project);
       return result;
     } catch (error) {
-      console.error("Error managing projects:", error);
+      console.error("Error on projects:", error);
       throw error;
     }
   });

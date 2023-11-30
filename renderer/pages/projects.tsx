@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import ProjectsComponent from "@components/projects/Project";
+import ProjectsComponent from "@components/projects/Projects";
 
 function Projects() {
   return (

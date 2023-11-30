@@ -7,6 +7,8 @@ import {
   GlobeIcon,
   ActivityLogIcon,
   MagnifyingGlassIcon,
+  GitHubLogoIcon,
+  CodeIcon,
 } from "@radix-ui/react-icons";
 
 import { cn } from "@lib/utils";
@@ -23,6 +25,11 @@ const sidebarNavItems = [
     title: "Canisters",
     href: "/canisters",
     icon: <CubeIcon />,
+  },
+  {
+    title: "Projects",
+    href: "/projects",
+    icon: <CodeIcon />,
   },
   {
     title: "Identities",

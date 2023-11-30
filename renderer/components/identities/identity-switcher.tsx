@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@components/ui/popover";
 
-import IdentityModal from "./identity-modal";
+import IdentityModal from "@components/identities/identity-modal";
 
 const initialGroups = [
   {
