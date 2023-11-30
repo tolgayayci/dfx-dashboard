@@ -28,6 +28,9 @@ import {
   PopoverTrigger,
 } from "@components/ui/popover";
 
+import { UpdateIcon } from "@radix-ui/react-icons";
+
+import { useRouter } from "next/router";
 import ProjectModal from "@components/projects/project-modal";
 
 type Project = {
@@ -46,6 +49,8 @@ export default function ProjectSwitcher({ className }: TeamSwitcherProps) {
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+
+  const router = useRouter();
 
   async function checkProjects() {
     try {
@@ -115,7 +120,7 @@ export default function ProjectSwitcher({ className }: TeamSwitcherProps) {
               role="combobox"
               aria-expanded={open}
               aria-label="Select a team"
-              className={cn("w-[200px] justify-between", className)}
+              className={cn("w-full justify-between", className)}
             >
               <Avatar className="mr-2 h-5 w-5">
                 <AvatarImage
@@ -181,6 +186,20 @@ export default function ProjectSwitcher({ className }: TeamSwitcherProps) {
                     Create New Project
                   </CommandItem>
                 </DialogTrigger>
+              </CommandGroup>
+            </CommandList>
+            <CommandSeparator />
+            <CommandList>
+              <CommandGroup>
+                <CommandItem
+                  onSelect={() => {
+                    setOpen(false);
+                    router.push("/projects");
+                  }}
+                >
+                  <UpdateIcon className="mr-2 h-5 w-5" />
+                  Edit Projects
+                </CommandItem>
               </CommandGroup>
             </CommandList>
           </Command>

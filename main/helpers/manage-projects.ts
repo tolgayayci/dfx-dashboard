@@ -27,7 +27,13 @@ export function handleProjects(store, action, project) {
       break;
 
     case "delete":
-      projects = projects.filter((p) => p.path !== project.path);
+      const projectIndexToRemove = projects.findIndex(
+        (p) => p.path === project.path
+      );
+      if (projectIndexToRemove === -1) {
+        throw new Error("Project not found");
+      }
+      projects.splice(projectIndexToRemove, 1);
       break;
 
     case "get":

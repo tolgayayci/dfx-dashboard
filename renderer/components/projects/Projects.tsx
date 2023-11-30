@@ -35,18 +35,6 @@ import { Input } from "@components/ui/input";
 import { Loader2 } from "lucide-react";
 import { FolderCheck } from "lucide-react";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@components/ui/alert-dialog";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -75,7 +63,10 @@ const ProjectCard = ({
   };
 }) => {
   const [showRenameProjectDialog, setShowRenameProjectDialog] = useState(false);
+  const [showRemoveProjectDialog, setShowRemoveProjectDialog] = useState(false);
   const [isSubmittingRenameProject, setIsSubmittingRenameProject] =
+    useState(false);
+  const [isSubmittingRemoveProject, setIsSubmittingRemoveProject] =
     useState(false);
 
   const renameProjectForm = useForm<z.infer<typeof renameProjectFormSchema>>({
@@ -88,6 +79,10 @@ const ProjectCard = ({
 
   const removeProjectForm = useForm<z.infer<typeof removeProjectFormSchema>>({
     resolver: zodResolver(removeProjectFormSchema),
+    defaultValues: {
+      project_name: project.name,
+      path: project.path,
+    },
   });
 
   // Modify your form submit handler to use setIsSubmitting
@@ -100,6 +95,18 @@ const ProjectCard = ({
       // handle error
     } finally {
       setIsSubmittingRenameProject(false);
+    }
+  };
+
+  const handleRemoveProjectFormSubmit = async (data) => {
+    setIsSubmittingRemoveProject(true);
+    try {
+      await onRemoveProjectFormSubmit(data);
+      // handle success
+    } catch (error) {
+      // handle error
+    } finally {
+      setIsSubmittingRemoveProject(false);
     }
   };
 
@@ -132,6 +139,12 @@ const ProjectCard = ({
         >
           Edit
         </Button>
+        <Button
+          className="w-full"
+          onClick={() => setShowRemoveProjectDialog(true)}
+        >
+          Remove
+        </Button>
         <Dialog open={showRenameProjectDialog}>
           <DialogContent>
             <Form {...renameProjectForm}>
@@ -141,9 +154,9 @@ const ProjectCard = ({
                 )}
               >
                 <DialogHeader className="space-y-3">
-                  <DialogTitle>Rename "{project.name}"</DialogTitle>
+                  <DialogTitle>Remove "{project.name}"</DialogTitle>
                   <DialogDescription>
-                    You can rename your project, this is just for this
+                    You can remove your project, this is just for this
                     application doesn't affect your project.
                   </DialogDescription>
                 </DialogHeader>
@@ -218,34 +231,91 @@ const ProjectCard = ({
             </Form>
           </DialogContent>
         </Dialog>
-        {/* <AlertDialog>
-          <Form {...removeProjectForm}>
-            <form
-              onSubmit={removeProjectForm.handleSubmit(
-                onRemoveProjectFormSubmit
-              )}
-            >
-              <AlertDialogTrigger>
-                <Button>Remove</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Are you absolutely sure to remove "{project.name}" ?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction type="submit">Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </form>
-          </Form>
-        </AlertDialog> */}
+        <Dialog open={showRemoveProjectDialog}>
+          <DialogContent>
+            <Form {...removeProjectForm}>
+              <form
+                onSubmit={removeProjectForm.handleSubmit(
+                  onRemoveProjectFormSubmit
+                )}
+              >
+                <DialogHeader className="space-y-3">
+                  <DialogTitle>Remove "{project.name}"</DialogTitle>
+                  <DialogDescription>
+                    You can remove your project on application, this doesn't
+                    remove your project folder on your system.
+                  </DialogDescription>
+                </DialogHeader>
+                <div>
+                  <div className="py-4 pb-6">
+                    <div className="space-y-3">
+                      <FormField
+                        control={removeProjectForm.control}
+                        name="project_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-small">
+                              Project Name
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                id="project_name"
+                                placeholder={project.name}
+                                disabled
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <FormField
+                        control={removeProjectForm.control}
+                        name="path"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-small">Path</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                id="path"
+                                placeholder={project.path}
+                                disabled
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => {
+                      setShowRemoveProjectDialog(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  {isSubmittingRemoveProject ? (
+                    <Button disabled>
+                      {" "}
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Removing...
+                    </Button>
+                  ) : (
+                    <Button type="submit">Remove</Button>
+                  )}
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

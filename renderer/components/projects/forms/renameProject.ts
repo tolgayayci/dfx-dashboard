@@ -30,14 +30,14 @@ export async function onRenameProjectFormSubmit(
       throw new Error("Project not found");
     }
 
-    // Prepare the updated project data
     const updatedProject = { ...existingProject, name: to_project_name };
 
-    // Call the IPC channel to update the project
-    await window.awesomeApi.manageProjects("update", updatedProject);
-    console.log("Project renamed successfully");
+    const result = await window.awesomeApi.manageProjects(
+      "update",
+      updatedProject
+    );
 
-    return data;
+    return result;
   } catch (error) {
     console.error(`Error renaming project: ${error}`);
     throw error; // Rethrow error to be handled by the caller
