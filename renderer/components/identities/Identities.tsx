@@ -33,18 +33,6 @@ import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@components/ui/alert-dialog";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -74,13 +62,25 @@ const IdentityCard = ({
 }) => {
   const [showRenameIdentityDialog, setShowRenameIdentityDialog] =
     useState(false);
+  const [showRemoveIdentityDialog, setShowRemoveIdentityDialog] =
+    useState(false);
+  const [isSubmittingRenameProject, setIsSubmittingRenameProject] =
+    useState(false);
+  const [isSubmittingRemoveProject, setIsSubmittingRemoveProject] =
+    useState(false);
 
   const removeIdentityForm = useForm<z.infer<typeof removeIdentityFormSchema>>({
     resolver: zodResolver(removeIdentityFormSchema),
+    defaultValues: {
+      identity_name: identity.name,
+    },
   });
 
   const renameIdentityForm = useForm<z.infer<typeof renameIdentityFormSchema>>({
     resolver: zodResolver(renameIdentityFormSchema),
+    defaultValues: {
+      from_identity_name: identity.name,
+    },
   });
 
   return (
@@ -115,6 +115,12 @@ const IdentityCard = ({
           disabled={identity.isInternetIdentity}
         >
           Edit
+        </Button>
+        <Button
+          className="w-full"
+          onClick={() => setShowRemoveIdentityDialog(true)}
+        >
+          Remove
         </Button>
         <Dialog open={showRenameIdentityDialog}>
           <DialogContent>
@@ -196,34 +202,9 @@ const IdentityCard = ({
             </Form>
           </DialogContent>
         </Dialog>
-        {/* <AlertDialog>
-          <Form {...removeIdentityForm}>
-            <form
-              onSubmit={removeIdentityForm.handleSubmit(
-                onRemoveIdentityFormSubmit
-              )}
-            >
-              <AlertDialogTrigger>
-                <Button>Remove</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Are you absolutely sure to remove "{identity.name}" ?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction type="submit">Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </form>
-          </Form>
-        </AlertDialog> */}
+        <Dialog open={showRemoveIdentityDialog}>
+          <DialogContent></DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

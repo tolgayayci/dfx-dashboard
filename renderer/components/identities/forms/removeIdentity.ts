@@ -23,16 +23,16 @@ export async function onRemoveIdentityFormSubmit(
       Boolean
     ); // This will remove any null values from the array
 
-    console.log("entered");
+    console.log(command, subcommand, args, flags);
 
-    const result = await window.awesomeApi.runDfxCommand(
-      command,
-      subcommand,
-      args,
-      flags
-    );
+    // const result = await window.awesomeApi.runDfxCommand(
+    //   command,
+    //   subcommand,
+    //   args,
+    //   flags
+    // );
 
-    console.log(result);
+    // console.log(result);
   } catch (error) {
     console.error(`Error: ${error}`); // log error
   }

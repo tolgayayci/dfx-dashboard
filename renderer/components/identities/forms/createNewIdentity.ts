@@ -28,24 +28,30 @@ export const newIdentityFormSchema = z.object({
 });
 
 export async function onNewIdentityFormSubmit(
-    data: z.infer<typeof newIdentityFormSchema>
+  data: z.infer<typeof newIdentityFormSchema>
 ) {
-    try {
-      const command = "identity"
-      const subcommand = "new"
-      const args = [data.identity_name]
-      const flags = [
-        data.hsm_key_id ? `hsm-key-id=${data.hsm_key_id}` : null,
-        data.hsm_pkcs11_lib_path ? `hsm-pkcs11-lib-path=${data.hsm_pkcs11_lib_path}` : null,
-        data.storage_mode ? `storage-mode=${data.storage_mode}` : null,
-        data.force === true ? 'force' : null,
-      ].filter(Boolean); // This will remove any null values from the array
+  try {
+    const command = "identity";
+    const subcommand = "new";
+    const args = [data.identity_name];
+    const flags = [
+      data.hsm_key_id ? `hsm-key-id=${data.hsm_key_id}` : null,
+      data.hsm_pkcs11_lib_path
+        ? `hsm-pkcs11-lib-path=${data.hsm_pkcs11_lib_path}`
+        : null,
+      data.storage_mode ? `storage-mode=${data.storage_mode}` : null,
+      data.force === true ? "force" : null,
+    ].filter(Boolean); // This will remove any null values from the array
 
-    const result = await window.awesomeApi.runDfxCommand(command, subcommand, args, flags)
+    const result = await window.awesomeApi.runDfxCommand(
+      command,
+      subcommand,
+      args,
+      flags
+    );
 
-    console.log(result)
-            
-    } catch (error) {
-      console.error(`Error: ${error}`); // log error
-    }
-} 
+    return result;
+  } catch (error) {
+    console.error(`Error: ${error}`); // log error
+  }
+}

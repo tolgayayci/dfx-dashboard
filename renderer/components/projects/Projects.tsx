@@ -53,6 +53,14 @@ import {
   onRemoveProjectFormSubmit,
 } from "@components/projects/forms/removeProject";
 
+import { useToast } from "@components/ui/use-toast";
+import {
+  projectRenameSuccess,
+  projectRenameError,
+  projectRemoveSuccess,
+  projectRemoveError,
+} from "@lib/notifications";
+
 const ProjectCard = ({
   project,
 }: {
@@ -68,6 +76,8 @@ const ProjectCard = ({
     useState(false);
   const [isSubmittingRemoveProject, setIsSubmittingRemoveProject] =
     useState(false);
+
+  const { toast } = useToast();
 
   const renameProjectForm = useForm<z.infer<typeof renameProjectFormSchema>>({
     resolver: zodResolver(renameProjectFormSchema),
@@ -89,10 +99,13 @@ const ProjectCard = ({
   const handleRenameProjectFormSubmit = async (data) => {
     setIsSubmittingRenameProject(true);
     try {
-      await onRenameProjectFormSubmit(data);
-      // handle success
+      await onRenameProjectFormSubmit(data).then(() => {
+        toast(projectRenameSuccess(data.to_project_name));
+        setShowRenameProjectDialog(false);
+      });
     } catch (error) {
       // handle error
+      toast(projectRenameError(data.to_project_name));
     } finally {
       setIsSubmittingRenameProject(false);
     }
@@ -101,10 +114,13 @@ const ProjectCard = ({
   const handleRemoveProjectFormSubmit = async (data) => {
     setIsSubmittingRemoveProject(true);
     try {
-      await onRemoveProjectFormSubmit(data);
-      // handle success
+      await onRemoveProjectFormSubmit(data).then(() => {
+        toast(projectRemoveSuccess(data.to_project_name));
+        setShowRemoveProjectDialog(false);
+      });
     } catch (error) {
       // handle error
+      toast(projectRemoveError(data.to_project_name));
     } finally {
       setIsSubmittingRemoveProject(false);
     }
@@ -236,7 +252,7 @@ const ProjectCard = ({
             <Form {...removeProjectForm}>
               <form
                 onSubmit={removeProjectForm.handleSubmit(
-                  onRemoveProjectFormSubmit
+                  handleRemoveProjectFormSubmit
                 )}
               >
                 <DialogHeader className="space-y-3">

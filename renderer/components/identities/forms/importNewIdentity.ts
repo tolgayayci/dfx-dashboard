@@ -24,23 +24,27 @@ export const importIdentityFormSchema = z.object({
 });
 
 export async function onimportIdentityFormSubmit(
-    data: z.infer<typeof importIdentityFormSchema>
+  data: z.infer<typeof importIdentityFormSchema>
 ) {
-    try {
-      const command = "identity"
-      const subcommand = "import"
-      const args = [data.identity_name]
-      const flags = [
-        data.pem_identity ? `pem-identity=${data.pem_identity}` : null,
-        data.storage_mode ? `storage-mode=${data.storage_mode}` : null,
-        data.force === true ? 'force' : null,
-      ].filter(Boolean); // This will remove any null values from the array
+  try {
+    const command = "identity";
+    const subcommand = "import";
+    const args = [data.identity_name];
+    const flags = [
+      data.pem_identity ? `pem-identity=${data.pem_identity}` : null,
+      data.storage_mode ? `storage-mode=${data.storage_mode}` : null,
+      data.force === true ? "force" : null,
+    ].filter(Boolean); // This will remove any null values from the array
 
-      const result = await window.awesomeApi.runDfxCommand(command, subcommand, args, flags)
+    const result = await window.awesomeApi.runDfxCommand(
+      command,
+      subcommand,
+      args,
+      flags
+    );
 
-      console.log(result)
-
-    } catch (error) {
-      console.error(`Error: ${error}`); // log error
-    }
+    return result;
+  } catch (error) {
+    console.error(`Error: ${error}`); // log error
+  }
 }

@@ -42,6 +42,14 @@ import {
   onAddExistingProjectForm,
 } from "@components/projects/forms/addExistingProject";
 
+import { useToast } from "@components/ui/use-toast";
+import {
+  projectCreateSuccess,
+  projectCreateError,
+  projectImportSuccess,
+  projectImportError,
+} from "@lib/notifications";
+
 export default function ProjectModal({
   showNewProjectDialog,
   setShowNewProjectDialog,
@@ -50,14 +58,20 @@ export default function ProjectModal({
   const [isSubmittingExistingProject, setIsSubmittingExistingProject] =
     useState(false);
 
+  const { toast } = useToast();
+
   // Modify your form submit handler to use setIsSubmitting
   const handleNewProjectFormSubmit = async (data) => {
     setIsSubmittingNewProject(true);
     try {
-      await onCreateNewProjectForm(data);
+      await onCreateNewProjectForm(data).then(() => {
+        toast(projectCreateSuccess(data.to_project_name));
+        setShowNewProjectDialog(false);
+      });
       // handle success
     } catch (error) {
       // handle error
+      toast(projectCreateError(data.to_project_name));
     } finally {
       setIsSubmittingNewProject(false);
     }
@@ -66,10 +80,14 @@ export default function ProjectModal({
   const handleExistingProjectFormSubmit = async (data) => {
     setIsSubmittingExistingProject(true);
     try {
-      await onAddExistingProjectForm(data);
+      await onAddExistingProjectForm(data).then(() => {
+        toast(projectImportSuccess(data.to_project_name));
+        setShowNewProjectDialog(false);
+      });
       // handle success
     } catch (error) {
       // handle error
+      toast(projectImportError(data.to_project_name));
     } finally {
       setIsSubmittingExistingProject(false);
     }

@@ -1,11 +1,13 @@
 "use client";
+
+import { useState } from "react";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { Checkbox } from "@components/ui/checkbox";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-
-import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
+import { Loader2 } from "lucide-react";
 
 import {
   Accordion,
@@ -57,16 +59,72 @@ import {
 
 import { loginWithII } from "@components/identities/auth";
 
+import { useToast } from "@components/ui/use-toast";
+import {
+  identityCreateSuccess,
+  identityCreateError,
+  identityImportSuccess,
+  identityImportError,
+  identityInternetIdentityLoginSuccess,
+  identityInternetIdentityLoginError,
+} from "@lib/notifications";
+
 export default function IdentityModal({
   showCreateIdentityDialog,
   setShowCreateIdentityDialog,
 }) {
+  const [isSubmittingCreateIdentity, setIsSubmittingCreateIdentity] =
+    useState(false);
+  const [isSubmittingImportIdentity, setIsSubmittingImportIdentity] =
+    useState(false);
+  const [isSubmittingLoginWithII, setIsSubmittingLoginWithII] = useState(false);
+
+  const { toast } = useToast();
+
   const handleLogin = async () => {
     try {
-      await loginWithII();
-      // console.log(identity);
+      await loginWithII().then((res) => {
+        if (res) {
+          toast(
+            identityInternetIdentityLoginSuccess(
+              res.identity as unknown as string
+            )
+          );
+          setShowCreateIdentityDialog(false);
+        }
+      });
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      toast(identityInternetIdentityLoginError("unknown"));
+    }
+  };
+
+  const handleCreateNewIdentity = async (data) => {
+    try {
+      await onNewIdentityFormSubmit(data).then((res) => {
+        if (res) {
+          toast(identityCreateSuccess(res));
+          setShowCreateIdentityDialog(false);
+        }
+      });
+    } catch (error) {
+      toast(identityCreateError(error));
+    } finally {
+      setShowCreateIdentityDialog(false);
+    }
+  };
+
+  const handleImportIdentity = async (data) => {
+    try {
+      await onimportIdentityFormSubmit(data).then((res) => {
+        if (res) {
+          toast(identityImportSuccess(res));
+          setShowCreateIdentityDialog(false);
+        }
+      });
+    } catch (error) {
+      toast(identityImportError(error));
+    } finally {
+      setShowCreateIdentityDialog(false);
     }
   };
 
@@ -92,7 +150,7 @@ export default function IdentityModal({
           <TabsContent value="new-identity">
             <Form {...newIdentityForm}>
               <form
-                onSubmit={newIdentityForm.handleSubmit(onNewIdentityFormSubmit)}
+                onSubmit={newIdentityForm.handleSubmit(handleCreateNewIdentity)}
               >
                 <DialogHeader className="space-y-3">
                   <DialogTitle>Create New Identity</DialogTitle>
@@ -259,7 +317,6 @@ export default function IdentityModal({
                   </div>
                   <ScrollBar />
                 </ScrollArea>
-
                 <DialogFooter>
                   <Button
                     variant="outline"
@@ -268,7 +325,15 @@ export default function IdentityModal({
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">Create</Button>
+                  {isSubmittingCreateIdentity ? (
+                    <Button disabled>
+                      {" "}
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </Button>
+                  ) : (
+                    <Button type="submit">Create</Button>
+                  )}
                 </DialogFooter>
               </form>
             </Form>
@@ -276,9 +341,7 @@ export default function IdentityModal({
           <TabsContent value="import">
             <Form {...importIdentityForm}>
               <form
-                onSubmit={importIdentityForm.handleSubmit(
-                  onimportIdentityFormSubmit
-                )}
+                onSubmit={importIdentityForm.handleSubmit(handleImportIdentity)}
               >
                 <DialogHeader className="space-y-3">
                   <DialogTitle>Import Identity</DialogTitle>
@@ -417,55 +480,46 @@ export default function IdentityModal({
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">Import</Button>
+                  {isSubmittingImportIdentity ? (
+                    <Button disabled>
+                      {" "}
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Importing...
+                    </Button>
+                  ) : (
+                    <Button type="submit">Import</Button>
+                  )}
                 </DialogFooter>
               </form>
             </Form>
           </TabsContent>
           <TabsContent value="internet-identity">
-            <Form {...importIdentityForm}>
-              <form
-                onSubmit={importIdentityForm.handleSubmit(
-                  onimportIdentityFormSubmit
-                )}
+            <DialogHeader className="space-y-3 mb-5">
+              <DialogTitle>Login with Internet Identity</DialogTitle>
+              <DialogDescription>
+                You can use Internet Identity to login to the Internet Computer.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setShowCreateIdentityDialog(false)}
               >
-                <DialogHeader className="space-y-3 mb-5">
-                  <DialogTitle>Login with Internet Identity</DialogTitle>
-                  <DialogDescription>
-                    You can use Internet Identity to login to the Internet
-                    Computer.
-                  </DialogDescription>
-                  {/* {authClient &&
-                  authClient.getIdentity() &&
-                  authClient.isAuthenticated() &&
-                  !isError.error ? (
-                    <Alert className="mt-4">
-                      <AlertTitle className="mb-1 text-[13px] font-bold">
-                        You are currently logged in as:
-                      </AlertTitle>
-                      <AlertDescription>
-                        {authClient.getIdentity().getPrincipal().toText()}
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <Alert className="mt-4" variant="destructive">
-                      <AlertTitle>There is an error!</AlertTitle>
-                      <AlertDescription>{isError.message}</AlertDescription>
-                    </Alert>
-                  )} */}
-                </DialogHeader>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => setShowCreateIdentityDialog(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button onClick={handleLogin}>Login</Button>
-                </DialogFooter>
-              </form>
-            </Form>
+                Cancel
+              </Button>
+              {isSubmittingLoginWithII ? (
+                <Button disabled>
+                  {" "}
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing...
+                </Button>
+              ) : (
+                <Button type="button" onClick={handleLogin}>
+                  Login
+                </Button>
+              )}
+            </DialogFooter>
           </TabsContent>
         </Tabs>
       </DialogContent>

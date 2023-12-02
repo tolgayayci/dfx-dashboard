@@ -1,8 +1,10 @@
 import Image from "next/image";
+
 import { Sidebar } from "@components/sidebar-nav";
 import { ThemeProvider } from "@components/theme-provider";
 import { ModeToggle } from "@components/toggle-mode";
 import IdentitySwitcher from "@components/identities/identity-switcher";
+import { Toaster } from "@components/ui/toaster";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -33,9 +35,10 @@ export default function Layout({ children }: LayoutProps) {
 
           <div className="grid grid-cols-[1fr_4fr] w-full h-full">
             <Sidebar />
-            <div className="p-8">{children}</div>
+            <main className="p-8">{children}</main>
           </div>
         </div>
+        <Toaster />
       </ThemeProvider>
     </>
   );
