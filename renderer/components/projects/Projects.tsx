@@ -339,7 +339,6 @@ const ProjectCard = ({
 
 export default function ProjectsComponent() {
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
-  const [showRenameProjectDialog, setShowRenameProjectDialog] = useState(false);
   const [projects, setProjects] = useState<any>();
   const [searchQuery, setSearchQuery] = useState("");
 

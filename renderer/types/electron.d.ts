@@ -15,7 +15,9 @@ interface Versions {
   manageProjects: (action, path?) => Promise<any>;
   manageIdentities: (action, identity) => Promise<any>;
   isDfxProject: (directoryPath) => Promise<boolean>;
-  loginInternetIdentity: () => Promise<any>;
+  listCanisters: (directoryPath) => Promise<any>;
+  jsonRead: (filePath, directoryPath) => Promise<any>;
+  jsonUpdate: (filePath, directoryPath, data) => Promise<any>;
 }
 
 interface Window {

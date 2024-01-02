@@ -22,11 +22,6 @@ const sidebarNavItems = [
     icon: <HomeIcon />,
   },
   {
-    title: "Canisters",
-    href: "/canisters",
-    icon: <CubeIcon />,
-  },
-  {
     title: "Projects",
     href: "/projects",
     icon: <CodeIcon />,
@@ -37,19 +32,24 @@ const sidebarNavItems = [
     icon: <PersonIcon />,
   },
   {
+    title: "Settings",
+    href: "/settings",
+    icon: <MagnifyingGlassIcon />,
+  },
+  {
+    title: "Canisters",
+    href: "/canisters",
+    icon: <CubeIcon />,
+  },
+  {
     title: "Network",
     href: "/network",
     icon: <GlobeIcon />,
   },
   {
-    title: "Logs",
-    href: "/logs",
+    title: "Dfx ",
+    href: "/dfx",
     icon: <ActivityLogIcon />,
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: <MagnifyingGlassIcon />,
   },
 ];
 

@@ -16,8 +16,6 @@ export default function NetworkComponent() {
       );
 
       setNetworkJson(JSON.parse(result));
-
-      // Update the "Identities" group with the identities directly
     } catch (error) {
       console.error("Error invoking remote method:", error);
     }

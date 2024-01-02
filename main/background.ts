@@ -122,6 +122,70 @@ if (isProd) {
     }
   });
 
+  ipcMain.handle("is-dfx-installed", async (event) => {
+    try {
+      const result = await executeDfxCommand("--version");
+      return result;
+    } catch (error) {
+      console.error(`Error while checking for Dfinity installation: ${error}`);
+      return false;
+    }
+  });
+
+  ipcMain.handle("canister:list", async (event, directoryPath) => {
+    try {
+      return new Promise((resolve, reject) => {
+        fs.readFile(`${directoryPath}/dfx.json`, "utf8", (err, data) => {
+          if (err) {
+            console.error("Error reading file:", err);
+            reject(err);
+            return;
+          }
+
+          try {
+            resolve(JSON.parse(data));
+          } catch (err) {
+            console.error("Error parsing JSON:", err);
+            reject(err);
+          }
+        });
+      });
+    } catch (error) {
+      console.error(`Error while listing canisters: ${error}`);
+      return false;
+    }
+  });
+
+  // IPC handler for reading the JSON file
+  ipcMain.handle("json:read", async (event, filePath, directoryPath) => {
+    try {
+      const data = fs.readFileSync(path.join(filePath, directoryPath), "utf8");
+      return JSON.parse(data);
+    } catch (error) {
+      console.error("Failed to read file", error);
+      return null; // or handle error as needed
+    }
+  });
+
+  // IPC handler for updating the JSON file
+  ipcMain.handle(
+    "json:update",
+    async (event, filePath, directoryPath, jsonContent) => {
+      try {
+        console.log("json:update", filePath, directoryPath, jsonContent);
+        fs.writeFileSync(
+          path.join(filePath, directoryPath),
+          JSON.stringify(jsonContent, null, 2),
+          "utf8"
+        );
+        return true; // success
+      } catch (error) {
+        console.error("Failed to write file", error);
+        return false; // or handle error as needed
+      }
+    }
+  );
+
   // New Function: Retrieve and Store Identities
   async function retrieveAndStoreIdentities() {
     try {
