@@ -170,10 +170,11 @@ const ProjectCard = ({
                 )}
               >
                 <DialogHeader className="space-y-3">
-                  <DialogTitle>Remove "{project.name}"</DialogTitle>
+                  <DialogTitle>Edit "{project.name}"</DialogTitle>
                   <DialogDescription>
-                    You can remove your project, this is just for this
-                    application doesn't affect your project.
+                    You can edit your project name, this is just for this
+                    application and doesn't change folder name on your file
+                    system.
                   </DialogDescription>
                 </DialogHeader>
                 <div>

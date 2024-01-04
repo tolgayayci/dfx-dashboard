@@ -89,14 +89,6 @@ export default function CanistersComponent() {
               >
                 Stop All
               </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  runCanisterCommand("deploy");
-                }}
-              >
-                Deploy All
-              </Button>
             </div>
           </div>
           <div className="mt-6">

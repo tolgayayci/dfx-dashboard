@@ -17,7 +17,7 @@ interface Versions {
   isDfxProject: (directoryPath) => Promise<boolean>;
   listCanisters: (directoryPath) => Promise<any>;
   jsonRead: (filePath, directoryPath) => Promise<any>;
-  jsonUpdate: (filePath, directoryPath, data) => Promise<any>;
+  jsonWrite: (filePath, directoryPath, data) => Promise<any>;
 }
 
 interface Window {

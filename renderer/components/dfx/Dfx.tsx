@@ -29,7 +29,7 @@ export default function DfxComponent() {
     const projects = await window.awesomeApi.manageProjects("get");
     let activeProject = projects.find((p) => p.active);
     if (activeProject.path) {
-      const success = await window.awesomeApi.jsonUpdate(
+      const success = await window.awesomeApi.jsonWrite(
         activeProject.path,
         "/dfx.json",
         newData
@@ -62,9 +62,9 @@ export default function DfxComponent() {
             id="dfx_json"
             placeholder={dfxJson}
             locale={locale}
-            height="550px"
+            height="525px"
             width="100%"
-            onChange={handleJsonChange} // Add this to handle changes
+            onChange={handleJsonChange}
           />
         </div>
       ) : (

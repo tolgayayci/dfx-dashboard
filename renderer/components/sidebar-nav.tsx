@@ -32,6 +32,11 @@ const sidebarNavItems = [
     icon: <PersonIcon />,
   },
   {
+    title: "Network",
+    href: "/network",
+    icon: <GlobeIcon />,
+  },
+  {
     title: "Settings",
     href: "/settings",
     icon: <MagnifyingGlassIcon />,
@@ -40,11 +45,6 @@ const sidebarNavItems = [
     title: "Canisters",
     href: "/canisters",
     icon: <CubeIcon />,
-  },
-  {
-    title: "Network",
-    href: "/network",
-    icon: <GlobeIcon />,
   },
   {
     title: "Dfx ",
