@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 import JSONInput from "react-json-editor-ajrm";
 import locale from "react-json-editor-ajrm/locale/en";
 
+import useProject from "renderer/hooks/useProject";
+
 export default function NetworkComponent() {
   const [networkJson, setNetworkJson] = useState(null);
+  const { project } = useProject();
 
   function splitPath(path) {
     // Find the index of the last occurrence of '/'
@@ -46,14 +49,16 @@ export default function NetworkComponent() {
           setNetworkJson(data);
         } else {
           console.log("File not found, will creating new file");
-          // const schema = await window.awesomeApi.runDfxCommand(
-          //   "schema",
-          //   "",
-          //   ["--for"],
-          //   ["networks"]
-          // );
 
-          await updateJson(parts[0], {});
+          await updateJson(parts[0], {
+            local: {
+              bind: "127.0.0.1:4943",
+              type: "ephemeral",
+              replica: {
+                subnet_type: "application",
+              },
+            },
+          });
         }
       }
     } catch (error) {
@@ -79,11 +84,17 @@ export default function NetworkComponent() {
 
   // Call updateJson when the JSONInput changes
   const handleJsonChange = async (newData) => {
-    const projects = await window.awesomeApi.manageProjects("get");
-    let activeProject = projects.find((p) => p.active);
+    const result = await window.awesomeApi.runDfxCommand(
+      "info",
+      "networks-json-path",
+      [],
+      []
+    );
 
-    if (newData.jsObject && activeProject.path) {
-      updateJson(activeProject.path, newData.jsObject);
+    var parts = splitPath(result);
+
+    if (newData.jsObject && parts[0]) {
+      updateJson(parts[0], newData.jsObject);
     }
   };
 

@@ -2,7 +2,7 @@ export const commands = [
   {
     label: "call",
     value: "call",
-    args: [{ name: "methodName", placeholder: "Enter method name" }],
+    args: [{ name: "Method Name", placeholder: "Enter method name" }],
     options: [
       {
         name: "--async",
@@ -17,7 +17,7 @@ export const commands = [
       },
       {
         name: "--verbose",
-        type: "incremental",
+        type: "flag",
         description: "Displays detailed information",
       },
       {
@@ -27,7 +27,7 @@ export const commands = [
       },
       {
         name: "--quiet",
-        type: "incremental",
+        type: "flag",
         description: "Suppresses informational messages",
       },
       {
@@ -405,13 +405,7 @@ export const commands = [
   {
     label: "id",
     value: "id",
-    args: [
-      {
-        name: "CANISTER",
-        placeholder: "Enter canister name",
-        optional: false,
-      },
-    ],
+    args: [],
     options: [
       {
         name: "--network",

@@ -1,27 +1,39 @@
 import { useEffect, useState } from "react";
-import useProject from "renderer/hooks/useProject";
+import useProjects from "renderer/hooks/useProjects";
 
 import { Button } from "@components/ui/button";
-import { Canister, createColumns } from "./columns";
+import { createColumns } from "./columns";
 import { DataTable } from "./data-table";
-import CanisterModal from "./canister-modal";
 
-// Project Specific Page
 export default function CanistersComponent() {
-  const [showCanisterModal, setShowCanisterModal] = useState(false);
-  const [selectedCanister, setSelectedCanister] = useState({});
-  const [canisters, setCanisters] = useState();
+  const [allCanisters, setAllCanisters] = useState([]);
 
-  const { project } = useProject();
+  const projects = useProjects(); // Retrieve all projects
 
-  async function checkCanisters() {
+  async function checkCanisters(projectPath) {
     try {
-      if (!project) return;
+      const result = await window.awesomeApi.listCanisters(projectPath);
 
-      const result = await window.awesomeApi.listCanisters(project?.path);
+      // Convert canisters object into an array of rows and add project info
+      const canistersArray = Object.keys(result.canisters).map((key) => ({
+        name: key,
+        ...result.canisters[key],
+        projectName: projects.find((p) => p.path === projectPath)?.name,
+        projectPath: projectPath,
+      }));
 
-      console.log(result.canisters);
-      setCanisters(result.canisters);
+      // Update all canisters with the new canisters, avoiding duplicates
+      setAllCanisters((prevCanisters) => {
+        const newCanisters = canistersArray.filter(
+          (newCanister) =>
+            !prevCanisters.some(
+              (prevCanister) =>
+                prevCanister.name === newCanister.name &&
+                prevCanister.projectName === newCanister.projectName
+            )
+        );
+        return [...prevCanisters, ...newCanisters];
+      });
     } catch (error) {
       console.error("Error invoking remote method:", error);
     }
@@ -29,91 +41,53 @@ export default function CanistersComponent() {
 
   async function runCanisterCommand(action: string) {
     try {
-      const identities = await window.awesomeApi.runDfxCommand(
-        "canister",
-        action,
-        ["--all"],
-        [],
-        project?.path
-      );
-
-      console.log(identities);
+      // Execute the command for each project
+      projects.forEach(async (project) => {
+        await window.awesomeApi.runDfxCommand(
+          "canister",
+          action,
+          ["--all"],
+          [],
+          project.path
+        );
+      });
+      // Optionally, refresh the canisters list here
     } catch (error) {
       console.error("Error invoking remote method:", error);
     }
   }
 
-  const handleOpenModal = (canisterData) => {
-    setSelectedCanister(canisterData);
-    setShowCanisterModal(true);
-  };
-
-  const columns = createColumns(handleOpenModal);
-
-  // Function to convert the canisters object into an array of rows
-  function generateCanisterRows(
-    canisters: Record<string, Canister>
-  ): Canister[] {
-    return Object.keys(canisters).map((key) => ({
-      name: key,
-      ...canisters[key],
-    }));
-  }
-
   useEffect(() => {
-    if (project) {
-      checkCanisters();
-    }
-  }, [project]);
+    setAllCanisters([]); // Reset the canisters list when projects change
+    projects.forEach((project) => {
+      checkCanisters(project.path);
+    });
+  }, [projects]);
+
+  const columns = createColumns();
 
   return (
     <div>
-      {project?.name ? (
-        <div>
-          <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight">Canisters</h2>
-            <div className="flex items-center space-x-2">
-              <Button
-                type="button"
-                onClick={() => {
-                  runCanisterCommand("start");
-                }}
-              >
-                Start All
-              </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  runCanisterCommand("stop");
-                }}
-              >
-                Stop All
-              </Button>
-            </div>
-          </div>
-          <div className="mt-6">
-            {canisters ? (
-              <>
-                <DataTable
-                  columns={columns}
-                  data={generateCanisterRows(canisters)}
-                />
-                <CanisterModal
-                  showCanisterDialog={showCanisterModal}
-                  setShowCanisterDialog={setShowCanisterModal}
-                  canisterData={selectedCanister}
-                />
-              </>
-            ) : null}
-          </div>
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-2xl font-bold tracking-tight">All Canisters</h2>
+        <div className="flex items-center space-x-2">
+          <Button type="button" onClick={() => runCanisterCommand("start")}>
+            Start All
+          </Button>
+          <Button type="button" onClick={() => runCanisterCommand("stop")}>
+            Stop All
+          </Button>
         </div>
-      ) : (
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            No project selected
-          </h2>
-        </div>
-      )}
+      </div>
+      <div className="mt-6">
+        {allCanisters.length ? (
+          <>
+            <DataTable columns={columns} data={allCanisters} />
+          </>
+        ) : (
+          <p>Loading canisters...</p>
+        )}
+      </div>
     </div>
   );
 }

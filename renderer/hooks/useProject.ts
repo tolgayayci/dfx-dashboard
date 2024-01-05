@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-export default function useProject() {
+export default function useProject(projectPath = null) {
+  // Accept a projectName parameter
   const [project, setProject] = useState(null);
 
   async function checkProjects() {
@@ -9,18 +10,26 @@ export default function useProject() {
       const projectsData = result.map((project) => ({
         name: project.name,
         path: project.path,
-        active: project.active, // Assuming 'active' property is part of your project data
+        active: project.active,
       }));
 
-      // Find an active project
-      const activeProject = projectsData.find((project) => project.active);
+      let selectedProject;
 
-      // Set the selected project to the active one if it exists, otherwise set to the first project
-      if (activeProject) {
-        setProject(activeProject);
-      } else if (projectsData.length > 0) {
-        return;
+      // If a projectName is provided, try to find that specific project
+      if (projectPath) {
+        selectedProject = projectsData.find(
+          (project) => project.path === projectPath
+        );
       }
+
+      // If no projectName was provided or the specified project wasn't found, use the active project
+      if (!selectedProject) {
+        const activeProject = projectsData.find((project) => project.active);
+        selectedProject = activeProject;
+      }
+
+      // Set the selected project if it exists, otherwise null
+      setProject(selectedProject || null);
     } catch (error) {
       console.error("Error invoking remote method:", error);
     }
@@ -28,7 +37,7 @@ export default function useProject() {
 
   useEffect(() => {
     checkProjects();
-  }, []);
+  }, [projectPath]); // Re-run when projectName changes
 
   return {
     project,

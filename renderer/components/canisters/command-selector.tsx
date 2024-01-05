@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import {
   Select,
   SelectContent,
@@ -23,18 +24,67 @@ import {
 } from "@components/ui/accordion";
 
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
+import { SelectSeparator } from "@components/ui/select";
 
 import useProject from "renderer/hooks/useProject";
 
 const CliCommandSelector = ({ canister }) => {
-  const [selectedCommand, setSelectedCommand] = useState("");
+  const defaultCommand = commands.length > 0 ? commands[0].value : "";
+
+  const [selectedCommand, setSelectedCommand] = useState(defaultCommand);
   const [commandArgs, setCommandArgs] = useState({});
   const [commandOptions, setCommandOptions] = useState({});
   const [isRunningCommand, setIsRunningCommand] = useState(false);
   const [commandOutput, setCommandOutput] = useState("");
   const [commandError, setCommandError] = useState("");
+  const [latestCommand, setLatestCommand] = useState(""); // State to hold the latest command
 
   const { project } = useProject();
+
+  const updateLatestCommand = () => {
+    const selectedCommandDetails = commands.find(
+      (c) => c.value === selectedCommand
+    );
+    if (!selectedCommandDetails) {
+      setLatestCommand("");
+      return;
+    }
+
+    // Only values of the arguments separated by spaces
+    const argsString = Object.values(commandArgs)
+      .filter((value) => value)
+      .join(" ");
+
+    const optionsString = Object.entries(commandOptions)
+      .filter(([key, value]) => {
+        const optionDetails = selectedCommandDetails.options.find(
+          (o) => o.name === key
+        );
+        return (
+          optionDetails &&
+          ((optionDetails.type === "flag" && value) ||
+            (optionDetails.type === "argument" && value))
+        );
+      })
+      .map(([key, value]) => {
+        const optionDetails = selectedCommandDetails.options.find(
+          (o) => o.name === key
+        );
+        return (
+          optionDetails &&
+          (optionDetails.type === "flag" ? `${key}` : `${key} ${value}`)
+        );
+      })
+      .join(" ");
+
+    setLatestCommand(
+      `dfx canister ${selectedCommandDetails.value} ${argsString} ${optionsString}`
+    );
+  };
+
+  useEffect(() => {
+    updateLatestCommand();
+  }, [selectedCommand, commandArgs, commandOptions]);
 
   const handleCommandChange = (commandValue) => {
     setSelectedCommand(commandValue);
@@ -80,12 +130,18 @@ const CliCommandSelector = ({ canister }) => {
 
   const runCli = async (command, args) => {
     try {
-      // Construct the options array, including -- for options
-      const optionsArray = Object.entries(commandOptions).reduce(
-        (acc, [option, value]) => {
-          if (value) {
-            // Only add the option if it has a value
-            acc.push(`${option}=${value}`);
+      const selectedCommandDetails = commands.find((c) => c.value === command);
+
+      // Construct the options array, including -- for options and flags
+      const optionsArray = selectedCommandDetails.options.reduce(
+        (acc, option) => {
+          const value = commandOptions[option.name];
+          if (option.type === "flag" && value) {
+            // If it's a flag and it's set, add the key
+            acc.push(`${option.name}`);
+          } else if (option.type === "argument" && value) {
+            // If it's an argument and it has a value, add both key and value
+            acc.push(`${option.name}`, value);
           }
           return acc;
         },
@@ -116,7 +172,10 @@ const CliCommandSelector = ({ canister }) => {
 
   return (
     <div className="flex flex-col">
-      <ScrollArea className="max-h-[450px] overflow-y-auto">
+      <div className="bg-gray-200 p-4 rounded-md mb-4">
+        <code>{latestCommand}</code>
+      </div>
+      <ScrollArea className="max-h-[800px] overflow-y-auto">
         <div className="flex flex-col space-y-4">
           <Select
             value={selectedCommand}
@@ -137,6 +196,39 @@ const CliCommandSelector = ({ canister }) => {
           </Select>
           <Accordion type="multiple" className="w-full space-y-2">
             {selectedCommand &&
+              commands.find((c) => c.value === selectedCommand)?.args?.length >
+                0 && (
+                <AccordionItem value="args" className="border px-3 rounded-lg">
+                  <AccordionTrigger className="text-sm">
+                    Arguments
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <SelectSeparator />
+                    {selectedCommand &&
+                      commands
+                        .find((c) => c.value === selectedCommand)
+                        ?.args?.map((arg) => (
+                          <div key={arg.name} className="space-y-2 my-4">
+                            <Label htmlFor={arg.name}>{arg.name}</Label>
+                            <Input
+                              type="text"
+                              id={arg.name}
+                              value={commandArgs[arg.name] || ""}
+                              placeholder={arg.placeholder || arg.name}
+                              onChange={(e) => {
+                                setCommandArgs({
+                                  ...commandArgs,
+                                  [arg.name]: e.target.value,
+                                });
+                              }}
+                            />
+                          </div>
+                        ))}
+                    <SelectSeparator className="-mt-4" />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            {selectedCommand &&
               commands.find((c) => c.value === selectedCommand)?.options
                 ?.length > 0 && (
                 <AccordionItem
@@ -147,7 +239,8 @@ const CliCommandSelector = ({ canister }) => {
                     Options & Flags
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="flex flex-wrap -mx-2">
+                    <SelectSeparator />
+                    <div className="flex flex-wrap -mx-2 my-3">
                       {selectedCommand &&
                         commands
                           .find((c) => c.value === selectedCommand)
@@ -155,7 +248,7 @@ const CliCommandSelector = ({ canister }) => {
                           .map((option, index) => (
                             <div
                               key={option.name}
-                              className={`w-1/3 px-2 mb-2 space-x-2 items-center flex ${
+                              className={`w-1/3 px-2 mb-4 space-x-2 items-center flex ${
                                 index % 3 === 0 ? "clear-left" : ""
                               }`} // Adjust width as per your design
                             >
@@ -178,6 +271,8 @@ const CliCommandSelector = ({ canister }) => {
                           ))}
                     </div>
 
+                    <SelectSeparator className="-mt-4" />
+
                     {selectedCommand &&
                       commands
                         .find((c) => c.value === selectedCommand)
@@ -185,10 +280,8 @@ const CliCommandSelector = ({ canister }) => {
                           (option) => option.type === "argument"
                         )
                         .map((option) => (
-                          <div key={option.name} className="space-y-2 my-2">
-                            <Label htmlFor={option.name}>
-                              {option.description}
-                            </Label>
+                          <div key={option.name} className="space-y-2 my-4">
+                            <Label htmlFor={option.name}>{option.name}</Label>
                             <Input
                               type="text"
                               id={option.name}
