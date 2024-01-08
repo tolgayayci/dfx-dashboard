@@ -1,5 +1,6 @@
 // Import necessary components and hooks
 import * as React from "react";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import { SideNav } from "@components/sidebar-nav";
 import { ThemeProvider } from "@components/theme-provider";
@@ -29,6 +30,8 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const router = useRouter();
+
   // Set initial layout and collapsed state
   const defaultLayout = [15, 85];
   const [isCollapsed, setIsCollapsed] = React.useState(false);
@@ -94,42 +97,54 @@ export default function Layout({ children }: LayoutProps) {
                         label: "",
                         href: "/home",
                         icon: HomeIcon,
-                        variant: "ghost",
+                        variant: router.pathname.startsWith("/home")
+                          ? "default"
+                          : "ghost",
                       },
                       {
                         title: "Projects",
                         label: "",
                         href: "/projects",
                         icon: DatabaseIcon,
-                        variant: "ghost",
+                        variant: router.pathname.startsWith("/projects")
+                          ? "default"
+                          : "ghost",
                       },
                       {
                         title: "Canisters",
                         label: "",
                         href: "/canisters",
                         icon: HomeIcon,
-                        variant: "ghost",
-                      },
-                      {
-                        title: "Network",
-                        label: "",
-                        href: "/network",
-                        icon: NetworkIcon,
-                        variant: "ghost",
+                        variant: router.pathname.startsWith("/canisters")
+                          ? "default"
+                          : "ghost",
                       },
                       {
                         title: "Identities",
                         label: "",
                         href: "/identities",
                         icon: CircuitBoardIcon,
-                        variant: "ghost",
+                        variant: router.pathname.startsWith("/identities")
+                          ? "default"
+                          : "ghost",
+                      },
+                      {
+                        title: "Network",
+                        label: "",
+                        href: "/network",
+                        icon: NetworkIcon,
+                        variant: router.pathname.startsWith("/network")
+                          ? "default"
+                          : "ghost",
                       },
                       {
                         title: "Settings",
                         label: "",
                         href: "/settings",
                         icon: SettingsIcon,
-                        variant: "ghost",
+                        variant: router.pathname.startsWith("/settings")
+                          ? "default"
+                          : "ghost",
                       },
                     ]}
                   />

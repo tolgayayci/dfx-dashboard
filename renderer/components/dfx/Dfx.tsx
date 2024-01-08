@@ -1,44 +1,39 @@
-// Project Specific Page
 import { useEffect, useState } from "react";
 import JSONInput from "react-json-editor-ajrm";
 import locale from "react-json-editor-ajrm/locale/en";
 
-export default function DfxComponent() {
+export default function DfxComponent({ projectPath }) {
   const [dfxJson, setDfxJson] = useState(null);
 
   /// Function to read the JSON file
   const readJson = async () => {
-    const projects = await window.awesomeApi.manageProjects("get");
-    let activeProject = projects.find((p) => p.active);
-
-    if (activeProject.path) {
-      const data = await window.awesomeApi.jsonRead(
-        activeProject.path,
-        "/dfx.json"
-      );
+    if (projectPath) {
+      const data = await window.awesomeApi.jsonRead(projectPath, "/dfx.json");
       if (data) {
         setDfxJson(data);
+      } else {
+        console.error("Failed to read dfx.json from the provided path");
       }
     } else {
-      console.error("Failed to read dfx.json");
+      console.error("No project path provided");
     }
   };
 
   // Function to update the JSON file
   const updateJson = async (newData) => {
-    const projects = await window.awesomeApi.manageProjects("get");
-    let activeProject = projects.find((p) => p.active);
-    if (activeProject.path) {
+    if (projectPath) {
       const success = await window.awesomeApi.jsonWrite(
-        activeProject.path,
+        projectPath,
         "/dfx.json",
         newData
       );
       if (success) {
         console.log("File updated successfully");
+      } else {
+        console.error("Failed to update dfx.json at the provided path");
       }
     } else {
-      console.error("Failed to update file");
+      console.error("No project path provided");
     }
   };
 
@@ -52,7 +47,7 @@ export default function DfxComponent() {
 
   useEffect(() => {
     readJson();
-  }, []);
+  }, [projectPath]); // Re-run when projectPath changes
 
   return (
     <div>
@@ -68,7 +63,7 @@ export default function DfxComponent() {
           />
         </div>
       ) : (
-        <div>Loading...</div>
+        <div>No project path provided or failed to load data.</div>
       )}
     </div>
   );

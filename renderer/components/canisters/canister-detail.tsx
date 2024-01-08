@@ -1,9 +1,19 @@
 import useCanister from "renderer/hooks/useCanister";
+import { useState } from "react";
 
 import CliCommandSelector from "@components/canisters/command-selector";
 import CanisterStatusConfig from "@components/canisters/canister-status-config";
 import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@components/ui/dialog";
 
 export default function CanisterDetail({
   projectPath,
@@ -12,19 +22,28 @@ export default function CanisterDetail({
   projectPath: string;
   canisterName: string;
 }) {
+  const [showDialog, setShowDialog] = useState(false);
   const { canisterData, isLoading, error } = useCanister(
     projectPath,
     canisterName
   );
 
   if (isLoading && !canisterData) {
-    console.log("Loading...");
     return <div>Loading...</div>;
   }
 
   if (error) {
     return <div>There was an error: {error.message}</div>;
   }
+
+  const handleRemoveClick = () => {
+    console.log("Attempting to show dialog");
+    setShowDialog(true);
+  };
+
+  const closeDialog = () => {
+    setShowDialog(false); // This will hide the dialog
+  };
 
   if (canisterData && canisterData.name) {
     return (
@@ -33,7 +52,13 @@ export default function CanisterDetail({
           <div className="flex items-center justify-between space-y-2 mb-4">
             <h2 className="font-bold">{canisterName}</h2>
             <div className="space-x-2">
-              <Button>Project</Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleRemoveClick}
+              >
+                Remove Canister
+              </Button>
               <Button>Show Project</Button>
             </div>
           </div>
@@ -50,6 +75,32 @@ export default function CanisterDetail({
               />
             </div>
           </div>
+          {showDialog && (
+            <Dialog>
+              <DialogTrigger asChild />
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    your canister and remove your data from our servers.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex justify-end space-x-2 mt-4">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={closeDialog}
+                  >
+                    Delete
+                  </Button>
+                  <Button type="button" onClick={closeDialog}>
+                    Cancel
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </>
     );

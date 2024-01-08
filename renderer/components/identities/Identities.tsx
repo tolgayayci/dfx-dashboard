@@ -275,7 +275,7 @@ export default function IdentitiesComponent() {
                 value={searchQuery}
               />
             </div>
-            <ScrollArea className="max-h-[350px] overflow-y-auto">
+            <ScrollArea className="max-h-screen overflow-y-auto">
               <div className="grid grid-cols-3 gap-6">
                 {identities
                   .filter((identity) =>

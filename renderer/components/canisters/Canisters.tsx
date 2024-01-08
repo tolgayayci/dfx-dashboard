@@ -66,6 +66,8 @@ export default function CanistersComponent() {
 
   const columns = createColumns();
 
+  console.log(allCanisters);
+
   return (
     <div>
       <div className="flex items-center justify-between space-y-2">

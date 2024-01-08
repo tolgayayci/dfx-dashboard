@@ -84,6 +84,7 @@ if (isProd) {
         );
         return result;
       } catch (error) {
+        console.error(`Error while executing DFX command: ${error}`);
         throw error;
       }
     }

@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { commands } from "@lib/commands";
 import { Checkbox } from "@components/ui/checkbox";
 import { Label } from "@components/ui/label";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 
 import {
   Accordion,
@@ -22,6 +23,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@components/ui/accordion";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@components/ui/tooltip";
 
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { SelectSeparator } from "@components/ui/select";
@@ -209,7 +217,24 @@ const CliCommandSelector = ({ canister }) => {
                         .find((c) => c.value === selectedCommand)
                         ?.args?.map((arg) => (
                           <div key={arg.name} className="space-y-2 my-4">
-                            <Label htmlFor={arg.name}>{arg.name}</Label>
+                            <Tooltip key={arg.name}>
+                              <div className="space-y-2 my-4">
+                                <div className="flex items-center my-4">
+                                  <Label htmlFor={arg.name}>{arg.name}</Label>
+                                  <TooltipTrigger asChild>
+                                    <span className="inline-block ml-1">
+                                      <QuestionMarkCircledIcon className="h-4 w-4 text-gray-500" />
+                                    </span>
+                                  </TooltipTrigger>
+                                </div>
+                              </div>
+                              <TooltipContent side="right">
+                                <p>
+                                  {arg.description ||
+                                    "No description available"}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
                             <Input
                               type="text"
                               id={arg.name}
@@ -262,11 +287,22 @@ const CliCommandSelector = ({ canister }) => {
                                   });
                                 }}
                               />
-
-                              <Label htmlFor={option.name}>
-                                {option.name}
-                                {/* {"(" + option.description + ")"} */}
-                              </Label>
+                              <Tooltip key={option.name}>
+                                <Label htmlFor={option.name}>
+                                  {option.name}
+                                </Label>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-block ml-1">
+                                    <QuestionMarkCircledIcon className="h-4 w-4 text-gray-500" />
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="right">
+                                  <p>
+                                    {option.description ||
+                                      "No description available"}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
                             </div>
                           ))}
                     </div>
@@ -281,7 +317,24 @@ const CliCommandSelector = ({ canister }) => {
                         )
                         .map((option) => (
                           <div key={option.name} className="space-y-2 my-4">
-                            <Label htmlFor={option.name}>{option.name}</Label>
+                            <Tooltip key={option.name}>
+                              <div className="flex items-center my-4">
+                                <Label htmlFor={option.name}>
+                                  {option.name}
+                                </Label>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-block ml-1">
+                                    <QuestionMarkCircledIcon className="h-4 w-4 text-gray-500" />
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="right">
+                                  <p>
+                                    {option.description ||
+                                      "No description available"}
+                                  </p>
+                                </TooltipContent>
+                              </div>
+                            </Tooltip>
                             <Input
                               type="text"
                               id={option.name}
@@ -304,7 +357,7 @@ const CliCommandSelector = ({ canister }) => {
         <ScrollBar />
       </ScrollArea>
       {isRunningCommand ? (
-        <Button disabled>
+        <Button className="mt-4" disabled>
           {" "}
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Command Running...

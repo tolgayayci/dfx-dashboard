@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 import {
   Form,
@@ -44,22 +45,12 @@ import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import ProjectModal from "@components/projects/project-modal";
 
 import {
-  renameProjectFormSchema,
-  onRenameProjectFormSubmit,
-} from "@components/projects/forms/renameProject";
-
-import {
   removeProjectFormSchema,
   onRemoveProjectFormSubmit,
 } from "@components/projects/forms/removeProject";
 
 import { useToast } from "@components/ui/use-toast";
-import {
-  projectRenameSuccess,
-  projectRenameError,
-  projectRemoveSuccess,
-  projectRemoveError,
-} from "@lib/notifications";
+import { projectRemoveSuccess, projectRemoveError } from "@lib/notifications";
 
 const ProjectCard = ({
   project,
@@ -70,22 +61,11 @@ const ProjectCard = ({
     active: boolean;
   };
 }) => {
-  const [showRenameProjectDialog, setShowRenameProjectDialog] = useState(false);
   const [showRemoveProjectDialog, setShowRemoveProjectDialog] = useState(false);
-  const [isSubmittingRenameProject, setIsSubmittingRenameProject] =
-    useState(false);
   const [isSubmittingRemoveProject, setIsSubmittingRemoveProject] =
     useState(false);
 
   const { toast } = useToast();
-
-  const renameProjectForm = useForm<z.infer<typeof renameProjectFormSchema>>({
-    resolver: zodResolver(renameProjectFormSchema),
-    defaultValues: {
-      from_project_name: project.name,
-      path: project.path,
-    },
-  });
 
   const removeProjectForm = useForm<z.infer<typeof removeProjectFormSchema>>({
     resolver: zodResolver(removeProjectFormSchema),
@@ -94,22 +74,6 @@ const ProjectCard = ({
       path: project.path,
     },
   });
-
-  // Modify your form submit handler to use setIsSubmitting
-  const handleRenameProjectFormSubmit = async (data) => {
-    setIsSubmittingRenameProject(true);
-    try {
-      await onRenameProjectFormSubmit(data).then(() => {
-        toast(projectRenameSuccess(data.to_project_name));
-        setShowRenameProjectDialog(false);
-      });
-    } catch (error) {
-      // handle error
-      toast(projectRenameError(data.to_project_name));
-    } finally {
-      setIsSubmittingRenameProject(false);
-    }
-  };
 
   const handleRemoveProjectFormSubmit = async (data) => {
     setIsSubmittingRemoveProject(true);
@@ -151,103 +115,13 @@ const ProjectCard = ({
         <Button
           variant="outline"
           className="w-full"
-          onClick={() => setShowRenameProjectDialog(true)}
-        >
-          Edit
-        </Button>
-        <Button
-          className="w-full"
           onClick={() => setShowRemoveProjectDialog(true)}
         >
           Remove
         </Button>
-        <Dialog open={showRenameProjectDialog}>
-          <DialogContent>
-            <Form {...renameProjectForm}>
-              <form
-                onSubmit={renameProjectForm.handleSubmit(
-                  handleRenameProjectFormSubmit
-                )}
-              >
-                <DialogHeader className="space-y-3">
-                  <DialogTitle>Edit "{project.name}"</DialogTitle>
-                  <DialogDescription>
-                    You can edit your project name, this is just for this
-                    application and doesn't change folder name on your file
-                    system.
-                  </DialogDescription>
-                </DialogHeader>
-                <div>
-                  <div className="py-4 pb-6">
-                    <div className="space-y-3">
-                      <FormField
-                        control={renameProjectForm.control}
-                        name="from_project_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-small">
-                              Current Project Name
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                id="from_project_name"
-                                placeholder={project.name}
-                                disabled
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="space-y-3">
-                      <FormField
-                        control={renameProjectForm.control}
-                        name="to_project_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-small">
-                              New Project Name
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                id="to_project_name"
-                                placeholder="alice"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => {
-                      setShowRenameProjectDialog(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  {isSubmittingRenameProject ? (
-                    <Button disabled>
-                      {" "}
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Renaming...
-                    </Button>
-                  ) : (
-                    <Button type="submit">Rename</Button>
-                  )}
-                </DialogFooter>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+        <Link href={`/projects/${encodeURIComponent(project.path)}`}>
+          <Button>Show Project</Button>
+        </Link>
         <Dialog open={showRemoveProjectDialog}>
           <DialogContent>
             <Form {...removeProjectForm}>
@@ -326,7 +200,9 @@ const ProjectCard = ({
                       Removing...
                     </Button>
                   ) : (
-                    <Button type="submit">Remove</Button>
+                    <Button type="submit" variant="destructive">
+                      Remove
+                    </Button>
                   )}
                 </DialogFooter>
               </form>
@@ -401,7 +277,7 @@ export default function ProjectsComponent() {
                 value={searchQuery}
               />
             </div>
-            <ScrollArea className="max-h-[350px] overflow-y-auto">
+            <ScrollArea className="max-h-screen overflow-y-auto">
               <div className="grid grid-cols-3 gap-6">
                 {projects
                   .filter((project) =>

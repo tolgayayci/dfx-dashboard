@@ -1,10 +1,24 @@
+import React from "react";
+import Head from "next/head";
 import { useRouter } from "next/router";
-import useProject from "renderer/hooks/useProject";
-export default function ProjectDetails() {
+import ProjectDetail from "@components/projects/project-detail";
+
+function CanisterDetailPage() {
   const router = useRouter();
   const { path } = router.query;
 
-  const project = useProject(path);
-  console.log(project);
-  return <h2>Project Details {path}</h2>;
+  if (!router.isReady) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <React.Fragment>
+      <Head>
+        <title>Project - DFX GUI</title>
+      </Head>
+      <ProjectDetail projectPath={path as string} />
+    </React.Fragment>
+  );
 }
+
+export default CanisterDetailPage;
