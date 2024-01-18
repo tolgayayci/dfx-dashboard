@@ -12,13 +12,15 @@ export default function useIdentity() {
         active: project.active, // Assuming 'active' property is part of your project data
       }));
 
+      console.log("Identities:", identitiesData);
+
       // Find an active project
-      const activeProject = projectsData.find((project) => project.active);
+      const activeProject = identitiesData.find((project) => project.active);
 
       // Set the selected project to the active one if it exists, otherwise set to the first project
       if (activeProject) {
         setProject(activeProject);
-      } else if (projectsData.length > 0) {
+      } else if (identitiesData.length > 0) {
         return;
       }
     } catch (error) {

@@ -43,6 +43,7 @@ import * as z from "zod";
 import { CodeIcon } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import ProjectModal from "@components/projects/project-modal";
+import NoProjects from "@components/projects/no-project";
 
 import {
   removeProjectFormSchema,
@@ -54,12 +55,14 @@ import { projectRemoveSuccess, projectRemoveError } from "@lib/notifications";
 
 const ProjectCard = ({
   project,
+  onProjectChange,
 }: {
   project: {
     name: string;
     path: string;
     active: boolean;
   };
+  onProjectChange: () => void;
 }) => {
   const [showRemoveProjectDialog, setShowRemoveProjectDialog] = useState(false);
   const [isSubmittingRemoveProject, setIsSubmittingRemoveProject] =
@@ -79,12 +82,13 @@ const ProjectCard = ({
     setIsSubmittingRemoveProject(true);
     try {
       await onRemoveProjectFormSubmit(data).then(() => {
-        toast(projectRemoveSuccess(data.to_project_name));
+        toast(projectRemoveSuccess(data.project_name));
         setShowRemoveProjectDialog(false);
+        removeProjectForm.reset();
+        onProjectChange();
       });
     } catch (error) {
-      // handle error
-      toast(projectRemoveError(data.to_project_name));
+      console.error(error);
     } finally {
       setIsSubmittingRemoveProject(false);
     }
@@ -120,7 +124,7 @@ const ProjectCard = ({
           Remove
         </Button>
         <Link href={`/projects/${encodeURIComponent(project.path)}`}>
-          <Button>Show Project</Button>
+          <Button>Manage</Button>
         </Link>
         <Dialog open={showRemoveProjectDialog}>
           <DialogContent>
@@ -229,6 +233,10 @@ export default function ProjectsComponent() {
     }
   }
 
+  const refreshProjects = async () => {
+    await checkProjects();
+  };
+
   const handleSearchChange = (e: any) => {
     e.preventDefault();
     setSearchQuery(e.target.value);
@@ -240,62 +248,62 @@ export default function ProjectsComponent() {
   }, []);
 
   return (
-    <div>
-      <>
-        <div className="flex items-center justify-between">
-          <Alert className="flex items-center justify-between py-6">
-            <div className="flex items-center">
-              <CodeIcon className="h-5 w-5 mr-4" />
-              <div>
-                <AlertTitle>
-                  You have {projects?.length ? projects?.length : "0"} projects
-                </AlertTitle>
-                <AlertDescription>
-                  You can add, remove, or edit your projects on this page.
-                </AlertDescription>
-              </div>
+    <div className="flex flex-col h-[calc(100vh-106px)]">
+      <div className="flex items-center justify-between">
+        <Alert className="flex items-center justify-between py-6">
+          <div className="flex items-center">
+            <CodeIcon className="h-5 w-5 mr-4" />
+            <div>
+              <AlertTitle>
+                You have {projects?.length ? projects?.length : "0"} projects
+              </AlertTitle>
+              <AlertDescription>
+                You can add, remove, or edit your projects on this page.
+              </AlertDescription>
             </div>
-            <Button onClick={() => setShowCreateProjectDialog(true)}>
-              Create New Project
-            </Button>
-          </Alert>
-          <ProjectModal
-            showNewProjectDialog={showCreateProjectDialog}
-            setShowNewProjectDialog={setShowCreateProjectDialog}
-          />
-        </div>
-
-        {projects ? (
-          <div>
-            <div className="my-6">
-              <Input
-                type="search"
-                placeholder={`${"=>"} Search for an identity between ${
-                  projects.length
-                } projects`}
-                onChange={handleSearchChange}
-                value={searchQuery}
-              />
-            </div>
-            <ScrollArea className="max-h-screen overflow-y-auto">
-              <div className="grid grid-cols-3 gap-6">
-                {projects
-                  .filter((project) =>
-                    project.name
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase())
-                  )
-                  .map((project) => (
-                    <ProjectCard key={project.path} project={project} /> // Pass the callback here/>
-                  ))}
-              </div>
-              <ScrollBar />
-            </ScrollArea>
           </div>
-        ) : (
-          <div>"No projects found"</div>
-        )}
-      </>
+          <Button onClick={() => setShowCreateProjectDialog(true)}>
+            Create New Project
+          </Button>
+        </Alert>
+        <ProjectModal
+          showNewProjectDialog={showCreateProjectDialog}
+          setShowNewProjectDialog={setShowCreateProjectDialog}
+          onProjectChange={refreshProjects} // Pass the callback here
+        />
+      </div>
+      {projects?.length > 0 ? (
+        <div>
+          <div className="my-6">
+            <Input
+              type="search"
+              placeholder={`${"=>"} Search for an identity between ${
+                projects.length
+              } projects`}
+              onChange={handleSearchChange}
+              value={searchQuery}
+            />
+          </div>
+          <ScrollArea className="h-[calc(100vh-300px)] overflow-y-auto">
+            <div className="grid grid-cols-3 gap-8">
+              {projects
+                .filter((project) =>
+                  project.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map((project) => (
+                  <ProjectCard
+                    key={project.path}
+                    project={project}
+                    onProjectChange={refreshProjects}
+                  />
+                ))}
+            </div>
+            <ScrollBar />
+          </ScrollArea>
+        </div>
+      ) : (
+        <NoProjects />
+      )}
     </div>
   );
 }

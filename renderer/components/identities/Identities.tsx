@@ -50,6 +50,7 @@ import {
 import { LucidePersonStanding } from "lucide-react";
 import IdentityModal from "@components/identities/identity-modal";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
+import NoIdentities from "@components/identities/no-identities";
 
 const IdentityCard = ({
   identity,
@@ -237,70 +238,68 @@ export default function IdentitiesComponent() {
   }, []);
 
   return (
-    <div>
-      <>
-        <div className="flex items-center justify-between">
-          <Alert className="flex items-center justify-between py-6">
-            <div className="flex items-center">
-              <LucidePersonStanding className="h-5 w-5 mr-4" />
-              <div>
-                <AlertTitle>
-                  You have {identities?.length ? identities?.length : "0"}{" "}
-                  identities
-                </AlertTitle>
-                <AlertDescription>
-                  You can add, remove, or edit your identities on this page.
-                </AlertDescription>
-              </div>
+    <div className="flex flex-col h-[calc(100vh-106px)]">
+      <div className="flex items-center justify-between">
+        <Alert className="flex items-center justify-between py-6">
+          <div className="flex items-center">
+            <LucidePersonStanding className="h-5 w-5 mr-4" />
+            <div>
+              <AlertTitle>
+                You have {identities?.length ? identities?.length : "0"}{" "}
+                identities
+              </AlertTitle>
+              <AlertDescription>
+                You can add, remove, or edit your identities on this page.
+              </AlertDescription>
             </div>
-            <Button onClick={() => setShowCreateIdentityDialog(true)}>
-              Create New Identity
-            </Button>
-          </Alert>
-          <IdentityModal
-            showCreateIdentityDialog={showCreateIdentityDialog}
-            setShowCreateIdentityDialog={setShowCreateIdentityDialog}
-          />
-        </div>
-
-        {identities ? (
-          <div>
-            <div className="my-6">
-              <Input
-                type="search"
-                placeholder={`${"=>"} Search for an identity between ${
-                  identities.length
-                } identities`}
-                onChange={handleSearchChange}
-                value={searchQuery}
-              />
-            </div>
-            <ScrollArea className="max-h-screen overflow-y-auto">
-              <div className="grid grid-cols-3 gap-6">
-                {identities
-                  .filter((identity) =>
-                    identity.name
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase())
-                  )
-                  .map((identity) => (
-                    <IdentityCard
-                      key={
-                        identity.name
-                          ? identity.name
-                          : identity.internetIdentityPrincipal
-                      }
-                      identity={identity}
-                    />
-                  ))}
-              </div>
-              <ScrollBar />
-            </ScrollArea>
           </div>
-        ) : (
-          <div>"No identities found"</div>
-        )}
-      </>
+          <Button onClick={() => setShowCreateIdentityDialog(true)}>
+            Create New Identity
+          </Button>
+        </Alert>
+        <IdentityModal
+          showCreateIdentityDialog={showCreateIdentityDialog}
+          setShowCreateIdentityDialog={setShowCreateIdentityDialog}
+        />
+      </div>
+
+      {identities ? (
+        <div className="flex-grow">
+          <div className="my-6">
+            <Input
+              type="search"
+              placeholder={`${"=>"} Search for an identity between ${
+                identities.length
+              } identities`}
+              onChange={handleSearchChange}
+              value={searchQuery}
+            />
+          </div>
+          <ScrollArea className="h-[calc(100vh-300px)] overflow-y-auto">
+            <div className="grid grid-cols-3 gap-8">
+              {identities
+                .filter((identity) =>
+                  identity.name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase())
+                )
+                .map((identity) => (
+                  <IdentityCard
+                    key={
+                      identity.name
+                        ? identity.name
+                        : identity.internetIdentityPrincipal
+                    }
+                    identity={identity}
+                  />
+                ))}
+            </div>
+            <ScrollBar />
+          </ScrollArea>
+        </div>
+      ) : (
+        <NoIdentities />
+      )}
     </div>
   );
 }

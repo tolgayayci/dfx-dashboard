@@ -36,7 +36,13 @@ import { SelectSeparator } from "@components/ui/select";
 
 import useProject from "renderer/hooks/useProject";
 
-const CliCommandSelector = ({ canister }) => {
+const CliCommandSelector = ({
+  canister,
+  path,
+}: {
+  canister: any;
+  path: string;
+}) => {
   const defaultCommand = commands.length > 0 ? commands[0].value : "";
 
   const [selectedCommand, setSelectedCommand] = useState(defaultCommand);
@@ -47,7 +53,7 @@ const CliCommandSelector = ({ canister }) => {
   const [commandError, setCommandError] = useState("");
   const [latestCommand, setLatestCommand] = useState(""); // State to hold the latest command
 
-  const { project } = useProject();
+  console.log("parth", path);
 
   const updateLatestCommand = () => {
     const selectedCommandDetails = commands.find(
@@ -138,40 +144,43 @@ const CliCommandSelector = ({ canister }) => {
 
   const runCli = async (command, args) => {
     try {
-      const selectedCommandDetails = commands.find((c) => c.value === command);
+      if (path) {
+        const selectedCommandDetails = commands.find(
+          (c) => c.value === command
+        );
 
-      // Construct the options array, including -- for options and flags
-      const optionsArray = selectedCommandDetails.options.reduce(
-        (acc, option) => {
-          const value = commandOptions[option.name];
-          if (option.type === "flag" && value) {
-            // If it's a flag and it's set, add the key
-            acc.push(`${option.name}`);
-          } else if (option.type === "argument" && value) {
-            // If it's an argument and it has a value, add both key and value
-            acc.push(`${option.name}`, value);
-          }
-          return acc;
-        },
-        []
-      );
+        // Construct the options array, including -- for options and flags
+        const optionsArray = selectedCommandDetails.options.reduce(
+          (acc, option) => {
+            const value = commandOptions[option.name];
+            if (option.type === "flag" && value) {
+              // If it's a flag and it's set, add the key
+              acc.push(`${option.name}`);
+            } else if (option.type === "argument" && value) {
+              // If it's an argument and it has a value, add both key and value
+              acc.push(`${option.name}`, value);
+            }
+            return acc;
+          },
+          []
+        );
 
-      // Convert string arguments to integers if necessary
-      const processedArgs = args.map((arg) =>
-        isNaN(arg) ? arg : parseInt(arg, 10)
-      );
+        // Convert string arguments to integers if necessary
+        const processedArgs = args.map((arg) =>
+          isNaN(arg) ? arg : parseInt(arg, 10)
+        );
 
-      const result = await window.awesomeApi.runDfxCommand(
-        "canister",
-        command,
-        [canister.name, ...processedArgs], // Use processedArgs instead of args
-        optionsArray,
-        project?.path
-      );
+        const result = await window.awesomeApi.runDfxCommand(
+          "canister",
+          command,
+          [canister.name, ...processedArgs], // Use processedArgs instead of args
+          optionsArray,
+          path
+        );
 
-      console.log(result);
-      setCommandError("");
-      setCommandOutput(result);
+        setCommandError("");
+        setCommandOutput(result);
+      }
     } catch (error) {
       setCommandError(`${error.message}`);
       setCommandOutput(""); // Clear any previous output

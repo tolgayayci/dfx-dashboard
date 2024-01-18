@@ -52,7 +52,8 @@ export default function Layout({ children }: LayoutProps) {
       enableSystem
       disableTransitionOnChange
     >
-      <div className="h-screen flex flex-col">
+      <div className="flex flex-col h-screen w-full">
+        {" "}
         <header className="flex flex-row items-center space-x-2 py-4 w-full justify-between border-b px-4">
           <Image
             src="/images/icp-logo.svg"
@@ -92,15 +93,6 @@ export default function Layout({ children }: LayoutProps) {
                   <SideNav
                     isCollapsed={isCollapsed}
                     links={[
-                      {
-                        title: "Home",
-                        label: "",
-                        href: "/home",
-                        icon: HomeIcon,
-                        variant: router.pathname.startsWith("/home")
-                          ? "default"
-                          : "ghost",
-                      },
                       {
                         title: "Projects",
                         label: "",
@@ -151,18 +143,18 @@ export default function Layout({ children }: LayoutProps) {
                   <Separator />
                 </div>
 
-                <div
+                {/* <div
                   className={cn(
                     "flex h-[52px] items-center justify-center mb-2",
                     isCollapsed ? "h-[52px]" : "px-2"
                   )}
                 >
                   <ProjectSwitcher />
-                </div>
+                </div> */}
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={defaultLayout[1]} className="p-4">
+            <ResizablePanel defaultSize={defaultLayout[1]} className="p-4 ">
               <main>{children}</main>
             </ResizablePanel>
           </ResizablePanelGroup>

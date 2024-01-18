@@ -53,45 +53,13 @@ import {
 export default function ProjectModal({
   showNewProjectDialog,
   setShowNewProjectDialog,
+  onProjectChange,
 }) {
   const [isSubmittingNewProject, setIsSubmittingNewProject] = useState(false);
   const [isSubmittingExistingProject, setIsSubmittingExistingProject] =
     useState(false);
 
   const { toast } = useToast();
-
-  // Modify your form submit handler to use setIsSubmitting
-  const handleNewProjectFormSubmit = async (data) => {
-    setIsSubmittingNewProject(true);
-    try {
-      await onCreateNewProjectForm(data).then(() => {
-        toast(projectCreateSuccess(data.to_project_name));
-        setShowNewProjectDialog(false);
-      });
-      // handle success
-    } catch (error) {
-      // handle error
-      toast(projectCreateError(data.to_project_name));
-    } finally {
-      setIsSubmittingNewProject(false);
-    }
-  };
-
-  const handleExistingProjectFormSubmit = async (data) => {
-    setIsSubmittingExistingProject(true);
-    try {
-      await onAddExistingProjectForm(data).then(() => {
-        toast(projectImportSuccess(data.to_project_name));
-        setShowNewProjectDialog(false);
-      });
-      // handle success
-    } catch (error) {
-      // handle error
-      toast(projectImportError(data.to_project_name));
-    } finally {
-      setIsSubmittingExistingProject(false);
-    }
-  };
 
   const createNewProjectform = useForm<
     z.infer<typeof createNewProjectFormSchema>
@@ -108,6 +76,52 @@ export default function ProjectModal({
   >({
     resolver: zodResolver(addExistingProjectFormSchema),
   });
+
+  // Modify your form submit handler to use setIsSubmitting
+  const handleNewProjectFormSubmit = async (data) => {
+    setIsSubmittingNewProject(true);
+    try {
+      await onCreateNewProjectForm(data).then(() => {
+        toast(projectCreateSuccess(data.project_name));
+        setShowNewProjectDialog(false);
+        createNewProjectform.reset();
+        onProjectChange();
+      });
+    } catch (error) {
+      toast(projectCreateError(data.project_name, error));
+      console.log(error);
+    } finally {
+      setIsSubmittingNewProject(false);
+    }
+  };
+
+  const handleExistingProjectFormSubmit = async (data) => {
+    setIsSubmittingExistingProject(true);
+    try {
+      const result = await window.awesomeApi.isDfxProject(data.path as string);
+
+      if (result) {
+        await onAddExistingProjectForm(data).then(async () => {
+          toast(projectImportSuccess(data.project_name));
+          setShowNewProjectDialog(false);
+          addExistingProjectForm.reset();
+          onProjectChange();
+        });
+      } else {
+        toast(projectImportError(data.project_name));
+        setShowNewProjectDialog(false);
+        addExistingProjectForm.reset();
+        onProjectChange();
+      }
+      // handle success
+    } catch (error) {
+      // handle error
+      // toast(projectImportError(data.to_project_name));
+      console.log(error);
+    } finally {
+      setIsSubmittingExistingProject(false);
+    }
+  };
 
   async function getDirectoryPath() {
     try {
@@ -327,6 +341,7 @@ export default function ProjectModal({
                                   value={field.value}
                                 />
                                 <Button
+                                  type="button"
                                   onClick={() => {
                                     getDirectoryPath().then((path) => {
                                       if (path) {

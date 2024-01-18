@@ -1,5 +1,6 @@
 import useCanister from "renderer/hooks/useCanister";
 import { useState } from "react";
+import Link from "next/link";
 
 import CliCommandSelector from "@components/canisters/command-selector";
 import CanisterStatusConfig from "@components/canisters/canister-status-config";
@@ -59,13 +60,15 @@ export default function CanisterDetail({
               >
                 Remove Canister
               </Button>
-              <Button>Show Project</Button>
+              <Link href={`/projects/${encodeURIComponent(projectPath)}`}>
+                <Button>View Project</Button>
+              </Link>
             </div>
           </div>
           <Separator className="w-full mb-4 -mx-4" />
           <div className="flex w-full">
             <div className="w-3/5 pr-4">
-              <CliCommandSelector canister={canisterData} />
+              <CliCommandSelector canister={canisterData} path={projectPath} />
             </div>
 
             <div className="w-2/5">

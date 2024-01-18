@@ -19,13 +19,14 @@ export async function onAddExistingProjectForm(
   data: z.infer<typeof addExistingProjectFormSchema>
 ) {
   try {
+    console.log(data);
     //check if it is a dfx project
     const result = await window.awesomeApi
       .isDfxProject(data.path)
       .then(async () => {
         await window.awesomeApi.manageProjects("add", {
           name: data.project_name,
-          path: data.path + "/" + data.project_name,
+          path: data.path,
         });
       });
 

@@ -21,22 +21,18 @@ export function executeDfxCommand(
     let stderrData = "";
 
     child.stdout.on("data", (data) => {
-      console.log(`stdout: ${data}`);
       stdoutData += data;
     });
 
     child.stderr.on("data", (data) => {
-      console.error(`stderr: ${data}`);
       stderrData += data;
     });
 
     child.on("error", (error) => {
-      console.error("Child process error:", error);
       reject(error);
     });
 
     child.on("close", (code) => {
-      console.log(`child process exited with code ${code}`);
       if (code !== 0) {
         // If the command failed, reject with the error output
         reject(

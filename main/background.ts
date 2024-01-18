@@ -9,6 +9,7 @@ import { handleProjects } from "./helpers/manage-projects";
 
 const path = require("node:path");
 const fs = require("fs");
+const { shell } = require("electron");
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -67,8 +68,20 @@ if (isProd) {
     width: 1500,
     height: 700,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.resolve(__dirname, "../main/preload.js"),
     },
+  });
+
+  ipcMain.handle("app:reload", () => {
+    if (mainWindow) {
+      mainWindow.reload();
+    }
+  });
+
+  ipcMain.handle("open-external-link", async (event, url) => {
+    if (url) {
+      await shell.openExternal(url);
+    }
   });
 
   ipcMain.handle(
@@ -115,6 +128,7 @@ if (isProd) {
 
   ipcMain.handle("is-dfx-project", async (event, directoryPath) => {
     try {
+      console.log("is-dfx-project", directoryPath);
       const dfxConfigPath = path.join(directoryPath, "dfx.json");
       return fs.existsSync(dfxConfigPath);
     } catch (error) {
@@ -126,7 +140,9 @@ if (isProd) {
   ipcMain.handle("is-dfx-installed", async (event) => {
     try {
       const result = await executeDfxCommand("--version");
-      return result;
+      // Check if the result starts with "dfx"
+      const isDfxInstalled = result.trim().startsWith("dfx");
+      return isDfxInstalled;
     } catch (error) {
       console.error(`Error while checking for Dfinity installation: ${error}`);
       return false;
@@ -221,10 +237,10 @@ if (isProd) {
   await retrieveAndStoreIdentities();
 
   if (isProd) {
-    await mainWindow.loadURL("app://./home");
+    await mainWindow.loadURL("app://./projects");
   } else {
     const port = process.argv[2];
-    await mainWindow.loadURL(`http://localhost:${port}/home`);
+    await mainWindow.loadURL(`http://localhost:${port}/projects`);
     mainWindow.webContents.openDevTools();
   }
 })();

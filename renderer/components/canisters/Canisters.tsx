@@ -4,6 +4,8 @@ import useProjects from "renderer/hooks/useProjects";
 import { Button } from "@components/ui/button";
 import { createColumns } from "./columns";
 import { DataTable } from "./data-table";
+import NoCanisters from "@components/canisters/no-canister";
+import Loading from "@components/common/loading";
 
 export default function CanistersComponent() {
   const [allCanisters, setAllCanisters] = useState([]);
@@ -66,11 +68,9 @@ export default function CanistersComponent() {
 
   const columns = createColumns();
 
-  console.log(allCanisters);
-
   return (
-    <div>
-      <div className="flex items-center justify-between space-y-2">
+    <div className="flex flex-col h-[calc(100vh-106px)]">
+      <div className="flex items-center justify-between space-y-2 mb-3">
         <h2 className="text-2xl font-bold tracking-tight">All Canisters</h2>
         <div className="flex items-center space-x-2">
           <Button type="button" onClick={() => runCanisterCommand("start")}>
@@ -81,15 +81,13 @@ export default function CanistersComponent() {
           </Button>
         </div>
       </div>
-      <div className="mt-6">
-        {allCanisters.length ? (
-          <>
-            <DataTable columns={columns} data={allCanisters} />
-          </>
-        ) : (
-          <p>Loading canisters...</p>
-        )}
-      </div>
+      {allCanisters.length > 0 ? (
+        <>
+          <DataTable columns={columns} data={allCanisters} />
+        </>
+      ) : (
+        <NoCanisters />
+      )}
     </div>
   );
 }

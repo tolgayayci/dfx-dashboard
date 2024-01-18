@@ -4,10 +4,9 @@ export const projectCreateSuccess = (contentName: string) => ({
   description: `${contentName} has been created successfully.`,
 });
 
-export const projectCreateError = (contentName: string) => ({
-  variant: "destructive",
+export const projectCreateError = (contentName: string, error: string) => ({
   title: "Error",
-  description: `Failed to create ${contentName}.`,
+  description: `Failed to create ${contentName}. ${error}`,
 });
 
 export const projectImportSuccess = (contentName: string) => ({
@@ -16,9 +15,8 @@ export const projectImportSuccess = (contentName: string) => ({
 });
 
 export const projectImportError = (contentName: string) => ({
-  variant: "destructive",
   title: "Error",
-  description: `Failed to import ${contentName}.`,
+  description: `Failed to import ${contentName}. Make sure you selected root folder that containing dfx.json.`,
 });
 
 export const projectRenameSuccess = (contentName: string) => ({
@@ -37,10 +35,9 @@ export const projectRemoveSuccess = (contentName: string) => ({
   description: `${contentName} has been removed successfully.`,
 });
 
-export const projectRemoveError = (contentName: string) => ({
-  variant: "destructive",
+export const projectRemoveError = (contentName: string, error: string) => ({
   title: "Error",
-  description: `Failed to remove ${contentName}.`,
+  description: `Failed to remove ${contentName}. ${error}`,
 });
 
 // --- Identity Notifications ---

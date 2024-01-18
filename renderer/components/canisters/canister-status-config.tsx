@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import {
   Accordion,
@@ -97,7 +98,10 @@ export default function CanisterStatusConfig({
         <AccordionTrigger className="text-sm">Canister Config</AccordionTrigger>
         <AccordionContent>
           <ReactJson name={canister.name} src={canister} />
-          <Button className="mt-4 w-full">Edit Canister Config</Button>
+
+          <Link href={`/projects/${encodeURIComponent(projectPath)}`}>
+            <Button className="w-full mt-4">Edit Canister Config</Button>
+          </Link>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

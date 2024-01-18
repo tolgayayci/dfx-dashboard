@@ -94,7 +94,8 @@ export default function IdentityModal({
         }
       });
     } catch (error) {
-      toast(identityInternetIdentityLoginError("unknown"));
+      // toast(identityInternetIdentityLoginError("unknown"));
+      console.log(error);
     }
   };
 
@@ -107,7 +108,8 @@ export default function IdentityModal({
         }
       });
     } catch (error) {
-      toast(identityCreateError(error));
+      // toast(identityCreateError(error));
+      console.log(error);
     } finally {
       setShowCreateIdentityDialog(false);
     }
@@ -122,7 +124,8 @@ export default function IdentityModal({
         }
       });
     } catch (error) {
-      toast(identityImportError(error));
+      // toast(identityImportError(error));
+      console.log(error);
     } finally {
       setShowCreateIdentityDialog(false);
     }

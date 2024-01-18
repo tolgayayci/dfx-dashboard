@@ -2,12 +2,17 @@
   "private": true,
   "name": "dfinity-dfx-gui",
   "description": "My application description",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "author": "Tolga Yaycı <tolgayayci@protonmail.com>",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
     "build": "nextron build",
+    "build:mac": "nextron build --mac",
+    "build:mac:universal": "nextron build --mac --universal",
+    "build:linux": "nextron build --linux",
+    "build:win32": "nextron build --win --ia32",
+    "build:win64": "nextron build --win --x64",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {

@@ -7,23 +7,84 @@ import { Separator } from "@components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import DfxComponent from "@components/dfx/Dfx";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@components/ui/dialog";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@components/ui/form";
+
+import { Input } from "@components/ui/input";
+import { Loader2 } from "lucide-react";
+
 import { DataTable } from "@components/canisters/data-table";
 import { createProjectColumns } from "./columns";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import {
+  renameProjectFormSchema,
+  onRenameProjectFormSubmit,
+} from "@components/projects/forms/renameProject";
+
+import { useToast } from "@components/ui/use-toast";
+import { projectRenameSuccess, projectRenameError } from "@lib/notifications";
 
 export default function ProjectDetail({
   projectPath,
 }: {
   projectPath: string;
 }) {
-  const { project, isLoading } = useProject(projectPath);
+  const [showRenameProjectDialog, setShowRenameProjectDialog] = useState(false);
+  const [isSubmittingRenameProject, setIsSubmittingRenameProject] =
+    useState(false);
   const [canisters, setCanisters] = useState(null);
+
+  const { toast } = useToast();
+
+  const { project, isLoading } = useProject(projectPath);
+
+  const renameProjectForm = useForm<z.infer<typeof renameProjectFormSchema>>({
+    resolver: zodResolver(renameProjectFormSchema),
+    defaultValues: {
+      from_project_name: project?.name,
+      path: project?.path,
+    },
+  });
+
+  const handleRenameProjectFormSubmit = async (data) => {
+    setIsSubmittingRenameProject(true);
+    try {
+      await onRenameProjectFormSubmit(data).then(() => {
+        toast(projectRenameSuccess(data.to_project_name));
+        setShowRenameProjectDialog(false);
+      });
+    } catch (error) {
+      // handle error
+      // toast(projectRenameError(data.to_project_name));
+      console.log(error);
+    } finally {
+      setIsSubmittingRenameProject(false);
+    }
+  };
 
   useEffect(() => {
     const checkCanisters = async () => {
-      console.log(project);
       try {
         if (project.path) {
-          console.log("project.path", project.path);
           const result = await window.awesomeApi.listCanisters(project.path);
 
           const canistersArray = Object.keys(result.canisters).map((key) => ({
@@ -48,8 +109,6 @@ export default function ProjectDetail({
 
   const columns = createProjectColumns();
 
-  console.log(canisters);
-
   if (project && project.name) {
     return (
       <>
@@ -65,7 +124,122 @@ export default function ProjectDetail({
               <h2 className="font-bold">{project.name}</h2>
             </div>
             <div className="space-x-2">
-              <Button variant="destructive">Remove Project</Button>
+              <Button
+                onClick={() => setShowRenameProjectDialog(true)}
+                variant="default"
+              >
+                Rename Project
+              </Button>
+              <Dialog open={showRenameProjectDialog}>
+                <DialogContent>
+                  <Form {...renameProjectForm}>
+                    <form
+                      onSubmit={renameProjectForm.handleSubmit(
+                        handleRenameProjectFormSubmit
+                      )}
+                    >
+                      <DialogHeader className="space-y-3">
+                        <DialogTitle>Rename "{project.name}"</DialogTitle>
+                        <DialogDescription>
+                          You can rename your project on application, this
+                          doesn't edit your folder name on your system.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div>
+                        <div className="py-4 pb-6">
+                          <div className="space-y-3">
+                            <FormField
+                              control={renameProjectForm.control}
+                              name="from_project_name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-small">
+                                    From Project Name
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      id="from_project_name"
+                                      placeholder={project.name}
+                                      disabled
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="space-y-3">
+                            <FormField
+                              control={renameProjectForm.control}
+                              name="to_project_name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-small">
+                                    To Project Name
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      id="to_project_name"
+                                      placeholder="ssss"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="space-y-3">
+                            <FormField
+                              control={renameProjectForm.control}
+                              name="path"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-small">
+                                    Path
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      id="path"
+                                      placeholder={project.path}
+                                      disabled
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          type="button"
+                          onClick={() => {
+                            setShowRenameProjectDialog(false);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        {isSubmittingRenameProject ? (
+                          <Button disabled>
+                            {" "}
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Renaming...
+                          </Button>
+                        ) : (
+                          <Button type="submit" variant="default">
+                            Rename
+                          </Button>
+                        )}
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>

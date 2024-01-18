@@ -52,16 +52,14 @@ export default function DfxComponent({ projectPath }) {
   return (
     <div>
       {dfxJson ? (
-        <div className="w-full">
-          <JSONInput
-            id="dfx_json"
-            placeholder={dfxJson}
-            locale={locale}
-            height="525px"
-            width="100%"
-            onChange={handleJsonChange}
-          />
-        </div>
+        <JSONInput
+          id="dfx_json"
+          placeholder={dfxJson}
+          locale={locale}
+          height="calc(100vh - 230px)"
+          width="100%"
+          onChange={handleJsonChange}
+        />
       ) : (
         <div>No project path provided or failed to load data.</div>
       )}
