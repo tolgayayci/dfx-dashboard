@@ -16,6 +16,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogTrigger,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -116,7 +117,6 @@ export default function ProjectModal({
       // handle success
     } catch (error) {
       // handle error
-      // toast(projectImportError(data.to_project_name));
       console.log(error);
     } finally {
       setIsSubmittingExistingProject(false);
@@ -133,7 +133,10 @@ export default function ProjectModal({
   }
 
   return (
-    <Dialog open={showNewProjectDialog}>
+    <Dialog
+      open={showNewProjectDialog}
+      onOpenChange={() => setShowNewProjectDialog(false)}
+    >
       <DialogContent>
         <Tabs defaultValue="create-project">
           <TabsList className="mb-4">
@@ -194,6 +197,7 @@ export default function ProjectModal({
                                     value={field.value}
                                   />
                                   <Button
+                                    type="button"
                                     onClick={() => {
                                       getDirectoryPath().then((path) => {
                                         if (path) {
@@ -276,7 +280,7 @@ export default function ProjectModal({
                     Cancel
                   </Button>
                   {isSubmittingNewProject ? (
-                    <Button disabled>
+                    <Button type="button" disabled>
                       {" "}
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating...

@@ -9,6 +9,8 @@ import {
   AccordionTrigger,
 } from "@components/ui/accordion";
 import { Button } from "@components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
+import { AlertCircle, ThumbsUpIcon } from "lucide-react";
 
 const ReactJson = dynamic(() => import("react-json-view"), {
   ssr: false, // This will only import 'ReactJson' on the client-side
@@ -17,11 +19,27 @@ const ReactJson = dynamic(() => import("react-json-view"), {
 export default function CanisterStatusConfig({
   canister,
   projectPath,
+  commandOutput,
+  commandError,
 }: {
   canister: any;
   projectPath: string;
+  commandOutput: string;
+  commandError: string;
 }) {
   const [canisterStatus, setCanisterStatus] = useState<any>(null);
+  const [accordionValue, setAccordionValue] = useState<string>("status");
+
+  useEffect(() => {
+    checkCanisterStatus();
+
+    // Set the accordion to open the last item if there is command output or an error
+    if (commandOutput || commandError) {
+      setAccordionValue("output");
+    } else {
+      setAccordionValue("status");
+    }
+  }, [commandOutput, commandError]);
 
   function parseCliOutput(output) {
     const result = {};
@@ -69,7 +87,7 @@ export default function CanisterStatusConfig({
       const parsedResult = parseCliOutput(result);
       setCanisterStatus(parsedResult);
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 
@@ -80,7 +98,8 @@ export default function CanisterStatusConfig({
   return (
     <Accordion
       type="single"
-      defaultValue="status"
+      value={accordionValue}
+      onValueChange={setAccordionValue}
       collapsible
       className="w-full space-y-4"
     >
@@ -102,6 +121,27 @@ export default function CanisterStatusConfig({
           <Link href={`/projects/${encodeURIComponent(projectPath)}`}>
             <Button className="w-full mt-4">Edit Canister Config</Button>
           </Link>
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="output" className="border px-3 rounded-lg">
+        <AccordionTrigger className="text-sm">Canister Output</AccordionTrigger>
+        <AccordionContent>
+          <div>
+            {commandOutput && (
+              <Alert variant="success">
+                <ThumbsUpIcon className="h-4 w-4 text-green-600" />
+                <AlertTitle>Command Output</AlertTitle>
+                <AlertDescription>{commandOutput}</AlertDescription>
+              </Alert>
+            )}
+            {commandError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{commandError}</AlertDescription>
+              </Alert>
+            )}
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>

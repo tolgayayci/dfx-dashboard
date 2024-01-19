@@ -74,7 +74,7 @@ export default function ProjectSwitcher({ className }: TeamSwitcherProps) {
       // Update the projects state
       setProjects(projectsData);
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 
@@ -111,7 +111,10 @@ export default function ProjectSwitcher({ className }: TeamSwitcherProps) {
   }, []);
 
   return (
-    <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
+    <Dialog
+      open={showNewTeamDialog}
+      onOpenChange={() => setShowNewTeamDialog(false)}
+    >
       <Popover open={open} onOpenChange={setOpen}>
         {selectedProject ? (
           <PopoverTrigger asChild>
@@ -208,6 +211,7 @@ export default function ProjectSwitcher({ className }: TeamSwitcherProps) {
       <ProjectModal
         showNewProjectDialog={showNewTeamDialog}
         setShowNewProjectDialog={setShowNewTeamDialog}
+        onProjectChange={checkProjects}
       />
     </Dialog>
   );

@@ -27,7 +27,7 @@ export default function NetworkComponent() {
 
       await readJson(result);
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 

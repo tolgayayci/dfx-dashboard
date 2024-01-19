@@ -24,7 +24,7 @@ export default function useIdentity() {
         return;
       }
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 

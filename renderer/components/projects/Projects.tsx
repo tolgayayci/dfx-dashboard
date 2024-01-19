@@ -126,7 +126,10 @@ const ProjectCard = ({
         <Link href={`/projects/${encodeURIComponent(project.path)}`}>
           <Button>Manage</Button>
         </Link>
-        <Dialog open={showRemoveProjectDialog}>
+        <Dialog
+          open={showRemoveProjectDialog}
+          onOpenChange={() => setShowRemoveProjectDialog(false)}
+        >
           <DialogContent>
             <Form {...removeProjectForm}>
               <form
@@ -142,7 +145,7 @@ const ProjectCard = ({
                   </DialogDescription>
                 </DialogHeader>
                 <div>
-                  <div className="py-4 pb-6">
+                  <div className="py-4 pb-6 space-y-3">
                     <div className="space-y-3">
                       <FormField
                         control={removeProjectForm.control}
@@ -229,7 +232,7 @@ export default function ProjectsComponent() {
 
       setProjects(projects);
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 

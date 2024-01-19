@@ -95,7 +95,7 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
 
       console.log();
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 
@@ -124,7 +124,7 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
       // Update the state variable with the new groups data
       setUpdatedGroups(newGroups);
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 
@@ -132,7 +132,7 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
     try {
       await window.awesomeApi.runDfxCommand("identity", "use", [newIdentity]);
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 
@@ -142,7 +142,10 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
   }, []);
 
   return (
-    <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
+    <Dialog
+      open={showNewTeamDialog}
+      onOpenChange={() => setShowNewTeamDialog(false)}
+    >
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button

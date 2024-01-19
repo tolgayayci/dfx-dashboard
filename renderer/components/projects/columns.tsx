@@ -30,7 +30,7 @@ export const createProjectColumns = (): ColumnDef<Canister>[] => {
               row.original.projectPath
             )}/${encodeURIComponent(row.original.name)}`}
           >
-            <Button>Show Canister Details</Button>
+            <Button>Canister Actions</Button>
           </Link>
         </div>
       ),

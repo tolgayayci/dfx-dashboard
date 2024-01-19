@@ -96,7 +96,7 @@ export default function ProjectDetail({
           setCanisters(canistersArray);
         }
       } catch (error) {
-        console.error("Error invoking remote method:", error);
+        console.log("Error invoking remote method:", error);
       }
     };
 
@@ -112,143 +112,27 @@ export default function ProjectDetail({
   if (project && project.name) {
     return (
       <>
-        <div className="flex flex-col w-full">
-          <div className="flex items-center justify-between space-y-2 mb-4">
-            <div className="flex items-center">
-              <Avatar className="mr-4 h-10 w-10">
-                <AvatarImage
-                  src={`https://avatar.vercel.sh/${project.name}.png`}
-                  alt={project.name}
-                />
-              </Avatar>
-              <h2 className="font-bold">{project.name}</h2>
-            </div>
-            <div className="space-x-2">
-              <Button
-                onClick={() => setShowRenameProjectDialog(true)}
-                variant="default"
-              >
-                Rename Project
-              </Button>
-              <Dialog open={showRenameProjectDialog}>
-                <DialogContent>
-                  <Form {...renameProjectForm}>
-                    <form
-                      onSubmit={renameProjectForm.handleSubmit(
-                        handleRenameProjectFormSubmit
-                      )}
-                    >
-                      <DialogHeader className="space-y-3">
-                        <DialogTitle>Rename "{project.name}"</DialogTitle>
-                        <DialogDescription>
-                          You can rename your project on application, this
-                          doesn't edit your folder name on your system.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div>
-                        <div className="py-4 pb-6">
-                          <div className="space-y-3">
-                            <FormField
-                              control={renameProjectForm.control}
-                              name="from_project_name"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-small">
-                                    From Project Name
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      id="from_project_name"
-                                      placeholder={project.name}
-                                      disabled
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <div className="space-y-3">
-                            <FormField
-                              control={renameProjectForm.control}
-                              name="to_project_name"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-small">
-                                    To Project Name
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      id="to_project_name"
-                                      placeholder="ssss"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <div className="space-y-3">
-                            <FormField
-                              control={renameProjectForm.control}
-                              name="path"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-small">
-                                    Path
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      id="path"
-                                      placeholder={project.path}
-                                      disabled
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button
-                          variant="outline"
-                          type="button"
-                          onClick={() => {
-                            setShowRenameProjectDialog(false);
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        {isSubmittingRenameProject ? (
-                          <Button disabled>
-                            {" "}
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Renaming...
-                          </Button>
-                        ) : (
-                          <Button type="submit" variant="default">
-                            Rename
-                          </Button>
-                        )}
-                      </DialogFooter>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
+        <Tabs defaultValue="canisters" className="w-full">
+          <div className="flex flex-col w-full">
+            <div className="flex items-center justify-between space-y-2 mb-4">
+              <div className="flex items-center">
+                <Avatar className="mr-4 h-10 w-10">
+                  <AvatarImage
+                    src={`https://avatar.vercel.sh/${project.name}.png`}
+                    alt={project.name}
+                  />
+                </Avatar>
+                <h2 className="font-bold">{project.name}</h2>
+              </div>
+              <div className="space-x-2">
+                <TabsList>
+                  <TabsTrigger value="canisters">Canisters</TabsTrigger>
+                  <TabsTrigger value="dfx_json">dfx.json</TabsTrigger>
+                </TabsList>
+              </div>
             </div>
           </div>
-        </div>
-        <Separator className="w-full mb-4" />
-        <Tabs defaultValue="canisters" className="w-full">
-          <TabsList>
-            <TabsTrigger value="canisters">Canisters</TabsTrigger>
-            <TabsTrigger value="dfx_json">dfx.json</TabsTrigger>
-          </TabsList>
+          <Separator className="w-full mb-4" />
           <TabsContent value="canisters">
             {canisters ? (
               <>

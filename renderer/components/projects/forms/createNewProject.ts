@@ -25,7 +25,7 @@ export async function onCreateNewProjectForm(
     const subcommand = null;
     const args = [data.project_name];
     const flags = [
-      data.dry_run ? `--dry-run=${data.dry_run}` : null,
+      data.dry_run ? `--dry-run` : null,
       data.frontend_status ? `--frontend` : null,
     ].filter(Boolean); // This will remove any null values from the array
 

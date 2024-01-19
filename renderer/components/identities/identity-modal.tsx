@@ -140,7 +140,10 @@ export default function IdentityModal({
   });
 
   return (
-    <Dialog open={showCreateIdentityDialog}>
+    <Dialog
+      open={showCreateIdentityDialog}
+      onOpenChange={() => setShowCreateIdentityDialog(false)}
+    >
       <DialogContent>
         <Tabs defaultValue="new-identity">
           <TabsList className="mb-4">

@@ -16,6 +16,8 @@ import {
   DialogTrigger,
 } from "@components/ui/dialog";
 
+import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
+
 export default function CanisterDetail({
   projectPath,
   canisterName,
@@ -24,6 +26,9 @@ export default function CanisterDetail({
   canisterName: string;
 }) {
   const [showDialog, setShowDialog] = useState(false);
+  const [commandOutput, setCommandOutput] = useState();
+  const [commandError, setCommandError] = useState();
+
   const { canisterData, isLoading, error } = useCanister(
     projectPath,
     canisterName
@@ -66,21 +71,27 @@ export default function CanisterDetail({
             </div>
           </div>
           <Separator className="w-full mb-4 -mx-4" />
-          <div className="flex w-full">
+          <div className="flex flex-row w-full">
             <div className="w-3/5 pr-4">
-              <CliCommandSelector canister={canisterData} path={projectPath} />
+              <CliCommandSelector
+                canister={canisterData}
+                path={projectPath}
+                setCommandError={setCommandError}
+                setCommandOutput={setCommandOutput}
+              />
             </div>
 
             <div className="w-2/5">
               <CanisterStatusConfig
                 canister={canisterData}
                 projectPath={projectPath}
+                commandError={commandError}
+                commandOutput={commandOutput}
               />
             </div>
           </div>
           {showDialog && (
-            <Dialog>
-              <DialogTrigger asChild />
+            <Dialog open={showDialog} onOpenChange={() => setShowDialog(false)}>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Are you absolutely sure?</DialogTitle>

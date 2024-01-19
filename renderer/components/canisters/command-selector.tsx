@@ -10,12 +10,11 @@ import {
 } from "@components/ui/select";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { AlertCircle, ThumbsUpIcon, Loader2 } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { commands } from "@lib/commands";
 import { Checkbox } from "@components/ui/checkbox";
 import { Label } from "@components/ui/label";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import { Loader2 } from "lucide-react";
 
 import {
   Accordion,
@@ -34,14 +33,16 @@ import {
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { SelectSeparator } from "@components/ui/select";
 
-import useProject from "renderer/hooks/useProject";
-
 const CliCommandSelector = ({
   canister,
   path,
+  setCommandOutput,
+  setCommandError,
 }: {
   canister: any;
   path: string;
+  setCommandOutput: (any) => void;
+  setCommandError: (any) => void;
 }) => {
   const defaultCommand = commands.length > 0 ? commands[0].value : "";
 
@@ -49,8 +50,6 @@ const CliCommandSelector = ({
   const [commandArgs, setCommandArgs] = useState({});
   const [commandOptions, setCommandOptions] = useState({});
   const [isRunningCommand, setIsRunningCommand] = useState(false);
-  const [commandOutput, setCommandOutput] = useState("");
-  const [commandError, setCommandError] = useState("");
   const [latestCommand, setLatestCommand] = useState(""); // State to hold the latest command
 
   console.log("parth", path);
@@ -192,7 +191,7 @@ const CliCommandSelector = ({
       <div className="bg-gray-200 p-4 rounded-md mb-4">
         <code>{latestCommand}</code>
       </div>
-      <ScrollArea className="max-h-[800px] overflow-y-auto">
+      <ScrollArea className="max-h-[calc(80vh-200px)] overflow-y-auto">
         <div className="flex flex-col space-y-4">
           <Select
             value={selectedCommand}
@@ -211,7 +210,7 @@ const CliCommandSelector = ({
               </SelectGroup>
             </SelectContent>
           </Select>
-          <Accordion type="multiple" className="w-full space-y-2">
+          <Accordion type="multiple" className="w-full space-y-4">
             {selectedCommand &&
               commands.find((c) => c.value === selectedCommand)?.args?.length >
                 0 && (
@@ -379,22 +378,6 @@ const CliCommandSelector = ({
           Run Command
         </Button>
       )}
-      <div className="mt-4">
-        {commandOutput && (
-          <Alert variant="success">
-            <ThumbsUpIcon className="h-4 w-4 text-green-600" />
-            <AlertTitle>Command Output</AlertTitle>
-            <AlertDescription>{commandOutput}</AlertDescription>
-          </Alert>
-        )}
-        {commandError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{commandError}</AlertDescription>
-          </Alert>
-        )}
-      </div>
     </div>
   );
 };

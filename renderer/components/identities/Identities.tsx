@@ -123,7 +123,10 @@ const IdentityCard = ({
         >
           Remove
         </Button>
-        <Dialog open={showRenameIdentityDialog}>
+        <Dialog
+          open={showRenameIdentityDialog}
+          onOpenChange={() => setShowRenameIdentityDialog(false)}
+        >
           <DialogContent>
             <Form {...renameIdentityForm}>
               <form
@@ -203,7 +206,10 @@ const IdentityCard = ({
             </Form>
           </DialogContent>
         </Dialog>
-        <Dialog open={showRemoveIdentityDialog}>
+        <Dialog
+          open={showRemoveIdentityDialog}
+          onOpenChange={() => setShowRemoveIdentityDialog(false)}
+        >
           <DialogContent></DialogContent>
         </Dialog>
       </CardContent>
@@ -223,7 +229,7 @@ export default function IdentitiesComponent() {
 
       setIdentities(identities);
     } catch (error) {
-      console.error("Error invoking remote method:", error);
+      console.log("Error invoking remote method:", error);
     }
   }
 
