@@ -23,6 +23,7 @@ import {
   Twitter,
   User,
   X,
+  RefreshCwIcon,
 } from "lucide-react";
 
 export const Icons = {
@@ -47,6 +48,7 @@ export const Icons = {
   sun: SunMedium,
   moon: Moon,
   laptop: Laptop,
+  reload: RefreshCwIcon,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

@@ -102,6 +102,7 @@ export default function IdentityModal({
   const handleCreateNewIdentity = async (data) => {
     try {
       await onNewIdentityFormSubmit(data).then((res) => {
+        //@ts-ignore
         if (res) {
           toast(identityCreateSuccess(res));
           setShowCreateIdentityDialog(false);
@@ -149,8 +150,8 @@ export default function IdentityModal({
           <TabsList className="mb-4">
             <TabsTrigger value="new-identity">New Identity</TabsTrigger>
             <TabsTrigger value="import">Import Existing</TabsTrigger>
-            <TabsTrigger value="internet-identity">
-              Internet Identity
+            <TabsTrigger value="internet-identity" disabled>
+              Internet Identity (Soon)
             </TabsTrigger>
           </TabsList>
           <TabsContent value="new-identity">

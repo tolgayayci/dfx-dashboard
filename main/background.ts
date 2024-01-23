@@ -6,14 +6,20 @@ import { createWindow } from "./helpers";
 import { executeDfxCommand } from "./helpers/dfx-helper";
 import { handleIdentities } from "./helpers/manage-identities";
 import { handleProjects } from "./helpers/manage-projects";
+import {
+  updateProfileWithEnvVars,
+  readEnvVarsFromProfiles,
+} from "./helpers/env-variables";
 
 const path = require("node:path");
 const fs = require("fs");
 const { shell } = require("electron");
+const fixPath = require("fix-path");
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
 const Store = require("electron-store");
+fixPath();
 
 const schema = {
   projects: {
@@ -36,6 +42,7 @@ const schema = {
       type: "object",
       properties: {
         name: { type: "string" },
+        principal: { type: "string" },
         isInternetIdentity: { type: "boolean" },
         internetIdentityPrincipal: { type: "string", default: "" },
       },
@@ -63,12 +70,13 @@ if (isProd) {
 
 (async () => {
   await app.whenReady();
+  app.dock.setIcon("resources/icon.png");
 
   const mainWindow = createWindow("main", {
     width: 1500,
     height: 700,
     webPreferences: {
-      preload: path.resolve(__dirname, "../main/preload.js"),
+      preload: path.join(__dirname, "../main/preload.js"),
     },
   });
 
@@ -116,19 +124,26 @@ if (isProd) {
     }
   });
 
-  ipcMain.handle("store:manageIdentities", async (event, action, identity) => {
-    try {
-      const result = await handleIdentities(store, action, identity);
-      return result;
-    } catch (error) {
-      console.error("Error on identities:", error);
-      throw error;
+  ipcMain.handle(
+    "store:manageIdentities",
+    async (event, action, identity, newIdentity?) => {
+      try {
+        const result = await handleIdentities(
+          store,
+          action,
+          identity,
+          newIdentity
+        );
+        return result;
+      } catch (error) {
+        console.error("Error on identities:", error);
+        throw error;
+      }
     }
-  });
+  );
 
   ipcMain.handle("is-dfx-project", async (event, directoryPath) => {
     try {
-      console.log("is-dfx-project", directoryPath);
       const dfxConfigPath = path.join(directoryPath, "dfx.json");
       return fs.existsSync(dfxConfigPath);
     } catch (error) {
@@ -139,10 +154,13 @@ if (isProd) {
 
   ipcMain.handle("is-dfx-installed", async (event) => {
     try {
-      const result = await executeDfxCommand("--version");
-      // Check if the result starts with "dfx"
-      const isDfxInstalled = result.trim().startsWith("dfx");
-      return isDfxInstalled;
+      if (mainWindow) {
+        const result = await executeDfxCommand("--version");
+        const isDfxInstalled = result.trim().startsWith("dfx");
+        return isDfxInstalled;
+      } else {
+        console.error("Main window not found");
+      }
     } catch (error) {
       console.error(`Error while checking for Dfinity installation: ${error}`);
       return false;
@@ -189,7 +207,6 @@ if (isProd) {
     "json:update",
     async (event, filePath, directoryPath, jsonContent) => {
       try {
-        console.log("json:update", filePath, directoryPath, jsonContent);
         fs.writeFileSync(
           path.join(filePath, directoryPath),
           JSON.stringify(jsonContent, null, 2),
@@ -233,6 +250,28 @@ if (isProd) {
       // Handle error appropriately
     }
   }
+
+  ipcMain.handle("env:update-script", async (event, path, key, value) => {
+    try {
+      updateProfileWithEnvVars(path, key, value);
+      return {
+        message: "Environment script updated successfully.",
+      };
+    } catch (error) {
+      console.error("Failed to update environment script:", error);
+      return { message: error };
+    }
+  });
+
+  ipcMain.handle("env:read-script", async () => {
+    try {
+      const envVars = readEnvVarsFromProfiles();
+      return envVars;
+    } catch (error) {
+      console.error("Failed to read environment script:", error);
+      return { error };
+    }
+  });
 
   await retrieveAndStoreIdentities();
 

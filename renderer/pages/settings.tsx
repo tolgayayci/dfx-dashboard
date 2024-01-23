@@ -5,7 +5,7 @@ function Settings() {
   return (
     <React.Fragment>
       <Head>
-        <title>Settings - DFX GUI</title>
+        <title>Settings - DFINITY DFX</title>
       </Head>
       <SettingsComponent />
     </React.Fragment>

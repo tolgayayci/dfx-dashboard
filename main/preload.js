@@ -13,8 +13,8 @@ contextBridge.exposeInMainWorld('awesomeApi', {
   manageProjects: async (action, project) => {
     return ipcRenderer.invoke('store:manageProjects', action, project);
   },
-  manageIdentities: async (action, identity) => {
-    return ipcRenderer.invoke('store:manageIdentities', action, identity);
+  manageIdentities: async (action, identity, newIdentity) => {
+    return ipcRenderer.invoke('store:manageIdentities', action, identity, newIdentity);
   },
   isDfxProject: async (directoryPath) => {
     return ipcRenderer.invoke('is-dfx-project', directoryPath);
@@ -35,7 +35,12 @@ contextBridge.exposeInMainWorld('awesomeApi', {
     return ipcRenderer.invoke('app:reload');
   },
   openExternalLink: async (url) => {
-    console.log('openExternalLink', url);
     return ipcRenderer.invoke('open-external-link', url);
-  }
+  },
+  readEnvVariables: async () => {
+    return ipcRenderer.invoke('env:read-script');
+  },
+  updateEnvVariables: async (path, key, value) => {
+    return ipcRenderer.invoke('env:update-script', path, key, value);
+  },
 });

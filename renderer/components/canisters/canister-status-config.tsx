@@ -11,6 +11,7 @@ import {
 import { Button } from "@components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { AlertCircle, ThumbsUpIcon } from "lucide-react";
+import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 
 const ReactJson = dynamic(() => import("react-json-view"), {
   ssr: false, // This will only import 'ReactJson' on the client-side
@@ -96,54 +97,79 @@ export default function CanisterStatusConfig({
   }, []);
 
   return (
-    <Accordion
-      type="single"
-      value={accordionValue}
-      onValueChange={setAccordionValue}
-      collapsible
-      className="w-full space-y-4"
-    >
-      <AccordionItem value="status" className="border px-3 rounded-lg">
-        <AccordionTrigger className="text-sm">Canister Status</AccordionTrigger>
-        <AccordionContent>
-          {canisterStatus ? (
-            <ReactJson name={canister.name + "_status"} src={canisterStatus} />
-          ) : (
-            <h2>Loading...</h2>
-          )}
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="config" className="border px-3 rounded-lg">
-        <AccordionTrigger className="text-sm">Canister Config</AccordionTrigger>
-        <AccordionContent>
-          <ReactJson name={canister.name} src={canister} />
-
-          <Link href={`/projects/${encodeURIComponent(projectPath)}`}>
-            <Button className="w-full mt-4">Edit Canister Config</Button>
-          </Link>
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="output" className="border px-3 rounded-lg">
-        <AccordionTrigger className="text-sm">Canister Output</AccordionTrigger>
-        <AccordionContent>
-          <div>
-            {commandOutput && (
-              <Alert variant="success">
-                <ThumbsUpIcon className="h-4 w-4 text-green-600" />
-                <AlertTitle>Command Output</AlertTitle>
-                <AlertDescription>{commandOutput}</AlertDescription>
-              </Alert>
-            )}
-            {commandError && (
-              <Alert variant="destructive">
+    <ScrollArea className="h-[calc(100vh-200px)] overflow-y-auto">
+      <Accordion
+        type="single"
+        value={accordionValue}
+        onValueChange={setAccordionValue}
+        collapsible
+        className="w-full space-y-4"
+      >
+        <AccordionItem value="status" className="border px-3 rounded-lg">
+          <AccordionTrigger className="text-sm">
+            Canister Status
+          </AccordionTrigger>
+          <AccordionContent>
+            {canisterStatus ? (
+              <ReactJson
+                name={canister.name + "_status"}
+                src={canisterStatus}
+              />
+            ) : (
+              <Alert variant="warning">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{commandError}</AlertDescription>
+                <AlertTitle>Warning</AlertTitle>
+                <AlertDescription>
+                  Canister status cannot be displayed, check that the canister
+                  is active or created with "dfx canister create" and refresh
+                  the page.
+                </AlertDescription>
               </Alert>
             )}
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="config" className="border px-3 rounded-lg">
+          <AccordionTrigger className="text-sm">
+            Canister Config
+          </AccordionTrigger>
+          <AccordionContent>
+            <ReactJson name={canister.name} src={canister} />
+
+            <Link
+              href={{
+                pathname: `/projects/${encodeURIComponent(projectPath)}`,
+                query: { tab: "dfx" },
+              }}
+            >
+              <Button className="w-full mt-4">Edit Canister Config</Button>
+            </Link>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="output" className="border px-3 rounded-lg">
+          <AccordionTrigger className="text-sm">
+            Canister Output
+          </AccordionTrigger>
+          <AccordionContent>
+            <div>
+              {commandOutput && (
+                <Alert variant="success">
+                  <ThumbsUpIcon className="h-4 w-4 text-green-600" />
+                  <AlertTitle>Command Output</AlertTitle>
+                  <AlertDescription>{commandOutput}</AlertDescription>
+                </Alert>
+              )}
+              {commandError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{commandError}</AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+      <ScrollBar />
+    </ScrollArea>
   );
 }

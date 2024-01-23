@@ -69,15 +69,6 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
 
   const router = useRouter();
 
-  async function getDirectoryPath() {
-    try {
-      const result = await window.awesomeApi.openDirectory();
-      return result;
-    } catch (error) {
-      console.error(`Error: ${error}`);
-    }
-  }
-
   async function checkCurrentIdentity() {
     // Here we call the exposed method from preload.js
     try {
@@ -136,6 +127,8 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
     }
   }
 
+  const hasIdentities = updatedGroups.some((group) => group.teams.length > 1);
+
   useEffect(() => {
     checkCurrentIdentity();
     checkIdentities();
@@ -160,52 +153,53 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
                 src={`https://avatar.vercel.sh/${selectedIdentity.value}.png`}
                 alt={selectedIdentity.label}
               />
-              <AvatarFallback>SC</AvatarFallback>
+              <AvatarFallback>DFX</AvatarFallback>
             </Avatar>
-            {selectedIdentity.label}
+            {hasIdentities ? selectedIdentity.label : "No Identity"}
             <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0">
           <Command>
             <CommandList>
-              <CommandInput placeholder="Search team..." />
+              <CommandInput placeholder="Search identity..." />
               <CommandEmpty>No identity found.</CommandEmpty>
-              {updatedGroups.map((group) => (
-                <CommandGroup key={group.label} heading={group.label}>
-                  {group.teams.map((team) => (
-                    <CommandItem
-                      key={team.value}
-                      onSelect={() => {
-                        if (selectedIdentity.value !== team.value) {
-                          setSelectedIdentity(team);
-                          changeIdentity(team.value);
-                        }
-                        setOpen(false);
-                      }}
-                      className="text-sm"
-                    >
-                      <Avatar className="mr-2 h-5 w-5">
-                        <AvatarImage
-                          src={`https://avatar.vercel.sh/${team.value}.png`}
-                          alt={team.label}
-                          className="grayscale"
+              {hasIdentities &&
+                updatedGroups.map((group) => (
+                  <CommandGroup key={group.label} heading={group.label}>
+                    {group.teams.map((team) => (
+                      <CommandItem
+                        key={team.value}
+                        onSelect={() => {
+                          if (selectedIdentity.value !== team.value) {
+                            setSelectedIdentity(team);
+                            changeIdentity(team.value);
+                          }
+                          setOpen(false);
+                        }}
+                        className="text-sm"
+                      >
+                        <Avatar className="mr-2 h-5 w-5">
+                          <AvatarImage
+                            src={`https://avatar.vercel.sh/${team.value}.png`}
+                            alt={team.label}
+                            className="grayscale"
+                          />
+                          <AvatarFallback>SC</AvatarFallback>
+                        </Avatar>
+                        {team.label}
+                        <CheckIcon
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            selectedIdentity.value === team.value
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
                         />
-                        <AvatarFallback>SC</AvatarFallback>
-                      </Avatar>
-                      {team.label}
-                      <CheckIcon
-                        className={cn(
-                          "ml-auto h-4 w-4",
-                          selectedIdentity.value === team.value
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              ))}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                ))}
             </CommandList>
             <CommandSeparator />
             <CommandList>

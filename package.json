@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "dfinity-dfx-gui",
-  "description": "My application description",
+  "description": "DFINITY DFX GUI is a cross platform, electron based application designed to streamline the use of the DFINITY's Internet Computer `dfx` CLI.",
   "version": "0.0.1",
   "author": "Tolga Yaycı <tolgayayci@protonmail.com>",
   "main": "app/background.js",
@@ -45,6 +45,7 @@
     "cmdk": "^0.2.0",
     "electron-serve": "^1.1.0",
     "electron-store": "^8.1.0",
+    "fix-path": "3.0.0",
     "lucide-react": "^0.279.0",
     "next-themes": "^0.2.1",
     "react-hook-form": "^7.47.0",

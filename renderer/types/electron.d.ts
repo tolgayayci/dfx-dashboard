@@ -13,7 +13,7 @@ interface Versions {
   ) => Promise<string>;
   openDirectory: () => Promise<string>;
   manageProjects: (action, path?) => Promise<any>;
-  manageIdentities: (action, identity?) => Promise<any>;
+  manageIdentities: (action, identity?, newIdentity?) => Promise<any>;
   isDfxProject: (projectPath) => Promise<boolean>;
   isDfxInstalled: () => Promise<boolean>;
   listCanisters: (directoryPath) => Promise<any>;
@@ -21,6 +21,8 @@ interface Versions {
   jsonWrite: (filePath, directoryPath, data) => Promise<any>;
   reloadApplication: () => Promise<void>;
   openExternalLink: (url) => Promise<void>;
+  readEnvVariables: () => Promise<{ [key: string]: string }>;
+  updateEnvVariables: (path, key, value) => Promise<void>;
 }
 
 interface Window {

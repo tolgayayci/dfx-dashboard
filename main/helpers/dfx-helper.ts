@@ -12,10 +12,9 @@ export function executeDfxCommand(
   const allArgs = [command, subcommand, ...argStr, ...flagStr].filter(Boolean);
 
   const commandStr = `dfx ${allArgs.join(" ")}`;
-  console.log(`Executing: ${commandStr} in ${path || "current directory"}`);
 
   return new Promise((resolve, reject) => {
-    const child = spawn("dfx", allArgs, { cwd: path });
+    const child = spawn("dfx", allArgs, { cwd: path, shell: true });
 
     let stdoutData = "";
     let stderrData = "";

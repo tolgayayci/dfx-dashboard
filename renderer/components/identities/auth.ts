@@ -6,7 +6,6 @@ export async function loginWithII() {
   authClient.login({
     identityProvider: "https://identity.ic0.app",
     onSuccess: async () => {
-      console.log("login success");
       const identity = authClient.getIdentity();
 
       // Here you call manageIdentities to add the new identity
@@ -22,11 +21,9 @@ export async function loginWithII() {
       }
     },
     onError: (err) => {
-      console.log("login error", err);
+      console.error("login error", err);
     },
   });
-
-  console.log("loginWithII", authClient.getIdentity());
 
   return {
     identity: authClient.getIdentity(),

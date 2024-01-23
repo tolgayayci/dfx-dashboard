@@ -45,8 +45,10 @@ import { projectRenameSuccess, projectRenameError } from "@lib/notifications";
 
 export default function ProjectDetail({
   projectPath,
+  openDfxTab,
 }: {
   projectPath: string;
+  openDfxTab: boolean;
 }) {
   const [showRenameProjectDialog, setShowRenameProjectDialog] = useState(false);
   const [isSubmittingRenameProject, setIsSubmittingRenameProject] =
@@ -75,7 +77,7 @@ export default function ProjectDetail({
     } catch (error) {
       // handle error
       // toast(projectRenameError(data.to_project_name));
-      console.log(error);
+      console.error(error);
     } finally {
       setIsSubmittingRenameProject(false);
     }
@@ -96,7 +98,7 @@ export default function ProjectDetail({
           setCanisters(canistersArray);
         }
       } catch (error) {
-        console.log("Error invoking remote method:", error);
+        console.error("Error invoking remote method:", error);
       }
     };
 
@@ -112,7 +114,10 @@ export default function ProjectDetail({
   if (project && project.name) {
     return (
       <>
-        <Tabs defaultValue="canisters" className="w-full">
+        <Tabs
+          defaultValue={openDfxTab ? "dfx_json" : "canisters"}
+          className="w-full"
+        >
           <div className="flex flex-col w-full">
             <div className="flex items-center justify-between space-y-2 mb-4">
               <div className="flex items-center">

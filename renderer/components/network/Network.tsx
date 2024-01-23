@@ -70,6 +70,7 @@ export default function NetworkComponent() {
         newData
       );
       if (success) {
+        readJson(path);
         console.log("File updated successfully");
       }
     } else {

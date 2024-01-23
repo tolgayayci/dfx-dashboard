@@ -6,7 +6,7 @@ function Identities() {
   return (
     <React.Fragment>
       <Head>
-        <title>Identities - DFX GUI</title>
+        <title>Identities - DFINITY DFX</title>
       </Head>
       <IdentitiesComponent />
     </React.Fragment>

@@ -96,3 +96,8 @@ export const identityRemoveError = (contentName: string) => ({
   title: "Error",
   description: `Failed to remove ${contentName}.`,
 });
+
+export const protectedIdentityRemoveError = (contentName: string) => ({
+  title: "Error",
+  description: `Failed to remove ${contentName}. You can't delete the ${contentName} identity!`,
+});

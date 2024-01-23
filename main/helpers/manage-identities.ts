@@ -1,4 +1,4 @@
-export function handleIdentities(store, action, identity) {
+export function handleIdentities(store, action, identity, newIdentity?) {
   let identities = store.get("identities", []);
 
   switch (action) {
@@ -23,17 +23,20 @@ export function handleIdentities(store, action, identity) {
       identities.push(identity);
       break;
 
-    case "update":
-      const identityKey = identity.isInternetIdentity
-        ? "internetIdentityPrincipal"
-        : "name";
+    case "rename":
       const existingIdentityIndex = identities.findIndex(
-        (i) => i[identityKey] === identity[identityKey]
+        (i) => i.name === identity.name
       );
       if (existingIdentityIndex === -1) {
-        throw new Error("Identity not found");
+        throw new Error("Identity to rename not found");
       }
-      identities[existingIdentityIndex] = identity;
+      if (identities.some((i) => i.name === newIdentity)) {
+        throw new Error("New identity name already exists");
+      }
+      identities[existingIdentityIndex] = {
+        ...identities[existingIdentityIndex],
+        name: newIdentity,
+      };
       break;
 
     case "delete":

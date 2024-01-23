@@ -117,7 +117,7 @@ export default function ProjectModal({
       // handle success
     } catch (error) {
       // handle error
-      console.log(error);
+      console.error(error);
     } finally {
       setIsSubmittingExistingProject(false);
     }
@@ -156,7 +156,7 @@ export default function ProjectModal({
                     Create a new project for the Internet Computer
                   </DialogDescription>
                 </DialogHeader>
-                <ScrollArea className="max-h-[345px] overflow-y-auto">
+                <ScrollArea className="max-h-[350px] overflow-y-auto">
                   <div>
                     <div className="space-y-4 py-4 pb-4">
                       <div>
@@ -240,7 +240,7 @@ export default function ProjectModal({
                             </FormItem>
                           )}
                         />
-                        <FormField
+                        {/* <FormField
                           control={createNewProjectform.control}
                           name="dry_run"
                           render={({ field }) => (
@@ -263,7 +263,7 @@ export default function ProjectModal({
                               </FormControl>
                             </FormItem>
                           )}
-                        />
+                        /> */}
                       </div>
                     </div>
                   </div>

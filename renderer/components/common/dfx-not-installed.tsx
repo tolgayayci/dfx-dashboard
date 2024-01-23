@@ -14,7 +14,6 @@ export default function DfxNotInstalled() {
   async function openExternalLink(url: string) {
     try {
       const result = await window.awesomeApi.openExternalLink(url);
-      console.log(`Result: ${result}`);
     } catch (error) {
       console.error(`Error: ${error}`);
     }
@@ -22,8 +21,7 @@ export default function DfxNotInstalled() {
 
   async function reloadApplication() {
     try {
-      const result = await window.awesomeApi.reloadApplication();
-      console.log(`Result: ${result}`);
+      await window.awesomeApi.reloadApplication();
     } catch (error) {
       console.error(`Error: ${error}`);
     }
@@ -36,7 +34,7 @@ export default function DfxNotInstalled() {
           <AlertDialogTitle>DFX is not installed!</AlertDialogTitle>
           <AlertDialogDescription>
             You need to install DFX to use this application. Please visit the
-            DFX website for more information by clicking the button below.
+            repository for more information.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -46,7 +44,7 @@ export default function DfxNotInstalled() {
           <AlertDialogAction
             onClick={() =>
               openExternalLink(
-                "https://support.dfinity.org/hc/en-us/articles/10552713577364-How-do-I-install-dfx-"
+                "https://github.com/tolgayayci/dfinity-dfx-gui"
               ) as any
             }
           >

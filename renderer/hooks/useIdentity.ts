@@ -12,8 +12,6 @@ export default function useIdentity() {
         active: project.active, // Assuming 'active' property is part of your project data
       }));
 
-      console.log("Identities:", identitiesData);
-
       // Find an active project
       const activeProject = identitiesData.find((project) => project.active);
 

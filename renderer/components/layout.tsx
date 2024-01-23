@@ -5,8 +5,8 @@ import Image from "next/image";
 import { SideNav } from "@components/sidebar-nav";
 import { ThemeProvider } from "@components/theme-provider";
 import { ModeToggle } from "@components/toggle-mode";
+import { ReloadToggle } from "@components/toggle-reload";
 import IdentitySwitcher from "@components/identities/identity-switcher";
-import ProjectSwitcher from "./projects/project-switcher";
 import { Toaster } from "@components/ui/toaster";
 import { cn } from "@lib/utils";
 import { TooltipProvider } from "@components/ui/tooltip";
@@ -63,6 +63,7 @@ export default function Layout({ children }: LayoutProps) {
           />
           <div className="flex flex-row space-x-2">
             <IdentitySwitcher />
+            <ReloadToggle />
             <ModeToggle />
           </div>
         </header>
@@ -79,7 +80,7 @@ export default function Layout({ children }: LayoutProps) {
             <ResizablePanel
               defaultSize={defaultLayout[0]}
               collapsedSize={navCollapsedSize}
-              collapsible={true}
+              collapsible={false}
               minSize={10}
               maxSize={15}
               onCollapse={handleCollapse}
@@ -153,7 +154,7 @@ export default function Layout({ children }: LayoutProps) {
                 </div> */}
               </div>
             </ResizablePanel>
-            <ResizableHandle withHandle />
+            <ResizableHandle />
             <ResizablePanel defaultSize={defaultLayout[1]} className="p-4 ">
               <main>{children}</main>
             </ResizablePanel>

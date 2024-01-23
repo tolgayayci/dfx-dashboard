@@ -1,5 +1,5 @@
 import useCanister from "renderer/hooks/useCanister";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 import CliCommandSelector from "@components/canisters/command-selector";
@@ -17,6 +17,8 @@ import {
 } from "@components/ui/dialog";
 
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
+import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function CanisterDetail({
   projectPath,
@@ -28,6 +30,8 @@ export default function CanisterDetail({
   const [showDialog, setShowDialog] = useState(false);
   const [commandOutput, setCommandOutput] = useState();
   const [commandError, setCommandError] = useState();
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const { canisterData, isLoading, error } = useCanister(
     projectPath,
@@ -42,13 +46,54 @@ export default function CanisterDetail({
     return <div>There was an error: {error.message}</div>;
   }
 
-  const handleRemoveClick = () => {
-    console.log("Attempting to show dialog");
-    setShowDialog(true);
+  const handleRemoveClick = async () => {
+    try {
+      await window.awesomeApi
+        .runDfxCommand("canister", "stop", [canisterName], [], projectPath)
+        .then(async () => {
+          await removeCanister();
+        })
+        .catch((err) => {
+          let errorMessage = "Failed to stop canister: ";
+          if (err.message) {
+            errorMessage += err.message;
+          } else {
+            // Stringify the error object or parts of it
+            errorMessage += JSON.stringify(err, null, 2); // Pretty print the error
+          }
+          setErrorMessage(errorMessage);
+        });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const closeDialog = () => {
-    setShowDialog(false); // This will hide the dialog
+  const removeCanister = async () => {
+    try {
+      await window.awesomeApi
+        .runDfxCommand("canister", "delete", [canisterName], [], projectPath)
+        .then((data) => {
+          setSuccessMessage("Canister deleted successfully:" + data);
+        })
+        .catch((err) => {
+          let errorMessage = "Failed to delete canister: ";
+          if (err.message) {
+            errorMessage += err.message;
+          } else {
+            // Stringify the error object or parts of it
+            errorMessage += JSON.stringify(err, null, 2); // Pretty print the error
+          }
+          setErrorMessage(errorMessage);
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const resetStatus = () => {
+    setShowDialog(false);
+    setErrorMessage("");
+    setSuccessMessage("");
   };
 
   if (canisterData && canisterData.name) {
@@ -61,7 +106,7 @@ export default function CanisterDetail({
               <Button
                 type="button"
                 variant="destructive"
-                onClick={handleRemoveClick}
+                onClick={() => setShowDialog(true)}
               >
                 Remove Canister
               </Button>
@@ -91,25 +136,51 @@ export default function CanisterDetail({
             </div>
           </div>
           {showDialog && (
-            <Dialog open={showDialog} onOpenChange={() => setShowDialog(false)}>
+            <Dialog open={showDialog} onOpenChange={() => resetStatus()}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogTitle className="mb-2">
+                    Are you absolutely sure?
+                  </DialogTitle>
                   <DialogDescription>
                     This action cannot be undone. This will permanently delete
-                    your canister and remove your data from our servers.
+                    your canister!
+                    {errorMessage && (
+                      <Alert variant="destructive" className="mt-4">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Warning</AlertTitle>
+                        <ScrollArea className="max-h-[300px] overflow-y-auto">
+                          <AlertDescription>{errorMessage}</AlertDescription>
+                          <ScrollBar />
+                        </ScrollArea>
+                      </Alert>
+                    )}
+                    {successMessage && (
+                      <Alert variant="default" className="mt-4">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Canister Removed Successfully!</AlertTitle>
+                        <ScrollArea className="max-h-[300px] overflow-y-auto">
+                          <AlertDescription>{successMessage}</AlertDescription>
+                          <ScrollBar />
+                        </ScrollArea>
+                      </Alert>
+                    )}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="flex justify-end space-x-2 mt-4">
+                <div className="flex justify-end space-x-2 mt-2">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => resetStatus()}
+                  >
+                    Cancel
+                  </Button>
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={closeDialog}
+                    onClick={() => handleRemoveClick()}
                   >
-                    Delete
-                  </Button>
-                  <Button type="button" onClick={closeDialog}>
-                    Cancel
+                    Remove
                   </Button>
                 </div>
               </DialogContent>

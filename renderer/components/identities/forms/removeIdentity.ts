@@ -21,18 +21,18 @@ export async function onRemoveIdentityFormSubmit(
     const args = [data.identity_name];
     const flags = [data.drop_wallets === true ? "--drop-wallets" : null].filter(
       Boolean
-    ); // This will remove any null values from the array
+    );
 
-    console.log(command, subcommand, args, flags);
-
-    // const result = await window.awesomeApi.runDfxCommand(
-    //   command,
-    //   subcommand,
-    //   args,
-    //   flags
-    // );
-
-    // console.log(result);
+    await window.awesomeApi
+      .runDfxCommand(command, subcommand, args)
+      .then(async () => {
+        await window.awesomeApi
+          .manageIdentities("delete", {
+            name: data.identity_name,
+            isInternetIdentity: false,
+          })
+          .then(async () => await window.awesomeApi.reloadApplication());
+      });
   } catch (error) {
     console.error(`Error: ${error}`); // log error
   }

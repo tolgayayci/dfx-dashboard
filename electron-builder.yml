@@ -1,5 +1,5 @@
 appId: com.example.nextron
-productName: Dfinity Dfx Gui
+productName: Dfinity Dfx
 copyright: Copyright © 2023 Tolga Yaycı
 directories:
   output: dist
@@ -9,4 +9,5 @@ files:
     filter:
       - package.json
       - app
+      - main/preload.js
 publish: null

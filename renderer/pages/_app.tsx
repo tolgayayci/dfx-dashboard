@@ -14,26 +14,24 @@ function MyApp({ Component, pageProps }: AppProps) {
         const result = await window.awesomeApi.isDfxInstalled();
         setIsDfxInstalled(result);
       } catch (error) {
-        console.error(`Error: ${error}`);
-        setIsDfxInstalled(false); // Assuming it's not installed in case of an error
+        setIsDfxInstalled(false);
       }
     }
 
-    checkIsDfxInstalled();
+    if (typeof window !== "undefined") {
+      checkIsDfxInstalled();
+    }
   }, []);
 
   if (isDfxInstalled === null) {
-    // Render a loading indicator or any other appropriate component while checking DFX installation
     return null;
   } else if (isDfxInstalled) {
-    // Render the layout if DFX is installed
     return (
       <Layout>
         <Component {...pageProps} />
       </Layout>
     );
   } else {
-    // Render a different page if DFX is not installed
     return <DfxNotInstalled />;
   }
 }

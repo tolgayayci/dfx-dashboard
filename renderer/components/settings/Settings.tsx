@@ -9,18 +9,20 @@ export default function SettingsComponent() {
     <Tabs defaultValue="env" className="w-full">
       <div className="flex items-center justify-between w-full">
         <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-        <TabsList>
+        {/* <TabsList>
           <TabsTrigger value="env">Environment Variables</TabsTrigger>
-          <TabsTrigger value="adapters">Adapters</TabsTrigger>
-        </TabsList>
+          <TabsTrigger value="adapters" disabled>
+            Adapters
+          </TabsTrigger>
+        </TabsList> */}
       </div>
       <Separator className="mt-4" />
       <TabsContent value="env">
         <EnvironmentVariables />
       </TabsContent>
-      <TabsContent value="adapters">
+      {/* <TabsContent value="adapters">
         <Adapters />
-      </TabsContent>
+      </TabsContent> */}
     </Tabs>
   );
 }

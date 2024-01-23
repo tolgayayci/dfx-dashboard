@@ -43,14 +43,27 @@ export async function onNewIdentityFormSubmit(
       data.force === true ? "force" : null,
     ].filter(Boolean); // This will remove any null values from the array
 
-    const result = await window.awesomeApi.runDfxCommand(
-      command,
-      subcommand,
-      args,
-      flags
-    );
-
-    return result;
+    await window.awesomeApi
+      .runDfxCommand(command, subcommand, args, flags)
+      .then(async () => {
+        await window.awesomeApi
+          .runDfxCommand(
+            "identity",
+            "get-principal",
+            ["--identity"],
+            [data.identity_name]
+          )
+          .then(
+            async (principaldata) =>
+              await window.awesomeApi
+                .manageIdentities("add", {
+                  name: data.identity_name,
+                  isInternetIdentity: false,
+                  principal: principaldata,
+                })
+                .then(async () => await window.awesomeApi.reloadApplication())
+          );
+      });
   } catch (error) {
     console.error(`Error: ${error}`); // log error
   }

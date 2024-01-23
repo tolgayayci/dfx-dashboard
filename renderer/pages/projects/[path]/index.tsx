@@ -5,18 +5,20 @@ import ProjectDetail from "@components/projects/project-detail";
 
 function CanisterDetailPage() {
   const router = useRouter();
-  const { path } = router.query;
+  const { path, tab } = router.query;
 
   if (!router.isReady) {
     return <div>Loading...</div>;
   }
 
+  const isOpenDfxTab = tab === "dfx";
+
   return (
     <React.Fragment>
       <Head>
-        <title>Project - DFX GUI</title>
+        <title>Project - DFINITY DFX</title>
       </Head>
-      <ProjectDetail projectPath={path as string} />
+      <ProjectDetail projectPath={path as string} openDfxTab={isOpenDfxTab} />
     </React.Fragment>
   );
 }

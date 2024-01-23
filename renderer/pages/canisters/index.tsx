@@ -6,7 +6,7 @@ function Canisters() {
   return (
     <React.Fragment>
       <Head>
-        <title>Canisters - DFX GUI</title>
+        <title>Canisters - DFINITY DFX</title>
       </Head>
       <CanistersComponent />
     </React.Fragment>

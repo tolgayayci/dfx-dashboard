@@ -25,7 +25,9 @@ export const createColumns = (): ColumnDef<Canister>[] => {
       header: "Project Name",
       cell: ({ row }) => (
         <div className="text-left">
-          <Link href={`/projects${row.original.projectPath}`}>
+          <Link
+            href={`/projects/${encodeURIComponent(row.original.projectPath)}`}
+          >
             {row.original.projectName}
           </Link>
         </div>

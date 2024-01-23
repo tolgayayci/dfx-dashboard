@@ -10,7 +10,7 @@ function CanisterDetailPage() {
   return (
     <React.Fragment>
       <Head>
-        <title>Canister - {canisterName} - DFX GUI</title>
+        <title>Canister - {canisterName} - DFINITY DFX</title>
       </Head>
       <CanisterDetail
         projectPath={projectPath as string}

@@ -6,7 +6,7 @@ function Projects() {
   return (
     <React.Fragment>
       <Head>
-        <title>Projects - DFX GUI</title>
+        <title>Projects - DFINITY DFX</title>
       </Head>
       <ProjectsComponent />
     </React.Fragment>

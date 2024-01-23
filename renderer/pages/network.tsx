@@ -6,7 +6,7 @@ function Network() {
   return (
     <React.Fragment>
       <Head>
-        <title>Network - DFX GUI</title>
+        <title>Network - DFINITY DFX</title>
       </Head>
       <NetworkComponent />
     </React.Fragment>

@@ -52,8 +52,6 @@ const CliCommandSelector = ({
   const [isRunningCommand, setIsRunningCommand] = useState(false);
   const [latestCommand, setLatestCommand] = useState(""); // State to hold the latest command
 
-  console.log("parth", path);
-
   const updateLatestCommand = () => {
     const selectedCommandDetails = commands.find(
       (c) => c.value === selectedCommand
@@ -188,7 +186,7 @@ const CliCommandSelector = ({
 
   return (
     <div className="flex flex-col">
-      <div className="bg-gray-200 p-4 rounded-md mb-4">
+      <div className="bg-gray-200 dark:bg-white dark:text-black p-4 rounded-md mb-4">
         <code>{latestCommand}</code>
       </div>
       <ScrollArea className="max-h-[calc(80vh-200px)] overflow-y-auto">
