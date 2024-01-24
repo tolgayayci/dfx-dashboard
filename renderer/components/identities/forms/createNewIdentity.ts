@@ -41,30 +41,25 @@ export async function onNewIdentityFormSubmit(
         : null,
       data.storage_mode ? `storage-mode=${data.storage_mode}` : null,
       data.force === true ? "force" : null,
-    ].filter(Boolean); // This will remove any null values from the array
+    ].filter(Boolean);
 
-    await window.awesomeApi
-      .runDfxCommand(command, subcommand, args, flags)
-      .then(async () => {
-        await window.awesomeApi
-          .runDfxCommand(
-            "identity",
-            "get-principal",
-            ["--identity"],
-            [data.identity_name]
-          )
-          .then(
-            async (principaldata) =>
-              await window.awesomeApi
-                .manageIdentities("add", {
-                  name: data.identity_name,
-                  isInternetIdentity: false,
-                  principal: principaldata,
-                })
-                .then(async () => await window.awesomeApi.reloadApplication())
-          );
-      });
+    await window.awesomeApi.runDfxCommand(command, subcommand, args, flags);
+
+    const principaldata = await window.awesomeApi.runDfxCommand(
+      "identity",
+      "get-principal",
+      ["--identity"],
+      [data.identity_name]
+    );
+
+    await window.awesomeApi.manageIdentities("add", {
+      name: data.identity_name,
+      isInternetIdentity: false,
+      principal: principaldata,
+    });
+
+    await window.awesomeApi.reloadApplication();
   } catch (error) {
-    console.error(`Error: ${error}`); // log error
+    console.error(`Error: ${error}`);
   }
 }

@@ -119,6 +119,7 @@ export default function IdentityModal({
   const handleImportIdentity = async (data) => {
     try {
       await onimportIdentityFormSubmit(data).then((res) => {
+        //@ts-ignore
         if (res) {
           toast(identityImportSuccess(res));
           setShowCreateIdentityDialog(false);

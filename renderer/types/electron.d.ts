@@ -23,6 +23,7 @@ interface Versions {
   openExternalLink: (url) => Promise<void>;
   readEnvVariables: () => Promise<{ [key: string]: string }>;
   updateEnvVariables: (path, key, value) => Promise<void>;
+  refreshIdentities: () => Promise<void>;
 }
 
 interface Window {

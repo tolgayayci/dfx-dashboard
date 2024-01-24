@@ -13,7 +13,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@components/ui/dialog";
 
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
@@ -48,45 +47,54 @@ export default function CanisterDetail({
 
   const handleRemoveClick = async () => {
     try {
-      await window.awesomeApi
-        .runDfxCommand("canister", "stop", [canisterName], [], projectPath)
-        .then(async () => {
-          await removeCanister();
-        })
-        .catch((err) => {
-          let errorMessage = "Failed to stop canister: ";
-          if (err.message) {
-            errorMessage += err.message;
-          } else {
-            // Stringify the error object or parts of it
-            errorMessage += JSON.stringify(err, null, 2); // Pretty print the error
-          }
-          setErrorMessage(errorMessage);
-        });
+      // First, try to stop the canister
+      await window.awesomeApi.runDfxCommand(
+        "canister",
+        "stop",
+        [canisterName],
+        [],
+        projectPath
+      );
+
+      // If the above command is successful, proceed to remove the canister
+      await removeCanister();
     } catch (err) {
-      console.log(err);
+      // Handling any errors that occur in the try block
+      let errorMessage = "Failed to process canister: ";
+
+      if (err.message) {
+        errorMessage += err.message;
+      } else {
+        // Stringify the error object or parts of it
+        errorMessage += JSON.stringify(err, null, 2); // Pretty print the error
+      }
+
+      setErrorMessage(errorMessage);
     }
   };
 
   const removeCanister = async () => {
     try {
-      await window.awesomeApi
-        .runDfxCommand("canister", "delete", [canisterName], [], projectPath)
-        .then((data) => {
-          setSuccessMessage("Canister deleted successfully:" + data);
-        })
-        .catch((err) => {
-          let errorMessage = "Failed to delete canister: ";
-          if (err.message) {
-            errorMessage += err.message;
-          } else {
-            // Stringify the error object or parts of it
-            errorMessage += JSON.stringify(err, null, 2); // Pretty print the error
-          }
-          setErrorMessage(errorMessage);
-        });
+      // Using await to handle the promise
+      const data = await window.awesomeApi.runDfxCommand(
+        "canister",
+        "delete",
+        [canisterName],
+        [],
+        projectPath
+      );
+
+      setSuccessMessage("Canister deleted successfully: " + data);
     } catch (err) {
-      console.log(err);
+      let errorMessage = "Failed to delete canister: ";
+
+      if (err.message) {
+        errorMessage += err.message;
+      } else {
+        // Stringify the error object or parts of it
+        errorMessage += JSON.stringify(err, null, 2); // Pretty print the error
+      }
+      setErrorMessage(errorMessage);
     }
   };
 

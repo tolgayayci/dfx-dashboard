@@ -43,4 +43,7 @@ contextBridge.exposeInMainWorld('awesomeApi', {
   updateEnvVariables: async (path, key, value) => {
     return ipcRenderer.invoke('env:update-script', path, key, value);
   },
+  refreshIdentities: async () => {
+    return ipcRenderer.invoke('identity:refresh');
+  }
 });

@@ -1,3 +1,6 @@
+const fixPath = require("fix-path");
+fixPath();
+
 import { app, ipcMain, dialog } from "electron";
 import serve from "electron-serve";
 
@@ -14,12 +17,10 @@ import {
 const path = require("node:path");
 const fs = require("fs");
 const { shell } = require("electron");
-const fixPath = require("fix-path");
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
 const Store = require("electron-store");
-fixPath();
 
 const schema = {
   projects: {
@@ -43,10 +44,7 @@ const schema = {
       properties: {
         name: { type: "string" },
         principal: { type: "string" },
-        isInternetIdentity: { type: "boolean" },
-        internetIdentityPrincipal: { type: "string", default: "" },
       },
-      required: ["isInternetIdentity"],
     },
   },
 };
@@ -70,7 +68,6 @@ if (isProd) {
 
 (async () => {
   await app.whenReady();
-  app.dock.setIcon("resources/icon.png");
 
   const mainWindow = createWindow("main", {
     width: 1500,
@@ -220,21 +217,20 @@ if (isProd) {
     }
   );
 
-  // New Function: Retrieve and Store Identities
   async function retrieveAndStoreIdentities() {
     try {
       const result = await executeDfxCommand("identity", "list");
       // Split the result string into an array of identities
       const identityNames = result
         .split("\n")
-        .filter((identity) => identity.trim() !== "");
+        .filter(
+          (identity) => identity.trim() !== "" && identity.trim() !== "*"
+        );
 
       for (const name of identityNames) {
         // Create an identity object
         const identity = {
           name: name,
-          isInternetIdentity: false, // Set this based on your criteria
-          internetIdentityPrincipal: "", // Set this appropriately
         };
 
         // Add each identity to the store
@@ -242,12 +238,10 @@ if (isProd) {
           await handleIdentities(store, "add", identity);
         } catch (error) {
           console.error(`Error adding identity '${name}':`, error);
-          // Handle error appropriately for each identity
         }
       }
     } catch (error) {
       console.error("Error retrieving identities:", error);
-      // Handle error appropriately
     }
   }
 
@@ -263,12 +257,22 @@ if (isProd) {
     }
   });
 
-  ipcMain.handle("env:read-script", async () => {
+  ipcMain.handle("env:read-script", async (event) => {
     try {
       const envVars = readEnvVarsFromProfiles();
       return envVars;
     } catch (error) {
       console.error("Failed to read environment script:", error);
+      return { error };
+    }
+  });
+
+  ipcMain.handle("identity:refresh", async (event) => {
+    try {
+      const envVars = retrieveAndStoreIdentities();
+      return envVars;
+    } catch (error) {
+      console.error("Failed to read identities from dfx:", error);
       return { error };
     }
   });

@@ -1,5 +1,5 @@
 appId: com.example.nextron
-productName: Dfinity Dfx
+productName: dfinity-dfx
 copyright: Copyright © 2023 Tolga Yaycı
 directories:
   output: dist

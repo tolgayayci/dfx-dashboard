@@ -48,7 +48,7 @@ export default function DfxNotInstalled() {
               ) as any
             }
           >
-            Visit Website
+            Visit GitHub
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

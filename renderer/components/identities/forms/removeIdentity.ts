@@ -23,17 +23,15 @@ export async function onRemoveIdentityFormSubmit(
       Boolean
     );
 
-    await window.awesomeApi
-      .runDfxCommand(command, subcommand, args)
-      .then(async () => {
-        await window.awesomeApi
-          .manageIdentities("delete", {
-            name: data.identity_name,
-            isInternetIdentity: false,
-          })
-          .then(async () => await window.awesomeApi.reloadApplication());
-      });
+    await window.awesomeApi.runDfxCommand(command, subcommand, args, flags);
+
+    await window.awesomeApi.manageIdentities("delete", {
+      name: data.identity_name,
+      isInternetIdentity: false,
+    });
+
+    await window.awesomeApi.reloadApplication();
   } catch (error) {
-    console.error(`Error: ${error}`); // log error
+    console.error(`Error: ${error}`);
   }
 }

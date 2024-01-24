@@ -3,23 +3,10 @@ export function handleIdentities(store, action, identity, newIdentity?) {
 
   switch (action) {
     case "add":
-      if (identity.isInternetIdentity) {
-        if (
-          identities.some(
-            (i) =>
-              i.internetIdentityPrincipal === identity.internetIdentityPrincipal
-          )
-        ) {
-          throw new Error("Internet identity already exists");
-        }
-      } else {
-        if (
-          !identity.name ||
-          identities.some((i) => i.name === identity.name)
-        ) {
-          throw new Error("Identity already exists or name is missing");
-        }
+      if (!identity.name || identities.some((i) => i.name === identity.name)) {
+        throw new Error("Identity already exists or name is missing");
       }
+
       identities.push(identity);
       break;
 

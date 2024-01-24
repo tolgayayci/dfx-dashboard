@@ -34,17 +34,12 @@ export async function onimportIdentityFormSubmit(
       data.pem_identity ? `pem-identity=${data.pem_identity}` : null,
       data.storage_mode ? `storage-mode=${data.storage_mode}` : null,
       data.force === true ? "force" : null,
-    ].filter(Boolean); // This will remove any null values from the array
+    ].filter(Boolean);
 
-    const result = await window.awesomeApi.runDfxCommand(
-      command,
-      subcommand,
-      args,
-      flags
-    );
+    await window.awesomeApi.runDfxCommand(command, subcommand, args, flags);
 
-    return result;
+    await window.awesomeApi.reloadApplication();
   } catch (error) {
-    console.error(`Error: ${error}`); // log error
+    console.error(`Error: ${error}`);
   }
 }

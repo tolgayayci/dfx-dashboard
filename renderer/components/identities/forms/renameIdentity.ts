@@ -23,17 +23,15 @@ export async function onRenameIdentityFormSubmit(
     const subcommand = "rename";
     const args = [data.from_identity_name, data.to_identity_name];
 
-    await window.awesomeApi
-      .runDfxCommand(command, subcommand, args)
-      .then(async () => {
-        await window.awesomeApi
-          .manageIdentities(
-            "rename",
-            { name: data.from_identity_name },
-            data.to_identity_name
-          )
-          .then(async () => await window.awesomeApi.reloadApplication());
-      });
+    await window.awesomeApi.runDfxCommand(command, subcommand, args);
+
+    await window.awesomeApi.manageIdentities(
+      "rename",
+      { name: data.from_identity_name },
+      data.to_identity_name
+    );
+
+    await window.awesomeApi.reloadApplication();
   } catch (error) {
     console.error(`Error: ${error}`);
   }

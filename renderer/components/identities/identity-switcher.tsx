@@ -92,6 +92,9 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
 
   async function checkIdentities() {
     try {
+      await window.awesomeApi.refreshIdentities();
+      await window.awesomeApi.manageIdentities("list", "");
+
       const identities = await window.awesomeApi.manageIdentities("list", "");
 
       // Find the "Identities" group and update its "teams" property
@@ -100,12 +103,8 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
           return {
             ...group,
             teams: identities.map((identity) => ({
-              label: identity.name
-                ? identity.name
-                : identity.internetIdentityPrincipal.slice(0, 11),
-              value: identity.name
-                ? identity.name
-                : identity.internetIdentityPrincipal.slice(0, 11),
+              label: identity.name,
+              value: identity.name,
             })),
           };
         }
@@ -127,7 +126,7 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
     }
   }
 
-  const hasIdentities = updatedGroups.some((group) => group.teams.length > 1);
+  const hasIdentities = updatedGroups.some((group) => group.teams.length > 0);
 
   useEffect(() => {
     checkCurrentIdentity();
