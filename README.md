@@ -21,15 +21,19 @@ Now that you have dfx installed, you can install the DFINITY DFX GUI application
 ###  macOS (Apple Silicon | Intel)
 
 1. Download the latest release for macOS 
-   1. [Apple Silicon](#)
-   2. [Intel](#)
-2. Open the downloaded file and drag the application to your Applications folder.
-3. Open the application from your Applications folder.
+   1. [Apple Silicon](https://github.com/tolgayayci/dfinity-dfx-gui/releases/download/v0.1.0/dfinity-dfx-0.1.0-arm64.dmg)
+   2. [Intel](https://github.com/tolgayayci/dfinity-dfx-gui/releases/download/v0.1.0/dfinity-dfx-0.1.0-universal.dmg)
+2. Open the downloaded file and drag the application to Applications folder.
 
 ### 🐧 Linux
 
-1. Download the latest release for Linux from [this link](#).
-2. Extract the downloaded file and click on the application.
+1. Download the latest release for Linux 
+   1. [App Image](https://github.com/tolgayayci/dfinity-dfx-gui/releases/download/v0.1.0/dfinity-dfx-0.1.0.AppImage)
+   2. [Snap](https://github.com/tolgayayci/dfinity-dfx-gui/releases/download/v0.1.0/dfinity-dfx-gui_0.1.0_amd64.snap)
+
+2. Follow the general instructions to install the application on your Linux distribution.
+   1. [App Image](https://docs.appimage.org/introduction/quickstart.html#ref-quickstart)
+   2. [Snap](https://snapcraft.io/docs/installing-snapd)
 
 ### 💻 Windows (Not Fully Supported)
 
@@ -38,11 +42,24 @@ DFX **is not natively supported on Windows** yet. However, you can still use the
 1. Install WSL 2 by following the instructions [on developer docs](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 2. Once you have WSL installed, you can install dfx by running: 
    ```DFX_VERSION=0.15.1 sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"```
-
+3. Follow the instructions for Linux to install the DFINITY DFX GUI application.
 ---
 
 ## Key Features
-- **Project Management**
+
+**Project Management:** This feature allows users to efficiently manage their projects. It includes capabilities to create new projects, import existing ones from other sources, and delete projects that are no longer needed. 
+
+**Identity Management:** This component focuses on managing user identities. Users can create new identities, import existing ones, delete unnecessary identities, and seamlessly switch between different identities. 
+
+**Canister Interactions:** This feature is centered around interactions with canisters. Users can create and delete canisters, manage their settings, and interact with them using a variety of commands, arguments, and flags through a user-friendly interface.
+
+**Network Management:** Network management is facilitated through the ability to edit the global networks.json file. This feature enables users to customize and configure network settings to meet the specific needs of their projects.
+
+**Environment Variables:** This aspect of the system allows users to edit existing environment variables. 
+
+> **P.S:** Review the [latest release notes](https://github.com/tolgayayci/dfinity-dfx-gui/releases/tag/v0.1.0) for more information about the features and capabilities of the DFINITY DFX GUI application.
+
+<!-- - **Project Management**
   - Create new projects
   - Import existing projects
   - Delete projects
@@ -58,18 +75,12 @@ DFX **is not natively supported on Windows** yet. However, you can still use the
   - Manage canister cycles
   - Manage canister logs
   - Manage canister assets
-- **Network Configurations**
-  - Switch between networks
-  - Add new networks
-  - Delete networks
 - **Network Management**
   - Manage Dfx settings
+- **Environment Variables**
+  - Manage environment variables -->
 
 ---
-
-## Usage
-
-[Provide a brief guide or steps on how to use the application, its features, and any tips for users.]
 
 ## Contributing
 
