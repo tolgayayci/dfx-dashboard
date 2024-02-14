@@ -31,6 +31,6 @@ export async function onAddExistingProjectForm(
 
     return result;
   } catch (error) {
-    console.error(`Error: ${error}`); // log error
+    throw error; // Rethrow error to be handled by the caller
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 
 import {
@@ -55,6 +56,10 @@ import IdentityModal from "@components/identities/identity-modal";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import NoIdentities from "@components/identities/no-identities";
 
+const ReactJson = dynamic(() => import("react-json-view"), {
+  ssr: false, // This will only import 'ReactJson' on the client-side
+});
+
 const IdentityCard = ({
   identity,
   activeIdentityName,
@@ -62,7 +67,7 @@ const IdentityCard = ({
   identity: {
     name: string;
     isInternetIdentity: boolean;
-    internetIdentityPrincipal: string;
+    internetIdentity: object;
   };
   activeIdentityName: string;
 }) => {
@@ -70,9 +75,7 @@ const IdentityCard = ({
     useState(false);
   const [showRemoveIdentityDialog, setShowRemoveIdentityDialog] =
     useState(false);
-  const [isSubmittingRenameProject, setIsSubmittingRenameProject] =
-    useState(false);
-  const [isSubmittingRemoveProject, setIsSubmittingRemoveProject] =
+  const [showInternetIdentityDialog, setShowInternetIdentityDialog] =
     useState(false);
 
   const { toast } = useToast();
@@ -102,6 +105,13 @@ const IdentityCard = ({
     setShowRemoveIdentityDialog(true);
   };
 
+  const handleInternetIdentityRemove = async () => {
+    await window.awesomeApi.manageIdentities("delete", {
+      name: identity.name,
+    });
+    await window.awesomeApi.reloadApplication();
+  };
+
   // If the identity name is '*', do not render the card
   if (identity.name === "*") {
     return null;
@@ -120,7 +130,7 @@ const IdentityCard = ({
           <div className="flex flex-col space-y-1">
             <CardTitle className="text-medium">
               {identity.isInternetIdentity
-                ? identity.internetIdentityPrincipal.slice(0, 11)
+                ? identity.name.slice(0, 11)
                 : identity.name}
             </CardTitle>
             <CardDescription>
@@ -133,14 +143,52 @@ const IdentityCard = ({
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-4">
         <div>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setShowRenameIdentityDialog(true)}
-            disabled={identity.isInternetIdentity || isProtectedIdentity}
+          {identity.isInternetIdentity ? (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowInternetIdentityDialog(true)}
+            >
+              Details
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowRenameIdentityDialog(true)}
+              disabled={isProtectedIdentity}
+            >
+              Edit
+            </Button>
+          )}
+          <Dialog
+            open={showInternetIdentityDialog}
+            onOpenChange={() => setShowInternetIdentityDialog(false)}
           >
-            Edit
-          </Button>
+            <DialogContent>
+              <DialogHeader className="space-y-3">
+                <DialogTitle>Internet Identity Details</DialogTitle>
+                <DialogDescription>
+                  You can view the details of an internet identity here.
+                </DialogDescription>
+              </DialogHeader>
+              <ScrollArea className="h-[calc(100vh-300px)]">
+                <ReactJson
+                  name={identity.name}
+                  src={identity.internetIdentity}
+                />
+                <ScrollBar />
+              </ScrollArea>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowInternetIdentityDialog(false)}
+                >
+                  Close
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <Dialog
             open={showRenameIdentityDialog}
             onOpenChange={() => setShowRenameIdentityDialog(false)}
@@ -224,13 +272,19 @@ const IdentityCard = ({
           </Dialog>
         </div>
         <div>
-          <Button
-            className="w-full"
-            onClick={handleRemoveClick}
-            disabled={isActiveIdentity || isProtectedIdentity}
-          >
-            Remove
-          </Button>
+          {identity.isInternetIdentity ? (
+            <Button className="w-full" onClick={handleInternetIdentityRemove}>
+              Delete
+            </Button>
+          ) : (
+            <Button
+              className="w-full"
+              onClick={handleRemoveClick}
+              disabled={isActiveIdentity || isProtectedIdentity}
+            >
+              Remove
+            </Button>
+          )}
           <Dialog
             open={showRemoveIdentityDialog}
             onOpenChange={() => setShowRemoveIdentityDialog(false)}
@@ -306,9 +360,44 @@ export default function IdentitiesComponent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeIdentityName, setActiveIdentityName] = useState("");
 
+  function deserializeInternetIdentity(serializedIdentity) {
+    const identity = JSON.parse(serializedIdentity, (key, value) => {
+      if (typeof value === "string" && /^\d+n$/.test(value)) {
+        return BigInt(value.slice(0, -1));
+      }
+      return value;
+    });
+
+    if (identity.isInternetIdentity) {
+      try {
+        identity.internetIdentity = JSON.parse(
+          identity.internetIdentity,
+          (key, value) => {
+            if (typeof value === "string" && /^\d+n$/.test(value)) {
+              return BigInt(value.slice(0, -1));
+            }
+            return value;
+          }
+        );
+      } catch (error) {
+        console.error("Error deserializing internetIdentity", error);
+      }
+    }
+
+    return identity;
+  }
+
   async function checkIdentities() {
     try {
       const identities = await window.awesomeApi.manageIdentities("list", "");
+
+      identities.forEach((identity) => {
+        if (identity.isInternetIdentity) {
+          identity.internetIdentity = deserializeInternetIdentity(
+            identity.internetIdentity
+          );
+        }
+      });
 
       setIdentities(identities);
     } catch (error) {
@@ -334,7 +423,6 @@ export default function IdentitiesComponent() {
     setSearchQuery(e.target.value);
   };
 
-  // Call checkIdentities when the component mounts
   useEffect(() => {
     const fetchActiveIdentity = async () => {
       const activeIdentity = await checkCurrentIdentity();
@@ -393,11 +481,7 @@ export default function IdentitiesComponent() {
                 )
                 .map((identity) => (
                   <IdentityCard
-                    key={
-                      identity.name
-                        ? identity.name
-                        : identity.internetIdentityPrincipal
-                    }
+                    key={identity.name}
                     identity={identity}
                     activeIdentityName={activeIdentityName}
                   />

@@ -91,8 +91,7 @@ export default function CanisterDetail({
       if (err.message) {
         errorMessage += err.message;
       } else {
-        // Stringify the error object or parts of it
-        errorMessage += JSON.stringify(err, null, 2); // Pretty print the error
+        errorMessage += JSON.stringify(err, null, 2);
       }
       setErrorMessage(errorMessage);
     }

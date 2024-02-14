@@ -40,6 +40,6 @@ export async function onimportIdentityFormSubmit(
 
     await window.awesomeApi.reloadApplication();
   } catch (error) {
-    console.error(`Error: ${error}`);
+    throw error;
   }
 }

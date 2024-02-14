@@ -18,6 +18,6 @@ export async function onRemoveProjectFormSubmit(
 
     return result;
   } catch (error) {
-    console.error(`Error: ${error}`); // log error
+    throw error;
   }
 }

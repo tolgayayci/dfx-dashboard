@@ -83,19 +83,11 @@ export default function IdentityModal({
 
   const handleLogin = async () => {
     try {
-      await loginWithII().then((res) => {
-        if (res) {
-          toast(
-            identityInternetIdentityLoginSuccess(
-              res.identity as unknown as string
-            )
-          );
-          setShowCreateIdentityDialog(false);
-        }
-      });
+      await loginWithII();
+      await window.awesomeApi.reloadApplication();
     } catch (error) {
-      // toast(identityInternetIdentityLoginError("unknown"));
-      console.log(error);
+      console.error("Login failed", error);
+      throw error;
     }
   };
 
@@ -151,8 +143,8 @@ export default function IdentityModal({
           <TabsList className="mb-4">
             <TabsTrigger value="new-identity">New Identity</TabsTrigger>
             <TabsTrigger value="import">Import Existing</TabsTrigger>
-            <TabsTrigger value="internet-identity" disabled>
-              Internet Identity (Soon)
+            <TabsTrigger value="internet-identity">
+              Internet Identity
             </TabsTrigger>
           </TabsList>
           <TabsContent value="new-identity">

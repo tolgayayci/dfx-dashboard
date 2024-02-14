@@ -27,11 +27,10 @@ export async function onRemoveIdentityFormSubmit(
 
     await window.awesomeApi.manageIdentities("delete", {
       name: data.identity_name,
-      isInternetIdentity: false,
     });
 
     await window.awesomeApi.reloadApplication();
   } catch (error) {
-    console.error(`Error: ${error}`);
+    throw error;
   }
 }

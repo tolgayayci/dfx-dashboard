@@ -33,6 +33,6 @@ export async function onRenameIdentityFormSubmit(
 
     await window.awesomeApi.reloadApplication();
   } catch (error) {
-    console.error(`Error: ${error}`);
+    throw error;
   }
 }

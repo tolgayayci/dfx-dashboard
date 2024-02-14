@@ -3,8 +3,18 @@ export function handleIdentities(store, action, identity, newIdentity?) {
 
   switch (action) {
     case "add":
+      // Ensure identity has a name and does not already exist.
       if (!identity.name || identities.some((i) => i.name === identity.name)) {
         throw new Error("Identity already exists or name is missing");
+      }
+
+      // For adding an internetIdentity, ensure the structure is correct.
+      if (
+        identity.isInternetIdentity &&
+        (!identity.internetIdentity ||
+          typeof identity.internetIdentity !== "string")
+      ) {
+        throw new Error("Invalid internetIdentity object");
       }
 
       identities.push(identity);
@@ -17,31 +27,23 @@ export function handleIdentities(store, action, identity, newIdentity?) {
       if (existingIdentityIndex === -1) {
         throw new Error("Identity to rename not found");
       }
-      if (identities.some((i) => i.name === newIdentity)) {
+      if (identities.some((i) => i.name === newIdentity.name)) {
         throw new Error("New identity name already exists");
       }
       identities[existingIdentityIndex] = {
         ...identities[existingIdentityIndex],
-        name: newIdentity,
+        name: newIdentity.name,
       };
       break;
 
     case "delete":
-      const keyToDelete = identity.isInternetIdentity
-        ? "internetIdentityPrincipal"
-        : "name";
-      identities = identities.filter(
-        (i) => i[keyToDelete] !== identity[keyToDelete]
-      );
+      identities = identities.filter((i) => i.name !== identity.name);
       break;
 
     case "get":
-      if (identity) {
-        const keyToFind = identity.isInternetIdentity
-          ? "internetIdentityPrincipal"
-          : "name";
+      if (identity.name) {
         const requestedIdentity = identities.find(
-          (i) => i[keyToFind] === identity[keyToFind]
+          (i) => i.name === identity.name
         );
         return requestedIdentity || null;
       }

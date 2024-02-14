@@ -1,32 +1,56 @@
 import { AuthClient } from "@dfinity/auth-client";
 
 export async function loginWithII() {
-  const authClient = await AuthClient.create();
+  return new Promise(async (resolve, reject) => {
+    const authClient = await AuthClient.create();
 
-  authClient.login({
-    identityProvider: "https://identity.ic0.app",
-    onSuccess: async () => {
-      const identity = authClient.getIdentity();
-
-      // Here you call manageIdentities to add the new identity
-      try {
-        const result = await window.awesomeApi.manageIdentities("add", {
-          name: "", // As the name can be empty for internet identities
-          isInternetIdentity: true,
-          internetIdentityPrincipal: identity.getPrincipal().toString(),
-        });
-        console.log("Identity added", result);
-      } catch (error) {
-        console.error("Error adding identity:", error);
-      }
-    },
-    onError: (err) => {
-      console.error("login error", err);
-    },
+    authClient.login({
+      identityProvider: "https://identity.ic0.app",
+      onSuccess: async () => {
+        try {
+          const result = await handleAuthenticated(authClient);
+          resolve(result);
+        } catch (error) {
+          console.error("Error in handleAuthenticated", error);
+          reject(error);
+        }
+      },
+      onError: (err) => {
+        console.error("Error logging in", err);
+        reject(err);
+      },
+    });
   });
+}
 
-  return {
-    identity: authClient.getIdentity(),
-    isLogged: authClient.isAuthenticated(),
-  };
+export async function handleAuthenticated(authClient: AuthClient) {
+  const identity = await authClient.getIdentity();
+
+  try {
+    const serializedInternetIdentity = JSON.stringify(
+      identity,
+      (key, value) => {
+        if (typeof value === "bigint") {
+          return value.toString();
+        } else {
+          return value;
+        }
+      }
+    );
+
+    const internetIdentity = {
+      name: identity.getPrincipal().toText(),
+      isInternetIdentity: true,
+      internetIdentity: serializedInternetIdentity,
+    };
+
+    const result = await window.awesomeApi.manageIdentities(
+      "add",
+      internetIdentity
+    );
+
+    return result;
+  } catch (error) {
+    console.error("Error saving identity", error);
+  }
 }

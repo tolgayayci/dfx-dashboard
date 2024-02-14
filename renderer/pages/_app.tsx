@@ -13,14 +13,13 @@ function MyApp({ Component, pageProps }: AppProps) {
       try {
         const result = await window.awesomeApi.isDfxInstalled();
         setIsDfxInstalled(result);
-        if (!result) {
+        if (result) {
           const ee = await window.awesomeApi.runDfxCommand(
             "identity",
             "list",
             [],
             []
           );
-          console.log(ee);
         }
       } catch (error) {
         setIsDfxInstalled(false);

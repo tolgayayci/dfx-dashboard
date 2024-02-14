@@ -215,7 +215,7 @@ export const commands = [
         description: "Performs the call with the user Identity as the Sender",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -311,12 +311,12 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-y, --yes",
+        name: "--yes",
         type: "flag",
         description: "Auto-confirm deletion for a non-stopped canister",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -396,7 +396,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -464,7 +464,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -532,7 +532,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -593,7 +593,7 @@ export const commands = [
         description: "Specify the logging mode",
       },
       {
-        name: "-m, --mode",
+        name: "--mode",
         placeholder: "install",
         type: "argument",
         description: "Specifies the type of deployment",
@@ -646,7 +646,7 @@ export const commands = [
         description: "Specifies a particular WASM file to install",
       },
       {
-        name: "-y, --yes",
+        name: "--yes",
         type: "flag",
         description: "Skips yes/no checks by answering 'yes'",
       },
@@ -656,7 +656,7 @@ export const commands = [
         description: "Skips upgrading the asset canister",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -730,7 +730,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -812,7 +812,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -891,7 +891,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -1005,7 +1005,7 @@ export const commands = [
         description: "Specifies the output file name",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -1079,7 +1079,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -1153,7 +1153,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -1227,7 +1227,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -1301,7 +1301,7 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },
@@ -1423,12 +1423,12 @@ export const commands = [
         description: "Confirms freezing thresholds above ~1.5 years",
       },
       {
-        name: "-y, --yes",
+        name: "--yes",
         type: "flag",
         description: "Skips yes/no checks by answering 'yes'",
       },
       {
-        name: "-h, --help",
+        name: "--help",
         type: "flag",
         description: "Print help",
       },

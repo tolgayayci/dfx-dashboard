@@ -10,11 +10,11 @@ import {
 } from "@components/ui/accordion";
 import { Button } from "@components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
-import { AlertCircle, ThumbsUpIcon } from "lucide-react";
+import { AlertCircle, ThumbsUpIcon, ThumbsDownIcon } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 
 const ReactJson = dynamic(() => import("react-json-view"), {
-  ssr: false, // This will only import 'ReactJson' on the client-side
+  ssr: false,
 });
 
 export default function CanisterStatusConfig({
@@ -75,9 +75,9 @@ export default function CanisterStatusConfig({
   }
 
   async function checkCanisterStatus() {
-    // Here we call the exposed method from preload.js
     try {
-      const result = await window.awesomeApi.runDfxCommand(
+      // Fetching the status of the canister
+      const statusResult = await window.awesomeApi.runDfxCommand(
         "canister",
         "status",
         [canister.name],
@@ -85,8 +85,35 @@ export default function CanisterStatusConfig({
         projectPath
       );
 
-      const parsedResult = parseCliOutput(result);
-      setCanisterStatus(parsedResult);
+      const parsedResult = parseCliOutput(statusResult);
+      console.log("Parsed result:", parsedResult);
+
+      // Fetching the principal ID of the active identity
+      const identityResult = await window.awesomeApi.runDfxCommand(
+        "identity",
+        "get-principal"
+      );
+
+      //@ts-ignore
+      const controllersString = parsedResult?.Controllers;
+      const controllersArray = controllersString.split(" ");
+      controllersArray.pop(); // Remove the last word
+      const controllers = controllersArray.join(" ");
+
+      // Comparing the active identity principal with the canister controllers
+      if (controllers.includes(identityResult)) {
+        console.log("Active Identity is controller of the canister.");
+        setCanisterStatus({
+          ...parsedResult,
+          isActiveIdentityController: true,
+        });
+      } else {
+        console.log("Active Identity is not controller of the canister.");
+        setCanisterStatus({
+          ...parsedResult,
+          isActiveIdentityController: false,
+        });
+      }
     } catch (error) {
       console.log("Error invoking remote method:", error);
     }
@@ -111,10 +138,29 @@ export default function CanisterStatusConfig({
           </AccordionTrigger>
           <AccordionContent>
             {canisterStatus ? (
-              <ReactJson
-                name={canister.name + "_status"}
-                src={canisterStatus}
-              />
+              <div>
+                {canisterStatus.isActiveIdentityController ? (
+                  <Alert variant="success" className="mb-4">
+                    <ThumbsUpIcon className="h-4 w-4 text-green-600" />
+                    <AlertTitle>Canister Status</AlertTitle>
+                    <AlertDescription>
+                      Active Identity is controller of the canister.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <Alert className="mb-4">
+                    <ThumbsDownIcon className="h-4 w-4 text-red-600" />
+                    <AlertTitle>Canister Status</AlertTitle>
+                    <AlertDescription>
+                      Active Identity is not controller of the canister.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <ReactJson
+                  name={canister.name + "_status"}
+                  src={canisterStatus}
+                />
+              </div>
             ) : (
               <Alert variant="warning">
                 <AlertCircle className="h-4 w-4" />

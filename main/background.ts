@@ -43,13 +43,18 @@ const schema = {
       type: "object",
       properties: {
         name: { type: "string" },
-        principal: { type: "string" },
+        isInternetIdentity: { type: "boolean" },
+        internetIdentity: {
+          type: "string",
+        },
       },
     },
   },
 };
 
 const store = new Store({ schema });
+
+store.set("identities", []);
 
 async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog({
