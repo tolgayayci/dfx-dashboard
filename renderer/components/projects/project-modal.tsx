@@ -123,6 +123,22 @@ export default function ProjectModal({
     }
   };
 
+  // Function to extract project name from path
+  function extractProjectNameFromPath(path) {
+    const pathSegments = path.split(/[\\/]/); // Split by both forward and back slashes to cover different OS
+    return pathSegments.pop() || ""; // Get the last segment of the path
+  }
+
+  // Modified onClick handler for the "Select" button
+  async function handleDirectorySelection(path) {
+    if (path) {
+      const projectName = extractProjectNameFromPath(path);
+      if (addExistingProjectForm.setValue) {
+        addExistingProjectForm.setValue("project_name", projectName);
+      }
+    }
+  }
+
   async function getDirectoryPath() {
     try {
       const result = await window.awesomeApi.openDirectory();
@@ -350,6 +366,7 @@ export default function ProjectModal({
                                     getDirectoryPath().then((path) => {
                                       if (path) {
                                         field.onChange(path);
+                                        handleDirectorySelection(path);
                                       }
                                     });
                                   }}

@@ -58,6 +58,7 @@ import {
 } from "@components/identities/forms/importNewIdentity";
 
 import { loginWithII } from "@components/identities/auth";
+import { useAuth } from "renderer/hooks/useAuth";
 
 import { useToast } from "@components/ui/use-toast";
 import {
@@ -68,6 +69,7 @@ import {
   identityInternetIdentityLoginSuccess,
   identityInternetIdentityLoginError,
 } from "@lib/notifications";
+import { Alert, AlertTitle, AlertDescription } from "@components/ui/alert";
 
 export default function IdentityModal({
   showCreateIdentityDialog,
@@ -80,11 +82,14 @@ export default function IdentityModal({
   const [isSubmittingLoginWithII, setIsSubmittingLoginWithII] = useState(false);
 
   const { toast } = useToast();
+  const { login, identity, isReady } = useAuth();
 
   const handleLogin = async () => {
     try {
-      await loginWithII();
-      await window.awesomeApi.reloadApplication();
+      if (isReady) {
+        await login();
+      }
+      console.log(identity);
     } catch (error) {
       console.error("Login failed", error);
       throw error;
@@ -499,6 +504,14 @@ export default function IdentityModal({
               <DialogDescription>
                 You can use Internet Identity to login to the Internet Computer.
               </DialogDescription>
+              {identity && (
+                <Alert>
+                  <AlertTitle>You are logged in as</AlertTitle>
+                  <AlertDescription>
+                    {identity.getPrincipal().toString()}
+                  </AlertDescription>
+                </Alert>
+              )}
             </DialogHeader>
             <DialogFooter>
               <Button

@@ -45,5 +45,29 @@ contextBridge.exposeInMainWorld('awesomeApi', {
   },
   refreshIdentities: async () => {
     return ipcRenderer.invoke('identity:refresh');
+  },
+  setKeyValue: async (key, value) => {
+    return ipcRenderer.invoke('store:set', key, value);
+  },
+  getKeyValue: async (key) => {
+    return ipcRenderer.invoke('store:get', key);
+  },
+  deleteKeyValue: async (key) => {
+    return ipcRenderer.invoke('store:delete', key);
+  },
+  onUpdateDelegate: (callback) => {
+    ipcRenderer.on('delegation-received', (event, value) => {
+      callback(value);
+    });
+  },
+  offUpdateDelegate: (callback) => {
+    // Use the stored listener to remove the event listener
+    if (callback._listener) {
+      ipcRenderer.removeListener('delegation-received', callback._listener);
+
+      // Clean up by deleting the stored listener
+      delete callback._listener;
+    }
   }
 });
+

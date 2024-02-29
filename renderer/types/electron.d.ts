@@ -24,6 +24,18 @@ interface Versions {
   readEnvVariables: () => Promise<{ [key: string]: string }>;
   updateEnvVariables: (path, key, value) => Promise<void>;
   refreshIdentities: () => Promise<void>;
+  setKeyValue: (
+    key: string,
+    value: any
+  ) => Promise<{ success: boolean; message?: string }>;
+  getKeyValue: (
+    key: string
+  ) => Promise<{ success: boolean; value?: any; message?: string }>;
+  deleteKeyValue: (
+    key: string
+  ) => Promise<{ success: boolean; message?: string }>;
+  onUpdateDelegate: (callback: (value: any) => void) => void;
+  offUpdateDelegate: (callback: (value: any) => void) => void;
 }
 
 interface Window {

@@ -1,7 +1,7 @@
 const fixPath = require("fix-path");
 fixPath();
 
-import { app, ipcMain, dialog } from "electron";
+import { app, ipcMain, dialog, protocol, BrowserWindow } from "electron";
 import serve from "electron-serve";
 
 // Helpers
@@ -50,11 +50,29 @@ const schema = {
       },
     },
   },
+  settings: {
+    type: "object",
+    patternProperties: {
+      ".*": {
+        type: ["string", "number", "boolean", "object", "array"],
+      },
+    },
+    additionalProperties: true,
+  },
 };
 
 const store = new Store({ schema });
 
-store.set("identities", []);
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: "internetidentity",
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
 
 async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -72,7 +90,42 @@ if (isProd) {
 }
 
 (async () => {
-  await app.whenReady();
+  // Internet Identity Deep Link
+  await app.whenReady().then(() => {
+    protocol.handle("internetidentity", (req) => {
+      const { host, pathname, search } = new URL(req.url);
+
+      if (host == "login") {
+        let loginWindow = new BrowserWindow({
+          parent: mainWindow,
+          width: 300,
+          height: 200,
+          webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: true,
+            preload: path.join(__dirname, "../main/preload.js"),
+          },
+        });
+
+        loginWindow.loadURL(pathname.slice(1) + search);
+
+        loginWindow.webContents.on("will-navigate", (event, newUrl) => {
+          const urlObj = new URL(newUrl);
+          const searchParams = new URLSearchParams(urlObj.search);
+
+          if (searchParams.has("delegation")) {
+            const delegationParam = searchParams.get("delegation");
+
+            mainWindow.webContents.send("delegation-received", delegationParam);
+
+            loginWindow.close();
+          }
+        });
+
+        return new Response(null, { status: 200 });
+      }
+    });
+  });
 
   const mainWindow = createWindow("main", {
     width: 1500,
@@ -91,6 +144,39 @@ if (isProd) {
   ipcMain.handle("open-external-link", async (event, url) => {
     if (url) {
       await shell.openExternal(url);
+    }
+  });
+
+  // Set a key-value pair
+  ipcMain.handle("store:set", (event, key, value) => {
+    try {
+      store.set(key, value);
+      return { success: true, message: `Successfully set ${key}` };
+    } catch (error) {
+      console.error("Error setting value:", error);
+      return { success: false, message: error.toString() };
+    }
+  });
+
+  // Get a value by key
+  ipcMain.handle("store:get", (event, key) => {
+    try {
+      const value = store.get(key);
+      return { success: true, value: value };
+    } catch (error) {
+      console.error("Error getting value:", error);
+      return { success: false, message: error.toString() };
+    }
+  });
+
+  // Delete a key-value pair
+  ipcMain.handle("store:delete", (event, key) => {
+    try {
+      store.delete(key);
+      return { success: true, message: `Successfully deleted ${key}` };
+    } catch (error) {
+      console.error("Error deleting value:", error);
+      return { success: false, message: error.toString() };
     }
   });
 
@@ -129,6 +215,7 @@ if (isProd) {
   ipcMain.handle(
     "store:manageIdentities",
     async (event, action, identity, newIdentity?) => {
+      console.log(identity);
       try {
         const result = await handleIdentities(
           store,
@@ -225,6 +312,7 @@ if (isProd) {
   async function retrieveAndStoreIdentities() {
     try {
       const result = await executeDfxCommand("identity", "list");
+
       // Split the result string into an array of identities
       const identityNames = result
         .split("\n")
@@ -236,6 +324,7 @@ if (isProd) {
         // Create an identity object
         const identity = {
           name: name,
+          isInternetIdentity: false,
         };
 
         // Add each identity to the store
