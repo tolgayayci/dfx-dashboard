@@ -70,4 +70,3 @@ contextBridge.exposeInMainWorld('awesomeApi', {
     }
   }
 });
-

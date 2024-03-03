@@ -125,16 +125,13 @@ export function useAuth() {
       return;
     }
     const derKey = toHex(baseKey.getPublicKey().toDer());
-    const url = new URL(
-      "internetidentity://login:/https://tdpaj-biaaa-aaaab-qaijq-cai.icp0.io/"
-    );
+    const url = new URL("https://v73c4-7qaaa-aaaak-qdbvq-cai.icp0.io/");
 
     url.searchParams.set("pubkey", derKey);
 
-    const link = document.createElement("a");
-    link.href = url.toString();
-    link.target = "_blank";
-    link.click();
+    const modifiedUrl = url.toString();
+
+    window.awesomeApi.openExternalLink(modifiedUrl);
   };
 
   const logout = async () => {

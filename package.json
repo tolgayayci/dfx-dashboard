@@ -43,6 +43,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
+    "electron-deeplink": "^1.0.10",
+    "electron-is-dev": "^3.0.1",
     "electron-serve": "^1.1.0",
     "electron-store": "^8.1.0",
     "fix-path": "3.0.0",

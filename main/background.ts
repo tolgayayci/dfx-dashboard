@@ -1,7 +1,7 @@
 const fixPath = require("fix-path");
 fixPath();
 
-import { app, ipcMain, dialog, protocol, BrowserWindow } from "electron";
+import { app, ipcMain, dialog, protocol } from "electron";
 import serve from "electron-serve";
 
 // Helpers
@@ -63,16 +63,64 @@ const schema = {
 
 const store = new Store({ schema });
 
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: "internetidentity",
-    privileges: {
-      standard: true,
-      secure: true,
-      supportFetchAPI: true,
-    },
-  },
-]);
+let mainWindow;
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient("dfx", process.execPath, [
+      path.resolve(process.argv[1]),
+    ]);
+  }
+} else {
+  app.setAsDefaultProtocolClient("dfx");
+}
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", (event, commandLine, workingDirectory) => {
+    console.log("second-instance", commandLine);
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+
+    dialog.showErrorBox(
+      "Welcome Back",
+      `You arrived from: ${commandLine.pop().slice(0, -1)}`
+    );
+  });
+
+  app.on("open-url", function (event, url) {
+    event.preventDefault();
+    console.log("open-url event: " + url);
+  });
+
+  app.whenReady().then(() => {
+    mainWindow = createWindow("main", {
+      width: 1500,
+      height: 700,
+      webPreferences: {
+        preload: path.join(__dirname, "../main/preload.js"),
+      },
+    });
+  });
+
+  app.on("open-url", (event, url) => {
+    event.preventDefault();
+
+    const urlObj = new URL(url);
+    const searchParams = new URLSearchParams(urlObj.search);
+
+    if (searchParams.has("delegation")) {
+      const delegationParam = searchParams.get("delegation");
+
+      mainWindow.webContents.send("delegation-received", delegationParam);
+    }
+  });
+}
 
 async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -90,51 +138,6 @@ if (isProd) {
 }
 
 (async () => {
-  // Internet Identity Deep Link
-  await app.whenReady().then(() => {
-    protocol.handle("internetidentity", (req) => {
-      const { host, pathname, search } = new URL(req.url);
-
-      if (host == "login") {
-        let loginWindow = new BrowserWindow({
-          parent: mainWindow,
-          width: 300,
-          height: 200,
-          webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: true,
-            preload: path.join(__dirname, "../main/preload.js"),
-          },
-        });
-
-        loginWindow.loadURL(pathname.slice(1) + search);
-
-        loginWindow.webContents.on("will-navigate", (event, newUrl) => {
-          const urlObj = new URL(newUrl);
-          const searchParams = new URLSearchParams(urlObj.search);
-
-          if (searchParams.has("delegation")) {
-            const delegationParam = searchParams.get("delegation");
-
-            mainWindow.webContents.send("delegation-received", delegationParam);
-
-            loginWindow.close();
-          }
-        });
-
-        return new Response(null, { status: 200 });
-      }
-    });
-  });
-
-  const mainWindow = createWindow("main", {
-    width: 1500,
-    height: 700,
-    webPreferences: {
-      preload: path.join(__dirname, "../main/preload.js"),
-    },
-  });
-
   ipcMain.handle("app:reload", () => {
     if (mainWindow) {
       mainWindow.reload();
@@ -215,7 +218,6 @@ if (isProd) {
   ipcMain.handle(
     "store:manageIdentities",
     async (event, action, identity, newIdentity?) => {
-      console.log(identity);
       try {
         const result = await handleIdentities(
           store,
@@ -382,6 +384,6 @@ if (isProd) {
   }
 })();
 
-app.on("window-all-closed", () => {
-  app.quit();
+app.on("window-all-closed", function () {
+  if (process.platform !== "darwin") app.quit();
 });

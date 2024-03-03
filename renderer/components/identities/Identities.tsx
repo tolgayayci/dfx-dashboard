@@ -109,6 +109,8 @@ const IdentityCard = ({
     await window.awesomeApi.manageIdentities("delete", {
       name: identity.name,
     });
+    await window.awesomeApi.deleteKeyValue("baseKey");
+    await window.awesomeApi.deleteKeyValue("delegation");
     await window.awesomeApi.reloadApplication();
   };
 

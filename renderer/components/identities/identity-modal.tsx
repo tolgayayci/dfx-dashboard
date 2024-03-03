@@ -529,7 +529,7 @@ export default function IdentityModal({
                 </Button>
               ) : (
                 <Button type="button" onClick={handleLogin}>
-                  Login
+                  {identity ? "Re-Login" : "Login"}
                 </Button>
               )}
             </DialogFooter>
