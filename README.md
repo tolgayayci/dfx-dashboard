@@ -1,3 +1,5 @@
+> :warning: **This application in still beta!** When using application be aware of something unexpected may be occur. **Use at your own risk**, don't try important things like very important identities and so on!
+
 # DFINITY DFX GUI
 
 DFINITY DFX GUI is a cross platform, electron based application designed to streamline the use of the DFINITY's Internet Computer `dfx` CLI. It offers a user-friendly interface for managing canisters, identities, and DFINITY projects with ease.
