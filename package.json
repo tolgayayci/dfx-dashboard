@@ -5,6 +5,11 @@
   "version": "0.1.2",
   "author": "Tolga Yaycı <tolgayayci@protonmail.com>",
   "main": "app/background.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tolgayayci/sora.git",
+    "directory": "sora"
+  },
   "scripts": {
     "dev": "nextron",
     "build": "nextron build",
