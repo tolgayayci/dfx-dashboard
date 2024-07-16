@@ -34,7 +34,7 @@ export default function DfxNotInstalled() {
           <AlertDialogTitle>DFX is not installed!</AlertDialogTitle>
           <AlertDialogDescription>
             You need to install DFX to use this application. Please visit the
-            repository for more information.
+            Internet Computer documentation to learn how to use dfx.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -44,11 +44,11 @@ export default function DfxNotInstalled() {
           <AlertDialogAction
             onClick={() =>
               openExternalLink(
-                "https://github.com/tolgayayci/dfinity-dfx-gui"
+                "https://internetcomputer.org/docs/current/developer-docs/getting-started/install/#installing-dfx"
               ) as any
             }
           >
-            Visit GitHub
+            Visit Documentation
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
