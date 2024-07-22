@@ -1,8 +1,9 @@
 const fixPath = require("fix-path");
 fixPath();
 
-import { app, ipcMain, dialog, protocol } from "electron";
+import { app, ipcMain, dialog } from "electron";
 import serve from "electron-serve";
+import { autoUpdater } from "electron-updater";
 
 // Helpers
 import { createWindow } from "./helpers";
@@ -63,6 +64,16 @@ const schema = {
 
 const store = new Store({ schema });
 
+autoUpdater.setFeedURL({
+  provider: "github",
+  owner: "tolgayayci",
+  repo: "dfinity-dfx-gui",
+  releaseType: "release",
+});
+
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+
 let mainWindow;
 
 if (process.defaultApp) {
@@ -108,6 +119,8 @@ if (!gotTheLock) {
         preload: path.join(__dirname, "../main/preload.js"),
       },
     });
+
+    autoUpdater.checkForUpdatesAndNotify();
   });
 
   app.on("open-url", (event, url) => {

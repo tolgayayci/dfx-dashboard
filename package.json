@@ -51,6 +51,7 @@
     "electron-is-dev": "^3.0.1",
     "electron-serve": "^1.1.0",
     "electron-store": "^8.1.0",
+    "electron-updater": "^6.2.1",
     "fix-path": "3.0.0",
     "lucide-react": "^0.279.0",
     "next-themes": "^0.2.1",
