@@ -102,6 +102,8 @@ if (!gotTheLock) {
     mainWindow = createWindow("main", {
       width: 1500,
       height: 700,
+      minWidth: 1250,
+      minHeight: 650,
       webPreferences: {
         preload: path.join(__dirname, "../main/preload.js"),
       },

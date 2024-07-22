@@ -36,21 +36,37 @@ import { SelectSeparator } from "@components/ui/select";
 const CliCommandSelector = ({
   canister,
   path,
+  initialCommand,
+  latestCommand,
   setCommandOutput,
   setCommandError,
+  setLatestCommand,
 }: {
   canister: any;
   path: string;
+  initialCommand: string;
+  latestCommand: string;
   setCommandOutput: (any) => void;
   setCommandError: (any) => void;
+  setLatestCommand: (any) => void;
 }) => {
   const defaultCommand = commands.length > 0 ? commands[0].value : "";
 
-  const [selectedCommand, setSelectedCommand] = useState(defaultCommand);
+  const [selectedCommand, setSelectedCommand] = useState(
+    initialCommand || defaultCommand
+  );
   const [commandArgs, setCommandArgs] = useState({});
   const [commandOptions, setCommandOptions] = useState({});
   const [isRunningCommand, setIsRunningCommand] = useState(false);
-  const [latestCommand, setLatestCommand] = useState(""); // State to hold the latest command
+
+  useEffect(() => {
+    if (initialCommand) {
+      const [command, ...args] = initialCommand.split(" ");
+      const commandValue = args[0];
+      setSelectedCommand(commandValue);
+      handleCommandChange(commandValue, args);
+    }
+  }, [initialCommand]);
 
   const updateLatestCommand = () => {
     const selectedCommandDetails = commands.find(
@@ -61,7 +77,6 @@ const CliCommandSelector = ({
       return;
     }
 
-    // Only values of the arguments separated by spaces
     const argsString = Object.values(commandArgs)
       .filter((value) => value)
       .join(" ");
@@ -88,35 +103,46 @@ const CliCommandSelector = ({
       })
       .join(" ");
 
-    setLatestCommand(
-      `dfx canister ${selectedCommandDetails.value} ${argsString} ${optionsString}`
-    );
+    const newLatestCommand = `dfx canister ${selectedCommandDetails.value} ${canister.name} ${argsString} ${optionsString}`;
+    setLatestCommand(newLatestCommand);
   };
 
   useEffect(() => {
     updateLatestCommand();
   }, [selectedCommand, commandArgs, commandOptions]);
 
-  const handleCommandChange = (commandValue) => {
+  const handleCommandChange = (commandValue, initialArgs = []) => {
     setSelectedCommand(commandValue);
     const command = commands.find((c) => c.value === commandValue);
 
-    // Initialize arguments
     if (command && command.args) {
       const argsInitialState = {};
-      command.args.forEach((arg) => {
-        argsInitialState[arg.name] = "";
+      command.args.forEach((arg, index) => {
+        const argValue = initialArgs.find((initialArg) =>
+          initialArg.startsWith(arg.name)
+        );
+        argsInitialState[arg.name] = argValue
+          ? argValue.split(arg.name)[1].trim()
+          : "";
       });
       setCommandArgs(argsInitialState);
     } else {
       setCommandArgs({});
     }
 
-    // Initialize options
     if (command && command.options) {
       const optionsInitialState = {};
       command.options.forEach((option) => {
-        optionsInitialState[option.name] = "";
+        const optionValue = initialArgs.find((initialArg) =>
+          initialArg.startsWith(option.name)
+        );
+        if (option.type === "flag") {
+          optionsInitialState[option.name] = !!optionValue;
+        } else if (option.type === "argument") {
+          optionsInitialState[option.name] = optionValue
+            ? optionValue.split(option.name)[1].trim()
+            : "";
+        }
       });
       setCommandOptions(optionsInitialState);
     } else {
@@ -128,11 +154,9 @@ const CliCommandSelector = ({
     setIsRunningCommand(true);
     try {
       await runCli(selectedCommand, Object.values(commandArgs)).then(() => {
-        // toast success message
         console.log("Command executed successfully");
       });
     } catch (error) {
-      // toast error message
       console.error("Error executing command:", error);
     } finally {
       setIsRunningCommand(false);
@@ -146,23 +170,16 @@ const CliCommandSelector = ({
           (c) => c.value === command
         );
 
-        // Construct the options array, including -- for options and flags
-        const optionsArray = selectedCommandDetails.options.reduce(
-          (acc, option) => {
-            const value = commandOptions[option.name];
-            if (option.type === "flag" && value) {
-              // If it's a flag and it's set, add the key
-              acc.push(`${option.name}`);
-            } else if (option.type === "argument" && value) {
-              // If it's an argument and it has a value, add both key and value
-              acc.push(`${option.name}`, value);
-            }
-            return acc;
-          },
-          []
-        );
+        const flags = selectedCommandDetails.options.reduce((acc, option) => {
+          const value = commandOptions[option.name];
+          if (option.type === "flag" && value) {
+            acc.push(`${option.name}`);
+          } else if (option.type === "argument" && value) {
+            acc.push(`${option.name}`, value);
+          }
+          return acc;
+        }, []);
 
-        // Convert string arguments to integers if necessary
         const processedArgs = args.map((arg) =>
           isNaN(arg) ? arg : parseInt(arg, 10)
         );
@@ -170,8 +187,8 @@ const CliCommandSelector = ({
         const result = await window.awesomeApi.runDfxCommand(
           "canister",
           command,
-          [canister.name, ...processedArgs], // Use processedArgs instead of args
-          optionsArray,
+          [canister.name, ...processedArgs],
+          flags,
           path
         );
 
@@ -180,16 +197,17 @@ const CliCommandSelector = ({
       }
     } catch (error) {
       setCommandError(`${error.message}`);
-      setCommandOutput(""); // Clear any previous output
+      setCommandOutput("");
+      throw error;
     }
   };
 
   return (
     <div className="flex flex-col">
       <div className="bg-gray-200 dark:bg-white dark:text-black p-4 rounded-md mb-4">
-        <code>{latestCommand}</code>
+        <code>{initialCommand || latestCommand}</code>
       </div>
-      <ScrollArea className="max-h-[calc(80vh-200px)] overflow-y-auto">
+      <ScrollArea className="max-h-[calc(82vh-200px)] overflow-y-auto">
         <div className="flex flex-col space-y-4">
           <Select
             value={selectedCommand}
@@ -208,7 +226,11 @@ const CliCommandSelector = ({
               </SelectGroup>
             </SelectContent>
           </Select>
-          <Accordion type="multiple" className="w-full space-y-4">
+          <Accordion
+            type="single"
+            className="w-full space-y-4"
+            defaultValue="options"
+          >
             {selectedCommand &&
               commands.find((c) => c.value === selectedCommand)?.args?.length >
                 0 && (
@@ -281,7 +303,7 @@ const CliCommandSelector = ({
                               key={option.name}
                               className={`w-1/3 px-2 mb-4 space-x-2 items-center flex ${
                                 index % 3 === 0 ? "clear-left" : ""
-                              }`} // Adjust width as per your design
+                              }`}
                             >
                               <Checkbox
                                 id={option.name}
@@ -364,7 +386,6 @@ const CliCommandSelector = ({
       </ScrollArea>
       {isRunningCommand ? (
         <Button className="mt-4" disabled>
-          {" "}
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Command Running...
         </Button>
