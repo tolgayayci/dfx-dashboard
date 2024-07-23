@@ -11,6 +11,7 @@ import { Toaster } from "@components/ui/toaster";
 import { cn } from "@lib/utils";
 import { TooltipProvider } from "@components/ui/tooltip";
 import { Separator } from "@components/ui/separator";
+import CheckDfxStatus from "@components/dfx/check-dfx-status";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -143,15 +144,9 @@ export default function Layout({ children }: LayoutProps) {
                   />
                   <Separator />
                 </div>
-
-                {/* <div
-                  className={cn(
-                    "flex h-[52px] items-center justify-center mb-2",
-                    isCollapsed ? "h-[52px]" : "px-2"
-                  )}
-                >
-                  <ProjectSwitcher />
-                </div> */}
+                <div className="p-2">
+                  <CheckDfxStatus />
+                </div>
               </div>
             </ResizablePanel>
             <ResizableHandle />

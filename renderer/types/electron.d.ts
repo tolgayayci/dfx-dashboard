@@ -36,6 +36,7 @@ interface Versions {
   ) => Promise<{ success: boolean; message?: string }>;
   onUpdateDelegate: (callback: (value: any) => void) => void;
   offUpdateDelegate: (callback: (value: any) => void) => void;
+  runCommand: (command: string) => Promise<any>;
 }
 
 interface Window {

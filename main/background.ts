@@ -18,6 +18,8 @@ import {
 const path = require("node:path");
 const fs = require("fs");
 const { shell } = require("electron");
+const { exec } = require("child_process");
+const os = require("os");
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -216,6 +218,18 @@ if (isProd) {
       }
     }
   );
+
+  ipcMain.handle("runCommand", (event, command) => {
+    return new Promise((resolve, reject) => {
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(stdout);
+        }
+      });
+    });
+  });
 
   ipcMain.handle("dialog:openDirectory", handleFileOpen);
 

@@ -21,6 +21,9 @@ export function executeDfxCommand(
 
     child.stdout.on("data", (data) => {
       stdoutData += data;
+      if (data.includes("Dashboard:")) {
+        resolve(stdoutData);
+      }
     });
 
     child.stderr.on("data", (data) => {
@@ -30,6 +33,10 @@ export function executeDfxCommand(
     child.on("error", (error) => {
       reject(error);
     });
+
+    setTimeout(() => {
+      resolve(stdoutData);
+    }, 10000);
 
     child.on("close", (code) => {
       if (code !== 0) {
