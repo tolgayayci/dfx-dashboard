@@ -1,16 +1,15 @@
-// Project Specific Page
 import { useEffect, useState } from "react";
 import JSONInput from "react-json-editor-ajrm";
 import locale from "react-json-editor-ajrm/locale/en";
 import Loading from "@components/common/loading";
+import { AlertCircle } from "lucide-react";
 
 export default function NetworkComponent() {
   const [networkJson, setNetworkJson] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   function splitPath(path) {
-    // Find the index of the last occurrence of '/'
     var index = path.lastIndexOf("/");
-    // Split the path into two parts
     var part1 = path.substring(0, index);
     var part2 = path.substring(index);
     return [part1, part2];
@@ -24,44 +23,48 @@ export default function NetworkComponent() {
         [],
         []
       );
-
       await readJson(result);
     } catch (error) {
       console.log("Error invoking remote method:", error);
+      setIsLoading(false);
     }
   }
 
-  /// Function to read the JSON file
-  const readJson = async (path: string) => {
+  const readJson = async (path) => {
     var parts = splitPath(path);
-
     try {
       if (parts) {
         const data = await window.awesomeApi.jsonRead(
           parts[0],
           "/networks.json"
         );
-
         if (data) {
           setNetworkJson(data);
+          setIsLoading(false);
         } else {
-          await updateJson(parts[0], {
-            local: {
-              bind: "127.0.0.1:4943",
-              type: "ephemeral",
-              replica: {
-                subnet_type: "application",
-              },
-            },
-          });
+          await createDefaultJson(parts[0]);
         }
       }
     } catch (error) {
       console.error("Error reading networks.json:", error);
+      setIsLoading(false);
     }
   };
 
-  // Function to update the JSON file
+  const createDefaultJson = async (path) => {
+    const defaultData = {
+      local: {
+        bind: "127.0.0.1:4943",
+        type: "ephemeral",
+        replica: {
+          subnet_type: "application",
+        },
+      },
+    };
+    await updateJson(path, defaultData);
+    await window.awesomeApi.reloadApplication();
+  };
+
   const updateJson = async (path, newData) => {
     if (path) {
       const success = await window.awesomeApi.jsonWrite(
@@ -70,15 +73,16 @@ export default function NetworkComponent() {
         newData
       );
       if (success) {
-        readJson(path);
+        setNetworkJson(newData);
+        setIsLoading(false);
         console.log("File updated successfully");
       }
     } else {
       console.error("Failed to update file");
+      setIsLoading(false);
     }
   };
 
-  // Call updateJson when the JSONInput changes
   const handleJsonChange = async (newData) => {
     const result = await window.awesomeApi.runDfxCommand(
       "info",
@@ -86,9 +90,7 @@ export default function NetworkComponent() {
       [],
       []
     );
-
     var parts = splitPath(result);
-
     if (newData.jsObject && parts[0]) {
       updateJson(parts[0], newData.jsObject);
     }
@@ -100,7 +102,9 @@ export default function NetworkComponent() {
 
   return (
     <div>
-      {networkJson ? (
+      {isLoading ? (
+        <Loading />
+      ) : networkJson ? (
         <JSONInput
           id="network_json"
           width="100%"
@@ -110,7 +114,12 @@ export default function NetworkComponent() {
           onChange={handleJsonChange}
         />
       ) : (
-        <Loading />
+        <div className="h-[85vh] flex flex-col items-center justify-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mb-4" />{" "}
+          <div className="text-md font-semibold text-gray-800">
+            Error loading network configuration
+          </div>
+        </div>
       )}
     </div>
   );
