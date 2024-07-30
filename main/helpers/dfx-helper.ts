@@ -87,23 +87,12 @@ export async function executeDfxCommand(
   const useBundledDfx = await store.get("useBundledDfx");
   const storedCustomDfxPath = await store.get("customDfxPath");
 
-  let dfxPath;
-  if (useBundledDfx) {
-    dfxPath = process.env.DFX_PATH;
-  } else if (customPath) {
-    dfxPath = customPath;
-  } else if (storedCustomDfxPath) {
-    dfxPath = storedCustomDfxPath;
-  } else {
-    dfxPath = "dfx"; // Use system DFX
-  }
-
   const argStr = args || [];
   const flagStr = flags || [];
   const allArgs = [command, subcommand, ...argStr, ...flagStr].filter(Boolean);
 
   return new Promise((resolve, reject) => {
-    const child = spawn(dfxPath, allArgs, { shell: true });
+    const child = spawn("dfx", allArgs, { shell: true, cwd: customPath });
     let stdoutData = "";
     let stderrData = "";
 

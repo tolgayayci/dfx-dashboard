@@ -10,6 +10,7 @@ import CanisterConfig from "@components/canisters/canister-config";
 
 import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
+import { Input } from "@components/ui/input";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
 import {
   Dialog,
@@ -29,6 +30,7 @@ import {
   TrashIcon,
   InfoIcon,
   SettingsIcon,
+  ArrowUpIcon,
 } from "lucide-react";
 
 export default function CanisterDetail({
@@ -45,6 +47,7 @@ export default function CanisterDetail({
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [initialCommand, setInitialCommand] = useState("");
@@ -110,6 +113,8 @@ export default function CanisterDetail({
         [],
         projectPath as string
       );
+
+      await removeCanister();
     } catch (err) {
       let errorMessage = "Failed to process canister: ";
       errorMessage += err.message || JSON.stringify(err, null, 2);
@@ -138,6 +143,124 @@ export default function CanisterDetail({
     setShowRemoveDialog(false);
     setErrorMessage("");
     setSuccessMessage("");
+  };
+
+  const TopUpModal = () => {
+    const [topUpAmount, setTopUpAmount] = useState("");
+    const [topUpStatus, setTopUpStatus] = useState(null);
+    const [identityCyclesBalance, setIdentityCyclesBalance] = useState(null);
+    const [canisterCyclesBalance, setCanisterCyclesBalance] = useState(null);
+
+    const checkBalances = async () => {
+      try {
+        // Check identity cycles balance
+        const identityOutput = await window.awesomeApi.runDfxCommand(
+          "cycles",
+          "balance",
+          [],
+          ["--network", "ic"],
+          projectPath
+        );
+        const identityMatch = identityOutput.match(/(\d+) cycles/);
+        if (identityMatch) {
+          setIdentityCyclesBalance(BigInt(identityMatch[1]));
+        }
+
+        // Check canister cycles balance
+        const canisterOutput = await window.awesomeApi.runDfxCommand(
+          "canister",
+          "status",
+          [canisterName],
+          ["--network", "ic"],
+          projectPath
+        );
+        const canisterMatch = canisterOutput.match(/Cycles: (\d+)/);
+        if (canisterMatch) {
+          setCanisterCyclesBalance(BigInt(canisterMatch[1]));
+        }
+      } catch (error) {
+        console.error("Failed to fetch balances:", error);
+        setTopUpStatus({
+          type: "error",
+          message: "Failed to fetch balances: " + error.message,
+        });
+      }
+    };
+
+    useEffect(() => {
+      checkBalances();
+    }, []);
+
+    const handleTopUp = async () => {
+      if (
+        !identityCyclesBalance ||
+        identityCyclesBalance < BigInt(topUpAmount)
+      ) {
+        setTopUpStatus({
+          type: "error",
+          message: "Insufficient cycles in your identity balance.",
+        });
+        return;
+      }
+
+      try {
+        const output = await window.awesomeApi.runDfxCommand(
+          "cycles",
+          "top-up",
+          [topUpAmount, canisterName],
+          ["--network", "ic"],
+          projectPath
+        );
+        setTopUpStatus({
+          type: "success",
+          message: "Top-up successful: " + output,
+        });
+        // Refresh balances after successful top-up
+        checkBalances();
+      } catch (error) {
+        setTopUpStatus({
+          type: "error",
+          message: "Top-up failed: " + error.message,
+        });
+      }
+    };
+
+    return (
+      <div className="space-y-4">
+        {canisterCyclesBalance !== null && (
+          <p>
+            Current Canister Cycle Balance:{" "}
+            {canisterCyclesBalance.toLocaleString()}
+          </p>
+        )}
+        {identityCyclesBalance !== null && (
+          <p>
+            Your Identity Cycle Balance:{" "}
+            {identityCyclesBalance.toLocaleString()}
+          </p>
+        )}
+        <div className="flex space-x-2">
+          <Input
+            type="number"
+            placeholder="Amount of cycles"
+            value={topUpAmount}
+            onChange={(e) => setTopUpAmount(e.target.value)}
+          />
+          <Button onClick={handleTopUp}>Top Up</Button>
+        </div>
+        {topUpStatus && (
+          <Alert
+            variant={topUpStatus.type === "success" ? "default" : "destructive"}
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>
+              {topUpStatus.type === "success" ? "Success" : "Error"}
+            </AlertTitle>
+            <AlertDescription>{topUpStatus.message}</AlertDescription>
+          </Alert>
+        )}
+      </div>
+    );
   };
 
   if (canisterData) {
@@ -179,7 +302,20 @@ export default function CanisterDetail({
                   </DialogContent>
                 </Dialog>
               )}
-
+              <Dialog open={showTopUpModal} onOpenChange={setShowTopUpModal}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <ArrowUpIcon className="w-5 h-5 mr-2" />
+                    Top Up
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="min-w-[calc(70vw-106px)]">
+                  <DialogHeader>
+                    <DialogTitle>Top Up "{canisterName}"</DialogTitle>
+                  </DialogHeader>
+                  <TopUpModal />
+                </DialogContent>
+              </Dialog>
               <Dialog open={showStatusModal} onOpenChange={setShowStatusModal}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
@@ -222,11 +358,6 @@ export default function CanisterDetail({
                 <TrashIcon className="w-5 h-5 mr-2" />
                 Remove
               </Button>
-              {/* <Link
-                href={`/projects/${encodeURIComponent(projectPath as string)}`}
-              >
-                <Button>View Project</Button>
-              </Link> */}
             </div>
           </div>
           <Separator className="w-full mb-4 -mx-4" />
