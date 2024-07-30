@@ -31,6 +31,7 @@ import {
   InfoIcon,
   SettingsIcon,
   ArrowUpIcon,
+  Loader2,
 } from "lucide-react";
 
 export default function CanisterDetail({
@@ -52,7 +53,7 @@ export default function CanisterDetail({
   const [errorMessage, setErrorMessage] = useState("");
   const [initialCommand, setInitialCommand] = useState("");
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const { toast } = useToast();
 
@@ -150,8 +151,12 @@ export default function CanisterDetail({
     const [topUpStatus, setTopUpStatus] = useState(null);
     const [identityCyclesBalance, setIdentityCyclesBalance] = useState(null);
     const [canisterCyclesBalance, setCanisterCyclesBalance] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const checkBalances = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         // Check identity cycles balance
         const identityOutput = await window.awesomeApi.runDfxCommand(
@@ -174,16 +179,18 @@ export default function CanisterDetail({
           ["--network", "ic"],
           projectPath
         );
-        const canisterMatch = canisterOutput.match(/Cycles: (\d+)/);
-        if (canisterMatch) {
-          setCanisterCyclesBalance(BigInt(canisterMatch[1]));
+        const balanceMatch = canisterOutput.match(/Balance: ([\d_]+) Cycles/);
+        if (balanceMatch) {
+          const balanceString = balanceMatch[1].replace(/_/g, "");
+          setCanisterCyclesBalance(BigInt(balanceString));
+        } else {
+          throw new Error("Couldn't find canister balance in the output");
         }
       } catch (error) {
         console.error("Failed to fetch balances:", error);
-        setTopUpStatus({
-          type: "error",
-          message: "Failed to fetch balances: " + error.message,
-        });
+        setError(`Error fetching balances: ${error.message}`);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -203,6 +210,8 @@ export default function CanisterDetail({
         return;
       }
 
+      setIsLoading(true);
+      setError(null);
       try {
         const output = await window.awesomeApi.runDfxCommand(
           "cycles",
@@ -216,37 +225,70 @@ export default function CanisterDetail({
           message: "Top-up successful: " + output,
         });
         // Refresh balances after successful top-up
-        checkBalances();
+        await checkBalances();
       } catch (error) {
         setTopUpStatus({
           type: "error",
           message: "Top-up failed: " + error.message,
         });
+        setError(`Error topping up canister: ${error.message}`);
+      } finally {
+        setIsLoading(false);
       }
     };
+
+    if (isLoading) {
+      return (
+        <div className="h-full">
+          <div className="border border-gray-200 rounded-lg p-8 w-full h-full flex justify-center items-center">
+            <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="h-full">
+          <div className="border border-red-200 bg-red-50 rounded-lg p-4 w-full h-full flex justify-center items-center">
+            <p className="text-red-600 text-center">{error}</p>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="space-y-4">
         {canisterCyclesBalance !== null && (
-          <p>
-            Current Canister Cycle Balance:{" "}
-            {canisterCyclesBalance.toLocaleString()}
-          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-blue-700 font-semibold">
+              Canister Cycle Balance:{" "}
+              <span className="font-bold text-blue-800">
+                {canisterCyclesBalance.toLocaleString()} Cycles
+              </span>
+            </p>
+          </div>
         )}
         {identityCyclesBalance !== null && (
           <p>
             Your Identity Cycle Balance:{" "}
-            {identityCyclesBalance.toLocaleString()}
+            {identityCyclesBalance.toLocaleString()} cycles
           </p>
         )}
-        <div className="flex space-x-2">
+        <div className="flex space-x-4 items-center">
           <Input
             type="number"
             placeholder="Amount of cycles"
             value={topUpAmount}
             onChange={(e) => setTopUpAmount(e.target.value)}
+            className="flex-grow"
           />
-          <Button onClick={handleTopUp}>Top Up</Button>
+          <Button
+            onClick={handleTopUp}
+            className="whitespace-nowrap px-6 py-2 font-md"
+          >
+            Top Up
+          </Button>
         </div>
         {topUpStatus && (
           <Alert
@@ -310,7 +352,7 @@ export default function CanisterDetail({
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="min-w-[calc(70vw-106px)]">
-                  <DialogHeader>
+                  <DialogHeader className="mb-2">
                     <DialogTitle>Top Up "{canisterName}"</DialogTitle>
                   </DialogHeader>
                   <TopUpModal />
