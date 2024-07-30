@@ -61,6 +61,7 @@
     "react-resizable-panels": "^1.0.7",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
+    "tar": "^7.4.1",
     "universal-analytics": "^0.5.3",
     "zod": "^3.22.4",
     "zx": "^7.2.3"

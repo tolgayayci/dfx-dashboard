@@ -37,6 +37,13 @@ interface Versions {
   onUpdateDelegate: (callback: (value: any) => void) => void;
   offUpdateDelegate: (callback: (value: any) => void) => void;
   runCommand: (command: string) => Promise<any>;
+  setUseBundledDfx: (value: boolean) => Promise<boolean>;
+  getUseBundledDfx: () => Promise<boolean>;
+  setCustomDfxPath: (path: string) => Promise<boolean>;
+  getCustomDfxPath: () => Promise<string>;
+  checkSystemDfx: () => Promise<boolean>;
+  getBundledDfxPath: () => Promise<string>;
+  setupBundledDfx: () => Promise<boolean>;
 }
 
 interface Window {

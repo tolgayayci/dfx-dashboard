@@ -7,7 +7,11 @@ import { autoUpdater } from "electron-updater";
 
 // Helpers
 import { createWindow } from "./helpers";
-import { executeDfxCommand } from "./helpers/dfx-helper";
+import {
+  getBundledDfxPath,
+  setupBundledDfx,
+  executeDfxCommand,
+} from "./helpers/dfx-helper";
 import { handleIdentities } from "./helpers/manage-identities";
 import { handleProjects } from "./helpers/manage-projects";
 import {
@@ -167,6 +171,60 @@ if (isProd) {
     }
   });
 
+  // Bundled DFX
+  ipcMain.handle("setUseBundledDfx", async (event, value: boolean) => {
+    try {
+      console.log(`Setting useBundledDfx to ${value}`);
+      await store.set("settings.useBundledDfx", value);
+      console.log("Successfully set useBundledDfx");
+
+      if (value) {
+        console.log("Setting up bundled DFX");
+        await setupBundledDfx();
+        console.log("Successfully set up bundled DFX");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error in setUseBundledDfx:", error);
+      if (error instanceof Error) {
+        console.error(error.stack);
+      }
+      return false;
+    }
+  });
+
+  ipcMain.handle("getUseBundledDfx", () => {
+    return store.get("settings.useBundledDfx", false);
+  });
+
+  ipcMain.handle("setCustomDfxPath", async (event, path) => {
+    await store.set("settings.customDfxPath", path);
+    return true;
+  });
+
+  ipcMain.handle("getCustomDfxPath", () => {
+    return store.get("settings.customDfxPath", "");
+  });
+
+  ipcMain.handle("checkSystemDfx", async () => {
+    try {
+      await executeDfxCommand("--version");
+      return true;
+    } catch (error) {
+      return false;
+    }
+  });
+
+  ipcMain.handle("getBundledDfxPath", () => {
+    return getBundledDfxPath();
+  });
+
+  ipcMain.handle("setupBundledDfx", async () => {
+    await setupBundledDfx();
+    return true;
+  });
+
   // Set a key-value pair
   ipcMain.handle("store:set", (event, key, value) => {
     try {
@@ -276,10 +334,16 @@ if (isProd) {
     try {
       if (mainWindow) {
         const result = await executeDfxCommand("--version");
-        const isDfxInstalled = result.trim().startsWith("dfx");
-        return isDfxInstalled;
+        if (typeof result === "string") {
+          const isDfxInstalled = result.trim().startsWith("dfx");
+          return isDfxInstalled;
+        } else {
+          console.error("Unexpected result type from executeDfxCommand");
+          return false;
+        }
       } else {
         console.error("Main window not found");
+        return false;
       }
     } catch (error) {
       console.error(`Error while checking for Dfinity installation: ${error}`);
@@ -344,7 +408,10 @@ if (isProd) {
     try {
       const result = await executeDfxCommand("identity", "list");
 
-      // Split the result string into an array of identities
+      if (typeof result !== "string") {
+        throw new Error("Unexpected result type from executeDfxCommand");
+      }
+
       const identityNames = result
         .split("\n")
         .filter(
@@ -352,13 +419,11 @@ if (isProd) {
         );
 
       for (const name of identityNames) {
-        // Create an identity object
         const identity = {
           name: name,
           isInternetIdentity: false,
         };
 
-        // Add each identity to the store
         try {
           await handleIdentities(store, "add", identity);
         } catch (error) {

@@ -82,4 +82,11 @@ contextBridge.exposeInMainWorld("awesomeApi", {
     }
   },
   runCommand: (command) => ipcRenderer.invoke("runCommand", command),
+  setUseBundledDfx: (value) => ipcRenderer.invoke("setUseBundledDfx", value),
+  getUseBundledDfx: () => ipcRenderer.invoke("getUseBundledDfx"),
+  setCustomDfxPath: (path) => ipcRenderer.invoke("setCustomDfxPath", path),
+  getCustomDfxPath: () => ipcRenderer.invoke("getCustomDfxPath"),
+  checkSystemDfx: () => ipcRenderer.invoke("checkSystemDfx"),
+  getBundledDfxPath: () => ipcRenderer.invoke("getBundledDfxPath"),
+  setupBundledDfx: () => ipcRenderer.invoke("setupBundledDfx"),
 });
