@@ -1,7 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import CanisterDetail from "@components/canisters/canister-detail";
+import CanisterDetail from "@components/canisters/canister/canister-detail";
 
 function CanisterDetailPage() {
   const router = useRouter();

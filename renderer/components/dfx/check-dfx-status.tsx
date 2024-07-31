@@ -11,7 +11,6 @@ import {
 } from "@components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Loader } from "lucide-react";
-import CommandOutput from "@components/canisters/command-output";
 import { Checkbox } from "@components/ui/checkbox";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";

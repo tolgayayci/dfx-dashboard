@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import useProjects from "renderer/hooks/useProjects";
 
-import { createColumns } from "./columns";
-import { DataTable } from "./data-table";
+import { createColumns } from "@components/canisters/columns";
+import { DataTable } from "@components/canisters/data-table";
 import NoCanisters from "@components/canisters/no-canister";
-import Loading from "@components/common/loading";
 
 export default function CanistersComponent() {
   const [allCanisters, setAllCanisters] = useState([]);
