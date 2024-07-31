@@ -2,13 +2,20 @@ export const commands = [
   {
     label: "call",
     value: "call",
-    args: [{ name: "Method Name", placeholder: "Enter method name" }],
-    options: [
+    args: [
       {
-        name: "--async",
-        type: "flag",
-        description: "Specifies not to wait for the result",
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
       },
+      {
+        name: "METHOD_NAME",
+        placeholder: "Enter method name",
+        optional: false,
+      },
+      { name: "ARGUMENT", placeholder: "Enter argument", optional: true },
+    ],
+    options: [
       {
         name: "--network",
         placeholder: "http://localhost:12345/",
@@ -16,9 +23,21 @@ export const commands = [
         description: "Override the compute network",
       },
       {
+        name: "--type",
+        placeholder: "idl",
+        type: "argument",
+        description: "Specifies the data type for the argument",
+      },
+      {
         name: "--verbose",
         type: "flag",
         description: "Displays detailed information",
+      },
+      {
+        name: "--argument-file",
+        placeholder: "path/to/file",
+        type: "argument",
+        description: "Read argument from file",
       },
       {
         name: "--playground",
@@ -31,9 +50,9 @@ export const commands = [
         description: "Suppresses informational messages",
       },
       {
-        name: "--query",
+        name: "--async",
         type: "flag",
-        description: "Sends a query request to a canister",
+        description: "Specifies not to wait for the result",
       },
       {
         name: "--ic",
@@ -47,15 +66,14 @@ export const commands = [
         description: "Specify the logging mode",
       },
       {
+        name: "--query",
+        type: "flag",
+        description: "Sends a query request to a canister",
+      },
+      {
         name: "--update",
         type: "flag",
         description: "Sends an update request to a canister",
-      },
-      {
-        name: "--argument-file",
-        placeholder: "path/to/file",
-        type: "argument",
-        description: "Read argument from file",
       },
       {
         name: "--logfile",
@@ -88,12 +106,6 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "--type",
-        placeholder: "idl",
-        type: "argument",
-        description: "Specifies the data type for the argument",
-      },
-      {
         name: "--output",
         placeholder: "idl",
         type: "argument",
@@ -111,12 +123,24 @@ export const commands = [
         type: "argument",
         description: "Provide .did file to decode the response",
       },
+      {
+        name: "--always-assist",
+        type: "flag",
+        description:
+          "Always use Candid assist when argument types are all optional",
+      },
     ],
   },
   {
     label: "create",
     value: "create",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--all",
@@ -215,16 +239,41 @@ export const commands = [
         description: "Performs the call with the user Identity as the Sender",
       },
       {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
+        name: "--from-subaccount",
+        placeholder: "Subaccount",
+        type: "argument",
+        description: "Subaccount of the selected identity to spend cycles from",
+      },
+      {
+        name: "--subnet-type",
+        placeholder: "Subnet type",
+        type: "argument",
+        description: "Specify the optional subnet type to create canisters on",
+      },
+      {
+        name: "--subnet",
+        placeholder: "Subnet",
+        type: "argument",
+        description: "Specify a specific subnet on which to create canisters",
+      },
+      {
+        name: "--next-to",
+        placeholder: "Canister ID",
+        type: "argument",
+        description: "Create canisters on the same subnet as this canister",
       },
     ],
   },
   {
     label: "delete",
     value: "delete",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--all",
@@ -316,9 +365,17 @@ export const commands = [
         description: "Auto-confirm deletion for a non-stopped canister",
       },
       {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
+        name: "--initial-margin",
+        placeholder: "Amount",
+        type: "argument",
+        description:
+          "Leave this many cycles in the canister when withdrawing cycles",
+      },
+      {
+        name: "--to-subaccount",
+        placeholder: "Subaccount",
+        type: "argument",
+        description: "Subaccount of the selected identity to deposit cycles to",
       },
     ],
   },
@@ -329,6 +386,11 @@ export const commands = [
       {
         name: "CYCLES",
         placeholder: "Enter amount of cycles",
+        optional: false,
+      },
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
         optional: false,
       },
     ],
@@ -396,16 +458,30 @@ export const commands = [
         description: "Effective canister id for provisional creation",
       },
       {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
+        name: "--from-subaccount",
+        placeholder: "Subaccount",
+        type: "argument",
+        description: "Use cycles from this subaccount",
+      },
+      {
+        name: "--created-at-time",
+        placeholder: "Nanoseconds",
+        type: "argument",
+        description:
+          "Transaction timestamp for controlling transaction deduplication",
       },
     ],
   },
   {
     label: "id",
     value: "id",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--network",
@@ -462,18 +538,19 @@ export const commands = [
         placeholder: "Principal",
         type: "argument",
         description: "Effective canister id for provisional creation",
-      },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
       },
     ],
   },
   {
     label: "info",
     value: "info",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--network",
@@ -530,11 +607,6 @@ export const commands = [
         placeholder: "Principal",
         type: "argument",
         description: "Effective canister id for provisional creation",
-      },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
       },
     ],
   },
@@ -542,6 +614,11 @@ export const commands = [
     label: "install",
     value: "install",
     args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
       {
         name: "OUTPUT_ENV_FILE",
         placeholder: "Enter output environment file path",
@@ -656,9 +733,16 @@ export const commands = [
         description: "Skips upgrading the asset canister",
       },
       {
-        name: "--help",
+        name: "--argument-file",
+        placeholder: "path/to/file",
+        type: "argument",
+        description: "Specifies the file from which to read the argument",
+      },
+      {
+        name: "--always-assist",
         type: "flag",
-        description: "Print help",
+        description:
+          "Always use Candid assist when the argument types are all optional",
       },
     ],
   },
@@ -666,6 +750,11 @@ export const commands = [
     label: "metadata",
     value: "metadata",
     args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter the canister name",
+        optional: false,
+      },
       {
         name: "METADATA_NAME",
         placeholder: "Enter the metadata name to retrieve",
@@ -729,11 +818,6 @@ export const commands = [
         type: "argument",
         description: "Effective canister id for provisional creation",
       },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
-      },
     ],
   },
   {
@@ -744,6 +828,11 @@ export const commands = [
         name: "REQUEST_ID",
         placeholder:
           "Enter the request identifier (hexadecimal starting with 0x)",
+        optional: false,
+      },
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
         optional: false,
       },
     ],
@@ -810,11 +899,6 @@ export const commands = [
         placeholder: "Principal",
         type: "argument",
         description: "Effective canister id for provisional creation",
-      },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
       },
     ],
   },
@@ -890,11 +974,6 @@ export const commands = [
         type: "argument",
         description: "Effective canister id for provisional creation",
       },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
-      },
     ],
   },
   {
@@ -902,10 +981,16 @@ export const commands = [
     value: "sign",
     args: [
       {
+        name: "CANISTER_NAME",
+        placeholder: "Enter the canister name/id",
+        optional: false,
+      },
+      {
         name: "METHOD_NAME",
         placeholder: "Enter the method name",
         optional: false,
       },
+      { name: "ARGUMENT", placeholder: "Enter the argument", optional: true },
     ],
     options: [
       {
@@ -915,14 +1000,21 @@ export const commands = [
         description: "Override the compute network",
       },
       {
-        name: "--query",
-        type: "flag",
-        description: "Sends a query request to a canister",
+        name: "--type",
+        placeholder: "idl",
+        type: "argument",
+        description: "Specifies the data type for the argument",
       },
       {
         name: "--verbose",
         type: "flag",
         description: "Displays detailed information about operations",
+      },
+      {
+        name: "--argument-file",
+        placeholder: "path/to/argument_file",
+        type: "argument",
+        description: "Specifies the file from which to read the argument",
       },
       {
         name: "--playground",
@@ -933,17 +1025,6 @@ export const commands = [
         name: "--quiet",
         type: "flag",
         description: "Suppresses informational messages",
-      },
-      {
-        name: "--update",
-        type: "flag",
-        description: "Sends an update request to a canister",
-      },
-      {
-        name: "--argument-file",
-        placeholder: "path/to/argument_file",
-        type: "argument",
-        description: "Specifies the file from which to read the argument",
       },
       {
         name: "--ic",
@@ -957,16 +1038,20 @@ export const commands = [
         description: "Specify the logging mode",
       },
       {
+        name: "--query",
+        type: "flag",
+        description: "Sends a query request to a canister",
+      },
+      {
         name: "--logfile",
         placeholder: "path/to/logfile",
         type: "argument",
         description: "Specify the file to log to",
       },
       {
-        name: "--random",
-        placeholder: "Config for random argument",
-        type: "argument",
-        description: "Specifies the config for generating random argument",
+        name: "--update",
+        type: "flag",
+        description: "Sends an update request to a canister",
       },
       {
         name: "--wallet",
@@ -981,10 +1066,10 @@ export const commands = [
         description: "Specify the user identity",
       },
       {
-        name: "--type",
-        placeholder: "idl",
+        name: "--random",
+        placeholder: "Config for random argument",
         type: "argument",
-        description: "Specifies the data type for the argument",
+        description: "Specifies the config for generating random argument",
       },
       {
         name: "--expire-after",
@@ -1005,16 +1090,23 @@ export const commands = [
         description: "Specifies the output file name",
       },
       {
-        name: "--help",
+        name: "--always-assist",
         type: "flag",
-        description: "Print help",
+        description:
+          "Always use Candid assist when the argument types are all optional",
       },
     ],
   },
   {
     label: "start",
     value: "start",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--all",
@@ -1078,17 +1170,18 @@ export const commands = [
         type: "argument",
         description: "Effective canister id for provisional creation",
       },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
-      },
     ],
   },
   {
     label: "status",
     value: "status",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--all",
@@ -1152,17 +1245,18 @@ export const commands = [
         type: "argument",
         description: "Effective canister id for provisional creation",
       },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
-      },
     ],
   },
   {
     label: "stop",
     value: "stop",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--all",
@@ -1226,17 +1320,18 @@ export const commands = [
         type: "argument",
         description: "Effective canister id for provisional creation",
       },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
-      },
     ],
   },
   {
     label: "uninstall-code",
     value: "uninstall-code",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--all",
@@ -1300,17 +1395,18 @@ export const commands = [
         type: "argument",
         description: "Effective canister id for provisional creation",
       },
-      {
-        name: "--help",
-        type: "flag",
-        description: "Print help",
-      },
     ],
   },
   {
     label: "update-settings",
     value: "update-settings",
-    args: [],
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
     options: [
       {
         name: "--all",
@@ -1428,9 +1524,155 @@ export const commands = [
         description: "Skips yes/no checks by answering 'yes'",
       },
       {
-        name: "--help",
+        name: "--wasm-memory-limit",
+        placeholder: "Bytes",
+        type: "argument",
+        description:
+          "Sets a soft limit on the Wasm memory usage of the canister",
+      },
+      {
+        name: "--log-visibility",
+        placeholder: "controllers|public",
+        type: "argument",
+        description: "Specifies who is allowed to read the canister's logs",
+      },
+    ],
+  },
+  {
+    label: "logs",
+    value: "logs",
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
+    options: [
+      {
+        name: "--network",
+        placeholder: "http://localhost:12345/",
+        type: "argument",
+        description: "Override the compute network",
+      },
+      {
+        name: "--verbose",
         type: "flag",
-        description: "Print help",
+        description: "Displays detailed information about operations",
+      },
+      {
+        name: "--playground",
+        type: "flag",
+        description: "Use short-lived canisters on the real IC network",
+      },
+      {
+        name: "--quiet",
+        type: "flag",
+        description: "Suppresses informational messages",
+      },
+      {
+        name: "--ic",
+        type: "flag",
+        description: "Shorthand for --network=ic",
+      },
+      {
+        name: "--log",
+        placeholder: "stderr",
+        type: "argument",
+        description: "Specify the logging mode",
+      },
+      {
+        name: "--logfile",
+        placeholder: "path/to/logfile",
+        type: "argument",
+        description: "Specify the file to log to",
+      },
+      {
+        name: "--wallet",
+        placeholder: "Wallet canister id",
+        type: "argument",
+        description: "Specify a wallet canister id",
+      },
+      {
+        name: "--identity",
+        placeholder: "Identity name",
+        type: "argument",
+        description: "Specify the user identity",
+      },
+      {
+        name: "--provisional-create-canister-effective-canister-id",
+        placeholder: "Principal",
+        type: "argument",
+        description: "Effective canister id for provisional creation",
+      },
+    ],
+  },
+  {
+    label: "url",
+    value: "url",
+    args: [
+      {
+        name: "CANISTER_NAME",
+        placeholder: "Enter canister name/id",
+        optional: false,
+      },
+    ],
+    options: [
+      {
+        name: "--network",
+        placeholder: "http://localhost:12345/",
+        type: "argument",
+        description: "Override the compute network",
+      },
+      {
+        name: "--verbose",
+        type: "flag",
+        description: "Displays detailed information about operations",
+      },
+      {
+        name: "--playground",
+        type: "flag",
+        description: "Use short-lived canisters on the real IC network",
+      },
+      {
+        name: "--quiet",
+        type: "flag",
+        description: "Suppresses informational messages",
+      },
+      {
+        name: "--ic",
+        type: "flag",
+        description: "Shorthand for --network=ic",
+      },
+      {
+        name: "--log",
+        placeholder: "stderr",
+        type: "argument",
+        description: "Specify the logging mode",
+      },
+      {
+        name: "--logfile",
+        placeholder: "path/to/logfile",
+        type: "argument",
+        description: "Specify the file to log to",
+      },
+      {
+        name: "--wallet",
+        placeholder: "Wallet canister id",
+        type: "argument",
+        description: "Specify a wallet canister id",
+      },
+      {
+        name: "--identity",
+        placeholder: "Identity name",
+        type: "argument",
+        description: "Specify the user identity",
+      },
+      {
+        name: "--provisional-create-canister-effective-canister-id",
+        placeholder: "Principal",
+        type: "argument",
+        description: "Effective canister id for provisional creation",
       },
     ],
   },

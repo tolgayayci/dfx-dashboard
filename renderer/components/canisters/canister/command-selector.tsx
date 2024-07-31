@@ -10,7 +10,7 @@ import {
 } from "@components/ui/select";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { commands } from "@lib/commands";
+import { commands } from "@lib/canister-commands-v0.21.0";
 import { Checkbox } from "@components/ui/checkbox";
 import { Label } from "@components/ui/label";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
@@ -103,7 +103,7 @@ const CliCommandSelector = ({
       })
       .join(" ");
 
-    const newLatestCommand = `dfx canister ${selectedCommandDetails.value} ${canister.name} ${argsString} ${optionsString}`;
+    const newLatestCommand = `dfx canister ${selectedCommandDetails.value} ${argsString} ${optionsString}`;
     setLatestCommand(newLatestCommand);
   };
 
@@ -117,13 +117,17 @@ const CliCommandSelector = ({
 
     if (command && command.args) {
       const argsInitialState = {};
-      command.args.forEach((arg, index) => {
-        const argValue = initialArgs.find((initialArg) =>
-          initialArg.startsWith(arg.name)
-        );
-        argsInitialState[arg.name] = argValue
-          ? argValue.split(arg.name)[1].trim()
-          : "";
+      command.args.forEach((arg) => {
+        if (arg.name === "CANISTER_NAME") {
+          argsInitialState[arg.name] = canister.name;
+        } else {
+          const argValue = initialArgs.find((initialArg) =>
+            initialArg.startsWith(arg.name)
+          );
+          argsInitialState[arg.name] = argValue
+            ? argValue.split(arg.name)[1].trim()
+            : "";
+        }
       });
       setCommandArgs(argsInitialState);
     } else {
@@ -258,7 +262,7 @@ const CliCommandSelector = ({
                               </div>
                               <TooltipContent side="right">
                                 <p>
-                                  {arg.description ||
+                                  {arg.placeholder ||
                                     "No description available"}
                                 </p>
                               </TooltipContent>
@@ -274,6 +278,7 @@ const CliCommandSelector = ({
                                   [arg.name]: e.target.value,
                                 });
                               }}
+                              disabled={arg.name === "CANISTER_NAME"}
                             />
                           </div>
                         ))}

@@ -10,10 +10,10 @@ DFINITY DFX GUI is a cross platform, electron based application designed to stre
 
 To use this application, you must have dfx installed on your operating system. 
 
-> This application is compatible with latest dfx 0.15.1, please make sure you have installed this version or older of dfx!
+> This application is compatible with latest dfx 0.21.0, please make sure you have installed this version or older of dfx!
 
 - To install dfx, you’ll first need to open up your computer terminal, then run:
-```DFX_VERSION=0.15.1 sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"```
+```DFX_VERSION=0.21.0 sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"```
 
 - To verify that dfx properly installed, run:
 ```dfx --version```
