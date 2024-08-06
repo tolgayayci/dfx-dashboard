@@ -191,6 +191,8 @@ export default function CheckDfxStatus() {
   };
 
   const handleStartDfx = async () => {
+    setIsStartModalOpen(false);
+
     const flags = Object.entries(dfxStartOptions)
       .filter(
         ([key, value]) =>
@@ -222,6 +224,7 @@ export default function CheckDfxStatus() {
 
   const handleStopDfx = async () => {
     try {
+      setIsStopModalOpen(false);
       await handleDfxCommand("stop");
       // Check if dfx is still running
       const output = await window.awesomeApi.runCommand("lsof -i tcp:4943");

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import {
   Select,
   SelectContent,
@@ -15,26 +14,24 @@ import { Checkbox } from "@components/ui/checkbox";
 import { Label } from "@components/ui/label";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { Loader2 } from "lucide-react";
-
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@components/ui/accordion";
-
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@components/ui/tooltip";
-
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { SelectSeparator } from "@components/ui/select";
+import CommandAssist from "@components/canisters/canister/command-assist";
 
 const CliCommandSelector = ({
   canister,
+  canisterName,
   path,
   initialCommand,
   latestCommand,
@@ -43,6 +40,7 @@ const CliCommandSelector = ({
   setLatestCommand,
 }: {
   canister: any;
+  canisterName: string;
   path: string;
   initialCommand: string;
   latestCommand: string;
@@ -191,7 +189,7 @@ const CliCommandSelector = ({
         const result = await window.awesomeApi.runDfxCommand(
           "canister",
           command,
-          [canister.name, ...processedArgs],
+          [...processedArgs],
           flags,
           path
         );
@@ -206,10 +204,21 @@ const CliCommandSelector = ({
     }
   };
 
+  const shouldShowModalButton = ["call", "sign", "install"].includes(
+    selectedCommand
+  );
+
   return (
     <div className="flex flex-col">
-      <div className="bg-gray-200 dark:bg-white dark:text-black p-4 rounded-md mb-4">
+      <div className="bg-gray-200 dark:bg-white dark:text-black p-4 rounded-md mb-4 flex justify-between items-center">
         <code>{initialCommand || latestCommand}</code>
+        {shouldShowModalButton && (
+          <CommandAssist
+            selectedCommand={selectedCommand}
+            canisterName={canisterName}
+            customPath={path}
+          />
+        )}
       </div>
       <ScrollArea className="max-h-[calc(82vh-200px)] overflow-y-auto">
         <div className="flex flex-col space-y-4">

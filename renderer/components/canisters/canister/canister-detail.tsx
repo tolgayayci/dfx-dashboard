@@ -69,6 +69,7 @@ export default function CanisterDetail({
             <div className="flex-grow overflow-hidden">
               <CliCommandSelector
                 canister={canisterData}
+                canisterName={canisterName}
                 path={projectPath as string}
                 initialCommand={initialCommand}
                 latestCommand={latestCommand}

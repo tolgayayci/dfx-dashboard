@@ -36,6 +36,29 @@ interface Versions {
   ) => Promise<{ success: boolean; message?: string }>;
   onUpdateDelegate: (callback: (value: any) => void) => void;
   offUpdateDelegate: (callback: (value: any) => void) => void;
+  runAssistedCommand: (
+    command: string,
+    canisterName: string,
+    customPath: string,
+    alwaysAssist: boolean
+  ) => Promise<{ success: boolean; error?: string }>;
+  sendAssistedCommandInput: (
+    input: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  onAssistedCommandOutput: (
+    callback: (data: {
+      type: string;
+      content: string;
+      success?: boolean;
+    }) => void
+  ) => void;
+  offAssistedCommandOutput: (
+    callback: (data: {
+      type: string;
+      content: string;
+      success?: boolean;
+    }) => void
+  ) => void;
   runCommand: (command: string) => Promise<any>;
   setUseBundledDfx: (value: boolean) => Promise<boolean>;
   getUseBundledDfx: () => Promise<boolean>;

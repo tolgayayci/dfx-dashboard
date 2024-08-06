@@ -7,11 +7,7 @@ import { autoUpdater } from "electron-updater";
 
 // Helpers
 import { createWindow } from "./helpers";
-import {
-  getBundledDfxPath,
-  setupBundledDfx,
-  executeDfxCommand,
-} from "./helpers/dfx-helper";
+import { executeDfxCommand } from "./helpers/dfx-helper";
 import { handleIdentities } from "./helpers/manage-identities";
 import { handleProjects } from "./helpers/manage-projects";
 import {
@@ -22,8 +18,7 @@ import {
 const path = require("node:path");
 const fs = require("fs");
 const { shell } = require("electron");
-const { exec } = require("child_process");
-const os = require("os");
+const { exec, spawn } = require("child_process");
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -81,6 +76,8 @@ autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
 
 let mainWindow;
+let assistedCommandProcess = null;
+let questionCallback = null;
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -171,60 +168,94 @@ if (isProd) {
     }
   });
 
-  // Bundled DFX
-  ipcMain.handle("setUseBundledDfx", async (event, value: boolean) => {
-    try {
-      console.log(`Setting useBundledDfx to ${value}`);
-      await store.set("settings.useBundledDfx", value);
-      console.log("Successfully set useBundledDfx");
+  ipcMain.handle(
+    "run-assisted-command",
+    async (event, command, canisterName, customPath, alwaysAssist) => {
+      console.log(
+        `Starting assisted command: dfx canister ${command} ${canisterName} ${
+          alwaysAssist ? "--always-assist" : ""
+        }`
+      );
+      console.log(`Working directory: ${customPath}`);
+      try {
+        const args = ["canister", command, canisterName];
+        if (alwaysAssist) {
+          args.push("--always-assist");
+        }
 
-      if (value) {
-        console.log("Setting up bundled DFX");
-        await setupBundledDfx();
-        console.log("Successfully set up bundled DFX");
+        assistedCommandProcess = spawn("dfx", args, {
+          cwd: customPath,
+          shell: true,
+          stdio: ["pipe", "pipe", "pipe"],
+        });
+
+        assistedCommandProcess.stdout.on("data", (data) => {
+          const output = data.toString();
+          console.log(`Stdout: ${output}`);
+          mainWindow.webContents.send("assisted-command-output", {
+            type: "stdout",
+            content: output,
+          });
+        });
+
+        assistedCommandProcess.stderr.on("data", (data) => {
+          const output = data.toString();
+          if (alwaysAssist) {
+            // When always-assist is used, we'll handle stderr differently
+            handleAlwaysAssistStderr(output);
+          } else {
+            console.error(`Stderr: ${output}`);
+            mainWindow.webContents.send("assisted-command-output", {
+              type: "stderr",
+              content: output,
+            });
+          }
+        });
+
+        assistedCommandProcess.on("close", (code) => {
+          console.log(`Child process exited with code ${code}`);
+          mainWindow.webContents.send("assisted-command-output", {
+            type: "status",
+            content: `Process completed with exit code ${code}`,
+            success: code === 0,
+          });
+          assistedCommandProcess = null;
+        });
+
+        assistedCommandProcess.on("error", (error) => {
+          console.error(`Process error: ${error.message}`);
+          mainWindow.webContents.send("assisted-command-output", {
+            type: "error",
+            content: `Process error: ${error.message}`,
+          });
+        });
+
+        return { success: true };
+      } catch (error) {
+        console.error(`Error starting assisted command: ${error.message}`);
+        return { success: false, error: error.message };
       }
-
-      return true;
-    } catch (error) {
-      console.error("Error in setUseBundledDfx:", error);
-      if (error instanceof Error) {
-        console.error(error.stack);
-      }
-      return false;
     }
-  });
+  );
 
-  ipcMain.handle("getUseBundledDfx", () => {
-    return store.get("settings.useBundledDfx", false);
-  });
+  function handleAlwaysAssistStderr(output) {
+    // Here you can implement custom logic for handling stderr when always-assist is used
+    // For example, you might want to:
+    // 1. Ignore certain types of messages
+    // 2. Reclassify some stderr messages as stdout
+    // 3. Only log specific types of errors
 
-  ipcMain.handle("setCustomDfxPath", async (event, path) => {
-    await store.set("settings.customDfxPath", path);
-    return true;
-  });
-
-  ipcMain.handle("getCustomDfxPath", () => {
-    return store.get("settings.customDfxPath", "");
-  });
-
-  ipcMain.handle("checkSystemDfx", async () => {
-    try {
-      await executeDfxCommand("--version");
-      return true;
-    } catch (error) {
-      return false;
+    // This is a simple example that ignores messages containing "warning" and sends others as info
+    if (!output.toLowerCase().includes("warning")) {
+      console.log(`Always-assist stderr (treated as info): ${output}`);
+      mainWindow.webContents.send("assisted-command-output", {
+        type: "info",
+        content: output,
+      });
     }
-  });
+  }
 
-  ipcMain.handle("getBundledDfxPath", () => {
-    return getBundledDfxPath();
-  });
-
-  ipcMain.handle("setupBundledDfx", async () => {
-    await setupBundledDfx();
-    return true;
-  });
-
+  // The rest of your code (ipcMain.handle for "send-assisted-command-input") remains the same
   // Set a key-value pair
   ipcMain.handle("store:set", (event, key, value) => {
     try {

@@ -1,8 +1,8 @@
 > :warning: **This application in still beta!** When using application be aware of something unexpected may be occur. **Use at your own risk**, don't try important things like very important identities and so on!
 
-# DFINITY DFX GUI
+# DFX Dashboard
 
-DFINITY DFX GUI is a cross platform, electron based application designed to streamline the use of the DFINITY's Internet Computer `dfx` CLI. It offers a user-friendly interface for managing canisters, identities, and DFINITY projects with ease.
+DFX Dashboard is a cross platform, electron based application designed to streamline the use of the DFINITY's Internet Computer `dfx` CLI. It offers a user-friendly interface for managing canisters, identities, and DFINITY projects with ease.
   
 ---
 
@@ -18,7 +18,7 @@ To use this application, you must have dfx installed on your operating system.
 - To verify that dfx properly installed, run:
 ```dfx --version```
 
-Now that you have dfx installed, you can install the DFINITY DFX GUI application by following the instructions below.
+Now that you have dfx installed, you can install the DFX Dashboard application by following the instructions below.
 
 ###  macOS (Apple Silicon | Intel)
 
@@ -39,12 +39,12 @@ Now that you have dfx installed, you can install the DFINITY DFX GUI application
 
 ### 💻 Windows (Not Fully Supported)
 
-DFX **is not natively supported on Windows** yet. However, you can still use the DFINITY DFX GUI application by following the instructions below.
+DFX **is not natively supported on Windows** yet. However, you can still use the DFX Dashboard application by following the instructions below.
 
 1. Install WSL 2 by following the instructions [on developer docs](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 2. Once you have WSL installed, you can install dfx by running: 
    ```DFX_VERSION=0.15.1 sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"```
-3. Follow the instructions for Linux to install the DFINITY DFX GUI application.
+3. Follow the instructions for Linux to install the DFX Dashboard application.
 ---
 
 ## Key Features
@@ -99,4 +99,4 @@ Contributions are welcomed! If you have feature requests, bug notifications or w
   
 ## License
 
-DFINITY DFX GUI is released under the **MIT**. See ([LICENSE](https://github.com/tolgayayci/dfinity-dfx-gui/blob/main/LICENSE)) for more details.
+DFX Dashboard is released under the **MIT**. See ([LICENSE](https://github.com/tolgayayci/dfinity-dfx-gui/blob/main/LICENSE)) for more details.

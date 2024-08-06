@@ -82,11 +82,27 @@ contextBridge.exposeInMainWorld("awesomeApi", {
     }
   },
   runCommand: (command) => ipcRenderer.invoke("runCommand", command),
-  setUseBundledDfx: (value) => ipcRenderer.invoke("setUseBundledDfx", value),
-  getUseBundledDfx: () => ipcRenderer.invoke("getUseBundledDfx"),
-  setCustomDfxPath: (path) => ipcRenderer.invoke("setCustomDfxPath", path),
-  getCustomDfxPath: () => ipcRenderer.invoke("getCustomDfxPath"),
-  checkSystemDfx: () => ipcRenderer.invoke("checkSystemDfx"),
-  getBundledDfxPath: () => ipcRenderer.invoke("getBundledDfxPath"),
-  setupBundledDfx: () => ipcRenderer.invoke("setupBundledDfx"),
+  runAssistedCommand: async (
+    command,
+    canisterName,
+    customPath,
+    alwaysAssist
+  ) => {
+    return ipcRenderer.invoke(
+      "run-assisted-command",
+      command,
+      canisterName,
+      customPath,
+      alwaysAssist
+    );
+  },
+  sendAssistedCommandInput: async (input) => {
+    return ipcRenderer.invoke("send-assisted-command-input", input);
+  },
+  onAssistedCommandOutput: (callback) => {
+    ipcRenderer.on("assisted-command-output", (event, data) => callback(data));
+  },
+  offAssistedCommandOutput: (callback) => {
+    ipcRenderer.removeListener("assisted-command-output", callback);
+  },
 });
