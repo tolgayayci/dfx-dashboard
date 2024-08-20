@@ -5,6 +5,10 @@ import { app, ipcMain, dialog } from "electron";
 import serve from "electron-serve";
 import { autoUpdater } from "electron-updater";
 
+// Analytics
+import { initialize } from "@aptabase/electron/main";
+import { trackEvent } from "@aptabase/electron/main";
+
 // Helpers
 import { createWindow } from "./helpers";
 import { executeDfxCommand } from "./helpers/dfx-helper";
@@ -23,6 +27,9 @@ const { exec, spawn } = require("child_process");
 const isProd: boolean = process.env.NODE_ENV === "production";
 
 const Store = require("electron-store");
+
+// Aptabase Analytics
+initialize("A-EU-1521640385");
 
 const schema = {
   projects: {
@@ -68,7 +75,7 @@ const store = new Store({ schema });
 autoUpdater.setFeedURL({
   provider: "github",
   owner: "tolgayayci",
-  repo: "dfinity-dfx-gui",
+  repo: "dfx-dashboard",
   releaseType: "release",
 });
 
@@ -124,6 +131,7 @@ if (!gotTheLock) {
     });
 
     autoUpdater.checkForUpdatesAndNotify();
+    trackEvent("app_started");
   });
 
   app.on("open-url", (event, url) => {
@@ -300,6 +308,7 @@ if (isProd) {
           flags,
           path
         );
+        trackEvent("dfx-command-executed");
         return result;
       } catch (error) {
         console.error(`Error while executing DFX command: ${error}`);
