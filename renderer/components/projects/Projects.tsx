@@ -33,7 +33,7 @@ import { Avatar, AvatarImage } from "@components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { FolderCheck } from "lucide-react";
 
 import { useForm } from "react-hook-form";
@@ -44,6 +44,7 @@ import { CodeIcon } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import ProjectModal from "@components/projects/project-modal";
 import NoProjects from "@components/projects/no-project";
+import EditorModal from "@components/projects/editor-modal";
 
 import {
   removeProjectFormSchema,
@@ -65,6 +66,7 @@ const ProjectCard = ({
   onProjectChange: () => void;
 }) => {
   const [showRemoveProjectDialog, setShowRemoveProjectDialog] = useState(false);
+  const [showEditorDialog, setShowEditorDialog] = useState(false);
   const [isSubmittingRemoveProject, setIsSubmittingRemoveProject] =
     useState(false);
 
@@ -113,18 +115,26 @@ const ProjectCard = ({
                 project.path.split("/").slice(-2)[1]}
             </CardDescription>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="hover:text-red-500 ml-auto"
+            onClick={() => setShowRemoveProjectDialog(true)}
+          >
+            <Trash2 className="h-5 w-5" />
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-4">
         <Button
           variant="outline"
           className="w-full"
-          onClick={() => setShowRemoveProjectDialog(true)}
+          onClick={() => setShowEditorDialog(true)}
         >
-          Remove
+          Open With
         </Button>
         <Link href={`/projects/${encodeURIComponent(project.path)}`}>
-          <Button>Manage</Button>
+          <Button className="w-full">Manage</Button>
         </Link>
         <Dialog
           open={showRemoveProjectDialog}
@@ -216,6 +226,14 @@ const ProjectCard = ({
             </Form>
           </DialogContent>
         </Dialog>
+        {showEditorDialog && (
+          <EditorModal
+            showEditorDialog={showEditorDialog}
+            setShowEditorDialog={setShowEditorDialog}
+            projectName={project.name}
+            projectPath={project.path}
+          />
+        )}
       </CardContent>
     </Card>
   );
@@ -245,7 +263,7 @@ export default function ProjectsComponent() {
     setSearchQuery(e.target.value);
   };
 
-  // Call checkIdentities when the component mounts
+  // Call checkProjects when the component mounts
   useEffect(() => {
     checkProjects();
   }, []);

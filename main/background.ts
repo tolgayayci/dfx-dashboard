@@ -18,6 +18,8 @@ import {
   updateProfileWithEnvVars,
   readEnvVarsFromProfiles,
 } from "./helpers/env-variables";
+import { checkEditors } from "./helpers/check-editors";
+import { openProjectInEditor } from "./helpers/open-project-in-editor";
 
 const path = require("node:path");
 const fs = require("fs");
@@ -295,6 +297,14 @@ if (isProd) {
       console.error("Error deleting value:", error);
       return { success: false, message: error.toString() };
     }
+  });
+
+  ipcMain.handle("check-editors", async () => {
+    return await checkEditors();
+  });
+
+  ipcMain.handle("open-editor", async (event, projectPath, editor) => {
+    return await openProjectInEditor(projectPath, editor);
   });
 
   ipcMain.handle(

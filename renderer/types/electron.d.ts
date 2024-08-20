@@ -36,6 +36,8 @@ interface Versions {
   ) => Promise<{ success: boolean; message?: string }>;
   onUpdateDelegate: (callback: (value: any) => void) => void;
   offUpdateDelegate: (callback: (value: any) => void) => void;
+  openEditor: (projectPath, editor) => Promise<void>;
+  checkEditors: () => Promise<any>;
   runAssistedCommand: (
     command: string,
     canisterName: string,

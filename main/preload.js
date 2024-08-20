@@ -82,6 +82,12 @@ contextBridge.exposeInMainWorld("awesomeApi", {
     }
   },
   runCommand: (command) => ipcRenderer.invoke("runCommand", command),
+  openEditor: async (projectPath, editor) => {
+    return ipcRenderer.invoke("open-editor", projectPath, editor);
+  },
+  checkEditors: async () => {
+    return ipcRenderer.invoke("check-editors");
+  },
   runAssistedCommand: async (
     command,
     canisterName,
