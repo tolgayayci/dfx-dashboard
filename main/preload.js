@@ -88,6 +88,12 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   checkEditors: async () => {
     return ipcRenderer.invoke("check-editors");
   },
+  getAppVersion: async () => {
+    return ipcRenderer.invoke("get-app-version");
+  },
+  getDfxVersion: async () => {
+    return ipcRenderer.invoke("get-dfx-version");
+  },
   runAssistedCommand: async (
     command,
     canisterName,

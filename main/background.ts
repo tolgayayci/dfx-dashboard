@@ -20,6 +20,7 @@ import {
 } from "./helpers/env-variables";
 import { checkEditors } from "./helpers/check-editors";
 import { openProjectInEditor } from "./helpers/open-project-in-editor";
+import runCommand from "./helpers/run-command";
 
 const path = require("node:path");
 const fs = require("fs");
@@ -307,6 +308,70 @@ if (isProd) {
     return await openProjectInEditor(projectPath, editor);
   });
 
+  ipcMain.handle("get-app-version", async () => {
+    const packagePath = path.join(app.getAppPath(), "package.json");
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+    return packageJson.version;
+  });
+
+  ipcMain.handle("runCommand", async (event, command: string) => {
+    return await runCommand(command);
+  });
+
+  ipcMain.handle("get-dfx-version", async (event) => {
+    const extractVersionNumber = (versionString: string): string => {
+      // This regex matches version numbers like 0.21.0 or 1.0.0
+      const match = versionString.match(/\d+\.\d+\.\d+/);
+      return match ? match[0] : "Unknown";
+    };
+
+    const getDfxVersion = async () => {
+      try {
+        const versionOutput = await runCommand("dfx --version");
+        const version = extractVersionNumber(versionOutput);
+        return { version, error: null };
+      } catch (error) {
+        console.error("Error fetching dfx version:", error);
+        return {
+          version: null,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch dfx version",
+        };
+      }
+    };
+
+    const getDfxvmVersion = async () => {
+      try {
+        const versionOutput = await runCommand("dfxvm --version");
+        const version = extractVersionNumber(versionOutput);
+        return { version, error: null };
+      } catch (error) {
+        console.error("Error fetching dfxvm version:", error);
+        return {
+          version: null,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch dfxvm version",
+        };
+      }
+    };
+
+    const [dfxResult, dfxvmResult] = await Promise.all([
+      getDfxVersion(),
+      getDfxvmVersion(),
+    ]);
+
+    return {
+      dfx: dfxResult.version || "Not installed",
+      dfxError: dfxResult.error,
+      dfxvm: dfxvmResult.version || "Not installed",
+      dfxvmError: dfxvmResult.error,
+    };
+  });
+
   ipcMain.handle(
     "dfx-command",
     async (event, command, subcommand, args?, flags?, path?) => {
@@ -326,18 +391,6 @@ if (isProd) {
       }
     }
   );
-
-  ipcMain.handle("runCommand", (event, command) => {
-    return new Promise((resolve, reject) => {
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(stdout);
-        }
-      });
-    });
-  });
 
   ipcMain.handle("dialog:openDirectory", handleFileOpen);
 

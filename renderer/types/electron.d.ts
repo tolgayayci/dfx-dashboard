@@ -38,6 +38,8 @@ interface Versions {
   offUpdateDelegate: (callback: (value: any) => void) => void;
   openEditor: (projectPath, editor) => Promise<void>;
   checkEditors: () => Promise<any>;
+  getAppVersion: () => Promise<any>;
+  getDfxVersion: () => Promise<any>;
   runAssistedCommand: (
     command: string,
     canisterName: string,
