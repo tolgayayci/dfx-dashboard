@@ -509,32 +509,39 @@ if (isProd) {
 
   async function retrieveAndStoreIdentities() {
     try {
+      // Fetch the current list of identities from the CLI
       const result = await executeDfxCommand("identity", "list");
-
       if (typeof result !== "string") {
         throw new Error("Unexpected result type from executeDfxCommand");
       }
 
+      // Parse the result to get identity names
       const identityNames = result
         .split("\n")
-        .filter(
-          (identity) => identity.trim() !== "" && identity.trim() !== "*"
-        );
+        .map((name) => name.trim())
+        .filter((name) => name !== "" && name !== "*");
 
+      // Clear existing identities
+      store.set("identities", []);
+
+      // Rebuild the list of identities
+      const newIdentities = [];
       for (const name of identityNames) {
         const identity = {
           name: name,
-          isInternetIdentity: false,
+          isInternetIdentity: false, // You might want to determine this dynamically if possible
         };
-
-        try {
-          await handleIdentities(store, "add", identity);
-        } catch (error) {
-          console.error(`Error adding identity '${name}':`, error);
-        }
+        newIdentities.push(identity);
       }
+
+      // Store the new list of identities
+      store.set("identities", newIdentities);
+
+      console.log("Identities updated successfully:", newIdentities);
+      return newIdentities;
     } catch (error) {
       console.error("Error retrieving identities:", error);
+      throw error; // Re-throw the error so the caller can handle it if needed
     }
   }
 

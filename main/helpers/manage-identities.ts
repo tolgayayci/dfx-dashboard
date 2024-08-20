@@ -1,22 +1,13 @@
-export function handleIdentities(store, action, identity, newIdentity?) {
+export function handleIdentities(store, action, identity?, newIdentity?) {
   let identities = store.get("identities", []);
 
   switch (action) {
     case "add":
-      // Ensure identity has a name and does not already exist.
+      // This case might not be needed if you're always rebuilding the list
+      // But keep it for potential manual additions
       if (!identity.name || identities.some((i) => i.name === identity.name)) {
         throw new Error("Identity already exists or name is missing");
       }
-
-      // For adding an internetIdentity, ensure the structure is correct.
-      if (
-        identity.isInternetIdentity &&
-        (!identity.internetIdentity ||
-          typeof identity.internetIdentity !== "string")
-      ) {
-        throw new Error("Invalid internetIdentity object");
-      }
-
       identities.push(identity);
       break;
 
@@ -37,6 +28,8 @@ export function handleIdentities(store, action, identity, newIdentity?) {
       break;
 
     case "delete":
+      // This case might not be needed if you're always rebuilding the list
+      // But keep it for potential manual deletions
       identities = identities.filter((i) => i.name !== identity.name);
       break;
 
