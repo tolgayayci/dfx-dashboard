@@ -6,6 +6,7 @@ import { SideNav } from "@components/sidebar-nav";
 import { ThemeProvider } from "@components/theme-provider";
 import { ModeToggle } from "@components/toggle-mode";
 import { ReloadToggle } from "@components/toggle-reload";
+import { KillAll } from "./killall";
 import IdentitySwitcher from "@components/identities/identity-switcher";
 import { Toaster } from "@components/ui/toaster";
 import { cn } from "@lib/utils";
@@ -65,6 +66,7 @@ export default function Layout({ children }: LayoutProps) {
           />
           <div className="flex flex-row space-x-2">
             <IdentitySwitcher />
+            <KillAll />
             <ReloadToggle />
             <ModeToggle />
           </div>
