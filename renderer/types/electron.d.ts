@@ -40,6 +40,8 @@ interface Versions {
   checkEditors: () => Promise<any>;
   getAppVersion: () => Promise<any>;
   getDfxVersion: () => Promise<any>;
+  readCommandLogs: () => Promise<string>;
+  checkFileExists: (filePath) => Promise<boolean>;
   runAssistedCommand: (
     command: string,
     canisterName: string,

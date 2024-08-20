@@ -30,7 +30,6 @@ import { SelectSeparator } from "@components/ui/select";
 import CommandAssist from "@components/canisters/canister/command-assist";
 
 const CliCommandSelector = ({
-  canister,
   canisterName,
   path,
   initialCommand,
@@ -38,15 +37,6 @@ const CliCommandSelector = ({
   setCommandOutput,
   setCommandError,
   setLatestCommand,
-}: {
-  canister: any;
-  canisterName: string;
-  path: string;
-  initialCommand: string;
-  latestCommand: string;
-  setCommandOutput: (any) => void;
-  setCommandError: (any) => void;
-  setLatestCommand: (any) => void;
 }) => {
   const defaultCommand = commands.length > 0 ? commands[0].value : "";
 
@@ -60,7 +50,7 @@ const CliCommandSelector = ({
   useEffect(() => {
     if (initialCommand) {
       const [command, ...args] = initialCommand.split(" ");
-      const commandValue = args[0];
+      const commandValue = args[1];
       setSelectedCommand(commandValue);
       handleCommandChange(commandValue, args);
     }
@@ -117,7 +107,7 @@ const CliCommandSelector = ({
       const argsInitialState = {};
       command.args.forEach((arg) => {
         if (arg.name === "CANISTER_NAME") {
-          argsInitialState[arg.name] = canister.name;
+          argsInitialState[arg.name] = canisterName;
         } else {
           const argValue = initialArgs.find((initialArg) =>
             initialArg.startsWith(arg.name)

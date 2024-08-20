@@ -40,7 +40,7 @@ export const createColumns = (): ColumnDef<Canister>[] => {
         <div className="text-right">
           <Link
             href={`/canisters/${encodeURIComponent(
-              row.original.projectPath
+              row.original.path
             )}/${encodeURIComponent(row.original.name)}`}
           >
             <Button>Canister Actions</Button>

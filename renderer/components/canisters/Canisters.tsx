@@ -19,7 +19,7 @@ export default function CanistersComponent() {
         name: key,
         ...result.canisters[key],
         projectName: projects.find((p) => p.path === projectPath)?.name,
-        projectPath: projectPath,
+        path: projectPath,
       }));
 
       // Update all canisters with the new canisters, avoiding duplicates
@@ -47,6 +47,8 @@ export default function CanistersComponent() {
   }, [projects]);
 
   const columns = createColumns();
+
+  console.log(allCanisters);
 
   return (
     <div className="flex flex-col h-[calc(100vh-106px)]">

@@ -16,7 +16,7 @@ function CanisterDetailPage() {
   return (
     <React.Fragment>
       <Head>
-        <title>Project - DFINITY DFX</title>
+        <title>Project - DFX Dashboard</title>
       </Head>
       <ProjectDetail projectPath={path as string} openDfxTab={isOpenDfxTab} />
     </React.Fragment>

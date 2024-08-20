@@ -24,6 +24,8 @@ export function KillAll() {
         title: "DFX Processes Killed",
         description: result || "All DFX processes have been terminated.",
       });
+
+      await window.awesomeApi.reloadApplication();
     } catch (error) {
       console.error(`Error: ${error}`);
       toast({

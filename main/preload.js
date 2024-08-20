@@ -94,6 +94,12 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   getDfxVersion: async () => {
     return ipcRenderer.invoke("get-dfx-version");
   },
+  readCommandLogs: async () => {
+    return ipcRenderer.invoke("fetch-command-logs");
+  },
+  checkFileExists: async (filePath) => {
+    return ipcRenderer.invoke("check-file-exists", filePath);
+  },
   runAssistedCommand: async (
     command,
     canisterName,

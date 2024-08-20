@@ -3,11 +3,10 @@ fixPath();
 
 import { app, ipcMain, dialog } from "electron";
 import serve from "electron-serve";
-import { autoUpdater } from "electron-updater";
+const { readFile } = require("fs").promises;
 
 // Analytics
-import { initialize } from "@aptabase/electron/main";
-import { trackEvent } from "@aptabase/electron/main";
+import { initialize, trackEvent } from "@aptabase/electron/main";
 
 // Helpers
 import { createWindow } from "./helpers";
@@ -25,7 +24,9 @@ import runCommand from "./helpers/run-command";
 const path = require("node:path");
 const fs = require("fs");
 const { shell } = require("electron");
-const { exec, spawn } = require("child_process");
+const { spawn } = require("child_process");
+const log = require("electron-log/main");
+const { autoUpdater } = require("electron-updater");
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -33,6 +34,15 @@ const Store = require("electron-store");
 
 // Aptabase Analytics
 initialize("A-EU-1521640385");
+
+// Set up logging
+const commandLog = log.create("command");
+commandLog.transports.file.format = "[{y}-{m}-{d} {h}:{i}:{s}.{ms}]  {text}";
+commandLog.transports.file.fileName = "dfx-commands.log";
+commandLog.transports.file.file = path.join(
+  app.getPath("userData"),
+  "dfx-commands.log"
+);
 
 const schema = {
   projects: {
@@ -372,6 +382,20 @@ if (isProd) {
     };
   });
 
+  ipcMain.handle("fetch-command-logs", async () => {
+    try {
+      const commandLogFilePath = commandLog.transports.file.getFile().path;
+      const data = await readFile(commandLogFilePath, "utf-8");
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  ipcMain.handle("check-file-exists", async (event, filePath) => {
+    return fs.existsSync(filePath);
+  });
+
   ipcMain.handle(
     "dfx-command",
     async (event, command, subcommand, args?, flags?, path?) => {
@@ -384,6 +408,23 @@ if (isProd) {
           path
         );
         trackEvent("dfx-command-executed");
+
+        if (command && command === "canister") {
+          const formattedResult = result
+            ? `Result: ${JSON.stringify(result)}`
+            : "";
+
+          commandLog.info(
+            "dfx",
+            command,
+            subcommand ? subcommand : "",
+            args ? args.join(" ") : "",
+            flags ? flags.join(" ") : "",
+            path ? path : "",
+            formattedResult
+          );
+        }
+
         return result;
       } catch (error) {
         console.error(`Error while executing DFX command: ${error}`);
@@ -397,6 +438,12 @@ if (isProd) {
   // Store: Projects Handler
   ipcMain.handle("store:manageProjects", async (event, action, project) => {
     try {
+      trackEvent("project_action", { action, project });
+      log.info(
+        "Project Interaction. Action:",
+        action,
+        project ? "Project: " + project : ""
+      );
       const result = await handleProjects(store, action, project);
       return result;
     } catch (error) {
@@ -409,6 +456,13 @@ if (isProd) {
     "store:manageIdentities",
     async (event, action, identity, newIdentity?) => {
       try {
+        trackEvent("identity_action", { action, identity, newIdentity });
+        log.info(
+          "Identity Interaction.",
+          action ? "Action: " + action : "",
+          identity ? "Identity: " + identity : "",
+          newIdentity ? "New Identity: " + newIdentity : ""
+        );
         const result = await handleIdentities(
           store,
           action,

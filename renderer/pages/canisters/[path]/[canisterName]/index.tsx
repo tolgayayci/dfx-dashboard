@@ -2,20 +2,17 @@ import React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import CanisterDetail from "@components/canisters/canister/canister-detail";
+import { trackEvent } from "@aptabase/electron/renderer";
 
 function CanisterDetailPage() {
-  const router = useRouter();
-  const { projectPath, canisterName } = router.query;
+  trackEvent("canister-detail-page-viewed");
 
   return (
     <React.Fragment>
       <Head>
-        <title>Canister - {canisterName} - DFINITY DFX</title>
+        <title>Canister - DFX Dashboard</title>
       </Head>
-      <CanisterDetail
-        projectPath={projectPath as string}
-        canisterName={canisterName as string}
-      />
+      <CanisterDetail />
     </React.Fragment>
   );
 }
