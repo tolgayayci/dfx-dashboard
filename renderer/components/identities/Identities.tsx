@@ -33,6 +33,7 @@ import { Avatar, AvatarImage } from "@components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
+import { Badge } from "@components/ui/badge";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,18 +52,19 @@ import {
 import { useToast } from "@components/ui/use-toast";
 import { protectedIdentityRemoveError } from "@lib/notifications";
 
-import { LucidePersonStanding } from "lucide-react";
+import { LucidePersonStanding, Trash2 } from "lucide-react";
 import IdentityModal from "@components/identities/identity-modal";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import NoIdentities from "@components/identities/no-identities";
 
 const ReactJson = dynamic(() => import("react-json-view"), {
-  ssr: false, // This will only import 'ReactJson' on the client-side
+  ssr: false,
 });
 
 const IdentityCard = ({
   identity,
   activeIdentityName,
+  onIdentitySelect,
 }: {
   identity: {
     name: string;
@@ -70,6 +72,7 @@ const IdentityCard = ({
     internetIdentity: object;
   };
   activeIdentityName: string;
+  onIdentitySelect: (identityName: string) => void;
 }) => {
   const [showRenameIdentityDialog, setShowRenameIdentityDialog] =
     useState(false);
@@ -114,7 +117,10 @@ const IdentityCard = ({
     await window.awesomeApi.reloadApplication();
   };
 
-  // If the identity name is '*', do not render the card
+  const handleSelectIdentity = () => {
+    onIdentitySelect(identity.name);
+  };
+
   if (identity.name === "*") {
     return null;
   }
@@ -129,7 +135,7 @@ const IdentityCard = ({
               alt={identity.name}
             />
           </Avatar>
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1 overflow-hidden">
             <CardTitle className="text-medium">
               {identity.isInternetIdentity
                 ? identity.name.slice(0, 11)
@@ -141,216 +147,219 @@ const IdentityCard = ({
                 : "Local Identity"}
             </CardDescription>
           </div>
+          {isActiveIdentity ? (
+            <Badge variant="secondary" className="ml-auto">
+              Active
+            </Badge>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="hover:text-red-500 ml-auto"
+              onClick={handleRemoveClick}
+              disabled={isProtectedIdentity}
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-4">
-        <div>
-          {identity.isInternetIdentity ? (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowInternetIdentityDialog(true)}
-            >
-              Details
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowRenameIdentityDialog(true)}
-              disabled={isProtectedIdentity}
-            >
-              Edit
-            </Button>
-          )}
-          <Dialog
-            open={showInternetIdentityDialog}
-            onOpenChange={() => setShowInternetIdentityDialog(false)}
+        {identity.isInternetIdentity ? (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => setShowInternetIdentityDialog(true)}
           >
-            <DialogContent>
+            Details
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => setShowRenameIdentityDialog(true)}
+            disabled={isProtectedIdentity}
+          >
+            Edit
+          </Button>
+        )}
+        <Button
+          className="w-full"
+          onClick={handleSelectIdentity}
+          disabled={isActiveIdentity}
+          variant={isActiveIdentity ? "secondary" : "default"}
+        >
+          {isActiveIdentity ? "Active" : "Select"}
+        </Button>
+      </CardContent>
+      <Dialog
+        open={showInternetIdentityDialog}
+        onOpenChange={() => setShowInternetIdentityDialog(false)}
+      >
+        <DialogContent>
+          <DialogHeader className="space-y-3">
+            <DialogTitle>Internet Identity Details</DialogTitle>
+            <DialogDescription>
+              You can view the details of an internet identity here.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="h-[calc(100vh-300px)]">
+            <ReactJson name={identity.name} src={identity.internetIdentity} />
+            <ScrollBar />
+          </ScrollArea>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowInternetIdentityDialog(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={showRenameIdentityDialog}
+        onOpenChange={() => setShowRenameIdentityDialog(false)}
+      >
+        <DialogContent>
+          <Form {...renameIdentityForm}>
+            <form
+              onSubmit={renameIdentityForm.handleSubmit(
+                onRenameIdentityFormSubmit
+              )}
+            >
               <DialogHeader className="space-y-3">
-                <DialogTitle>Internet Identity Details</DialogTitle>
+                <DialogTitle>Rename "{identity.name}"</DialogTitle>
                 <DialogDescription>
-                  You can view the details of an internet identity here.
+                  Identities are global. They are not confined to a specific
+                  project context.
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="h-[calc(100vh-300px)]">
-                <ReactJson
-                  name={identity.name}
-                  src={identity.internetIdentity}
-                />
-                <ScrollBar />
-              </ScrollArea>
+              <div>
+                <div className="py-4 pb-6">
+                  <div className="space-y-3">
+                    <FormField
+                      control={renameIdentityForm.control}
+                      name="from_identity_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-small">
+                            Current Identity Name
+                          </FormLabel>
+                          {identity ? (
+                            <FormControl>
+                              <Input
+                                {...field}
+                                id="from_identity_name"
+                                defaultValue={identity.name}
+                                disabled
+                              />
+                            </FormControl>
+                          ) : null}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <FormField
+                      control={renameIdentityForm.control}
+                      name="to_identity_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-small">
+                            New Identity Name
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              id="to_identity_name"
+                              placeholder="alice"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
               <DialogFooter>
                 <Button
                   variant="outline"
-                  onClick={() => setShowInternetIdentityDialog(false)}
+                  type="button"
+                  onClick={() => setShowRenameIdentityDialog(false)}
                 >
-                  Close
+                  Cancel
+                </Button>
+                <Button type="submit">Rename</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={showRemoveIdentityDialog}
+        onOpenChange={() => setShowRemoveIdentityDialog(false)}
+      >
+        <DialogContent>
+          <Form {...removeIdentityForm}>
+            <form
+              onSubmit={removeIdentityForm.handleSubmit(
+                onRemoveIdentityFormSubmit
+              )}
+            >
+              <DialogHeader className="space-y-3">
+                <DialogTitle>Remove "{identity.name}"</DialogTitle>
+                <DialogDescription>
+                  Identities are global. If you remove an identity, it will be
+                  removed from dfx also!
+                </DialogDescription>
+              </DialogHeader>
+              <div>
+                <div className="py-4 pb-6">
+                  <div className="space-y-3">
+                    <FormField
+                      control={removeIdentityForm.control}
+                      name="identity_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-small">
+                            Identity Name
+                          </FormLabel>
+                          {identity ? (
+                            <FormControl>
+                              <Input
+                                {...field}
+                                id="identity_name"
+                                defaultValue={identity.name}
+                                disabled
+                              />
+                            </FormControl>
+                          ) : null}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setShowRemoveIdentityDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" variant="destructive">
+                  Remove
                 </Button>
               </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog
-            open={showRenameIdentityDialog}
-            onOpenChange={() => setShowRenameIdentityDialog(false)}
-          >
-            <DialogContent>
-              <Form {...renameIdentityForm}>
-                <form
-                  onSubmit={renameIdentityForm.handleSubmit(
-                    onRenameIdentityFormSubmit
-                  )}
-                >
-                  <DialogHeader className="space-y-3">
-                    <DialogTitle>Rename "{identity.name}"</DialogTitle>
-                    <DialogDescription>
-                      Identities are global. They are not confined to a specific
-                      project context.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div>
-                    <div className="py-4 pb-6">
-                      <div className="space-y-3">
-                        <FormField
-                          control={renameIdentityForm.control}
-                          name="from_identity_name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-small">
-                                Current Identity Name
-                              </FormLabel>
-                              {identity ? (
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    id="from_identity_name"
-                                    defaultValue={identity.name}
-                                    disabled
-                                  />
-                                </FormControl>
-                              ) : null}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="space-y-3">
-                        <FormField
-                          control={renameIdentityForm.control}
-                          name="to_identity_name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-small">
-                                New Identity Name
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  id="to_identity_name"
-                                  placeholder="alice"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => setShowRenameIdentityDialog(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit">Rename</Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </div>
-        <div>
-          {identity.isInternetIdentity ? (
-            <Button className="w-full" onClick={handleInternetIdentityRemove}>
-              Delete
-            </Button>
-          ) : (
-            <Button
-              className="w-full"
-              onClick={handleRemoveClick}
-              disabled={isActiveIdentity || isProtectedIdentity}
-            >
-              Remove
-            </Button>
-          )}
-          <Dialog
-            open={showRemoveIdentityDialog}
-            onOpenChange={() => setShowRemoveIdentityDialog(false)}
-          >
-            <DialogContent>
-              <Form {...removeIdentityForm}>
-                <form
-                  onSubmit={removeIdentityForm.handleSubmit(
-                    onRemoveIdentityFormSubmit
-                  )}
-                >
-                  <DialogHeader className="space-y-3">
-                    <DialogTitle>Remove "{identity.name}"</DialogTitle>
-                    <DialogDescription>
-                      Identities are global. If you remove an identity, it will
-                      be removed from dfx also!
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div>
-                    <div className="py-4 pb-6">
-                      <div className="space-y-3">
-                        <FormField
-                          control={removeIdentityForm.control}
-                          name="identity_name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-small">
-                                Identity Name
-                              </FormLabel>
-                              {identity ? (
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    id="identity_name"
-                                    defaultValue={identity.name}
-                                    disabled
-                                  />
-                                </FormControl>
-                              ) : null}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => setShowRemoveIdentityDialog(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" variant="destructive">
-                      Remove
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </CardContent>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
@@ -361,6 +370,8 @@ export default function IdentitiesComponent() {
   const [identities, setIdentities] = useState<any>();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeIdentityName, setActiveIdentityName] = useState("");
+
+  const { toast } = useToast();
 
   function deserializeInternetIdentity(serializedIdentity) {
     const identity = JSON.parse(serializedIdentity, (key, value) => {
@@ -391,6 +402,7 @@ export default function IdentitiesComponent() {
 
   async function checkIdentities() {
     try {
+      await window.awesomeApi.refreshIdentities();
       const identities = await window.awesomeApi.manageIdentities("list", "");
 
       identities.forEach((identity) => {
@@ -408,7 +420,6 @@ export default function IdentitiesComponent() {
   }
 
   async function checkCurrentIdentity() {
-    // Here we call the exposed method from preload.js
     try {
       const result = await window.awesomeApi.runDfxCommand(
         "identity",
@@ -420,9 +431,18 @@ export default function IdentitiesComponent() {
     }
   }
 
-  const handleSearchChange = (e: any) => {
-    e.preventDefault();
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleIdentitySelect = async (identityName: string) => {
+    try {
+      await window.awesomeApi.runDfxCommand("identity", "use", [identityName]);
+      setActiveIdentityName(identityName);
+      await window.awesomeApi.reloadApplication();
+    } catch (error) {
+      console.error("Error selecting identity:", error);
+    }
   };
 
   useEffect(() => {
@@ -486,6 +506,7 @@ export default function IdentitiesComponent() {
                     key={identity.name}
                     identity={identity}
                     activeIdentityName={activeIdentityName}
+                    onIdentitySelect={handleIdentitySelect}
                   />
                 ))}
             </div>

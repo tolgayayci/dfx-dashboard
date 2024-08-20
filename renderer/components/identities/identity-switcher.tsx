@@ -121,6 +121,10 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
   async function changeIdentity(newIdentity: string) {
     try {
       await window.awesomeApi.runDfxCommand("identity", "use", [newIdentity]);
+
+      if (router.pathname === "/identities") {
+        await window.awesomeApi.reloadApplication();
+      }
     } catch (error) {
       console.log("Error invoking remote method:", error);
     }
