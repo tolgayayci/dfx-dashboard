@@ -69,6 +69,7 @@ const schema = {
         internetIdentity: {
           type: "string",
         },
+        isActive: { type: "boolean" },
       },
     },
   },
@@ -97,7 +98,6 @@ autoUpdater.autoInstallOnAppQuit = true;
 
 let mainWindow;
 let assistedCommandProcess = null;
-let questionCallback = null;
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -114,19 +114,6 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
-  app.on("second-instance", (event, commandLine, workingDirectory) => {
-    console.log("second-instance", commandLine);
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-
-    dialog.showErrorBox(
-      "Welcome Back",
-      `You arrived from: ${commandLine.pop().slice(0, -1)}`
-    );
-  });
-
   app.on("open-url", function (event, url) {
     event.preventDefault();
     console.log("open-url event: " + url);
