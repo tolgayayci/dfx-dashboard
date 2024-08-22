@@ -10,16 +10,12 @@ import TopUpTab from "./TopUpTab";
 
 export default function CyclesPage() {
   const [balance, setBalance] = useState<string | null>(null);
-  const [warning, setWarning] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [allCanisters, setAllCanisters] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
 
   const fetchCyclesBalance = async () => {
     setIsLoading(true);
     setError(null);
-    setWarning(null);
 
     try {
       const result = await window.awesomeApi.runDfxCommand(
@@ -33,7 +29,7 @@ export default function CyclesPage() {
 
       for (const line of lines) {
         if (line.startsWith("WARN:")) {
-          setWarning(line.substring(5).trim());
+          console.warn(line.substring(5).trim());
         } else if (line.includes("TC (trillion cycles)")) {
           balanceValue = line.trim();
         }
@@ -50,11 +46,6 @@ export default function CyclesPage() {
 
   useEffect(() => {
     fetchCyclesBalance();
-    // Assuming you have a method to fetch projects
-    // fetchProjects().then(fetchedProjects => {
-    //   setProjects(fetchedProjects);
-    //   fetchedProjects.forEach(project => checkCanisters(project.path));
-    // });
   }, []);
 
   return (
@@ -85,7 +76,7 @@ export default function CyclesPage() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="transfer" className="w-full">
+      <Tabs defaultValue="topup" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="convert">Convert ICP</TabsTrigger>
           <TabsTrigger value="transfer">Transfer Cycles</TabsTrigger>
@@ -99,7 +90,7 @@ export default function CyclesPage() {
         </TabsContent>
         <TabsContent value="topup">
           <TabsContent value="topup">
-            <TopUpTab onSuccess={fetchCyclesBalance} projects={projects} />
+            <TopUpTab onSuccess={fetchCyclesBalance} />
           </TabsContent>
         </TabsContent>
       </Tabs>

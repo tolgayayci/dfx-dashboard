@@ -10,7 +10,11 @@ import { initialize, trackEvent } from "@aptabase/electron/main";
 
 // Helpers
 import { createWindow } from "./helpers";
-import { executeDfxCommand } from "./helpers/dfx-helper";
+import {
+  executeDfxCommand,
+  executeBundledDfxCommand,
+  clearExtractedDfxPath,
+} from "./helpers/dfx-helper";
 import { handleIdentities } from "./helpers/manage-identities";
 import { handleProjects } from "./helpers/manage-projects";
 import {
@@ -98,6 +102,7 @@ autoUpdater.autoInstallOnAppQuit = true;
 
 let mainWindow;
 let assistedCommandProcess = null;
+let bundledDfxPath: string;
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -110,6 +115,40 @@ if (process.defaultApp) {
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
+
+function getBundledDfxPath(): string {
+  const isProduction = app.isPackaged;
+  let basePath: string;
+  let resourcePath: string;
+
+  if (isProduction) {
+    // Production: Use the path relative to the executable
+    basePath = path.dirname(app.getPath("exe"));
+    resourcePath = path.join(basePath, "..", "Resources");
+  } else {
+    // Development: Use the path relative to the project root
+    basePath = app.getAppPath();
+    resourcePath = path.join(basePath, "resources");
+  }
+
+  const platformFolder = process.platform === "darwin" ? "mac" : "linux";
+  const dfxFileName =
+    process.platform === "darwin"
+      ? "dfx-0.22.0-x86_64-darwin.tar.gz"
+      : "dfx-0.22.0-x86_64-linux.tar.gz";
+
+  const dfxPath = path.join(resourcePath, platformFolder, dfxFileName);
+
+  // Log the path for debugging
+  console.log("Bundled DFX Path:", dfxPath);
+
+  // Check if the file exists
+  if (!fs.existsSync(dfxPath)) {
+    console.error("DFX file not found at:", dfxPath);
+  }
+
+  return dfxPath;
+}
 
 if (!gotTheLock) {
   app.quit();
@@ -132,6 +171,7 @@ if (!gotTheLock) {
 
     autoUpdater.checkForUpdatesAndNotify();
     trackEvent("app_started");
+    bundledDfxPath = getBundledDfxPath();
   });
 
   app.on("open-url", (event, url) => {
@@ -323,10 +363,24 @@ if (isProd) {
     };
 
     const getDfxVersion = async () => {
+      const useBundledDfx = store.get("useBundledDfx", false);
+
       try {
-        const versionOutput = await runCommand("dfx --version");
+        let versionOutput: string;
+        if (useBundledDfx) {
+          versionOutput = await executeBundledDfxCommand(
+            bundledDfxPath,
+            "--version"
+          );
+        } else {
+          versionOutput = await executeDfxCommand("--version");
+        }
         const version = extractVersionNumber(versionOutput);
-        return { version, error: null };
+        return {
+          version,
+          type: useBundledDfx ? "bundled" : "system",
+          error: null,
+        };
       } catch (error) {
         console.error("Error fetching dfx version:", error);
         return {
@@ -386,14 +440,29 @@ if (isProd) {
   ipcMain.handle(
     "dfx-command",
     async (event, command, subcommand, args?, flags?, path?) => {
+      const useBundledDfx = store.get("useBundledDfx", false);
+
       try {
-        const result = await executeDfxCommand(
-          command,
-          subcommand,
-          args,
-          flags,
-          path
-        );
+        let result;
+        if (useBundledDfx) {
+          result = await executeBundledDfxCommand(
+            bundledDfxPath,
+            command,
+            subcommand,
+            args,
+            flags,
+            path
+          );
+        } else {
+          result = await executeDfxCommand(
+            command,
+            subcommand,
+            args,
+            flags,
+            path
+          );
+        }
+
         trackEvent("dfx-command-executed");
 
         if (command && command === "canister") {
@@ -414,8 +483,30 @@ if (isProd) {
 
         return result;
       } catch (error) {
-        console.error(`Error while executing DFX command: ${error}`);
-        throw error;
+        console.error(`Error while executing DFX command:`, error);
+        if (useBundledDfx) {
+          // If there's an error with the bundled DFX, try falling back to the system DFX
+          console.log("Falling back to system DFX...");
+          try {
+            const result = await executeDfxCommand(
+              command,
+              subcommand,
+              args,
+              flags,
+              path
+            );
+            // If successful, update the preference to use system DFX
+            store.set("useBundledDfx", false);
+            return result;
+          } catch (fallbackError) {
+            console.error("Error with fallback to system DFX:", fallbackError);
+            throw new Error(
+              "Failed to execute DFX command with both bundled and system DFX"
+            );
+          }
+        } else {
+          throw error;
+        }
       }
     }
   );
@@ -619,6 +710,42 @@ if (isProd) {
   });
 
   await retrieveAndStoreIdentities();
+
+  ipcMain.handle("get-dfx-preference", () => {
+    return store.get("useBundledDfx", false);
+  });
+
+  ipcMain.handle("set-dfx-preference", (event, useBundled: boolean) => {
+    store.set("useBundledDfx", useBundled);
+    if (!useBundled) {
+      clearExtractedDfxPath();
+    }
+  });
+
+  ipcMain.handle("get-dfx-versions", async () => {
+    let systemVersion = "Not installed";
+    let bundledVersion = "Not available";
+
+    try {
+      systemVersion = await executeDfxCommand("--version");
+    } catch (error) {
+      console.error("Error getting system DFX version:", error);
+    }
+
+    try {
+      bundledVersion = await executeBundledDfxCommand(
+        bundledDfxPath,
+        "--version"
+      );
+    } catch (error) {
+      console.error("Error getting bundled DFX version:", error);
+    }
+
+    return {
+      system: systemVersion,
+      bundled: bundledVersion,
+    };
+  });
 
   if (isProd) {
     await mainWindow.loadURL("app://./projects");

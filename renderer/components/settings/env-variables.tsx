@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "@components/ui/label";
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
-import { CodeIcon } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
-import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Switch } from "@components/ui/switch";
+import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
+import { Badge } from "@components/ui/badge";
+import { Separator } from "@components/ui/separator";
+import { Loader2 } from "lucide-react";
 
 interface EnvVar {
   value: string;
@@ -14,15 +16,14 @@ interface EnvVar {
 
 export default function EnvironmentVariables() {
   const [envVars, setEnvVars] = useState<{ [key: string]: EnvVar }>({});
-  const [useBundledDfx, setUseBundledDfx] = useState(false);
-  const [customDfxPath, setCustomDfxPath] = useState("");
-  const [systemDfxAvailable, setSystemDfxAvailable] = useState(false);
-  const [bundledDfxPath, setBundledDfxPath] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [useBundledDfx, setUseBundledDfx] = useState(false);
+  const [dfxVersion, setDfxVersion] = useState<string>("");
+  const [dfxType, setDfxType] = useState<string>("");
+  const [showFallbackAlert, setShowFallbackAlert] = useState(false);
 
   const defaultKeys = [
-    "CUSTOM_DFX_PATH",
     "CANISTER_CANDID_PATH",
     "CANISTER_ID",
     "DFX_CONFIG_ROOT",
@@ -30,39 +31,45 @@ export default function EnvironmentVariables() {
     "DFX_VERSION",
     "DFX_MOC_PATH",
     "DFX_WARNING",
+    "DFX_DISABLE_QUERY_VERIFICATION",
   ];
 
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const fetchedVars = await window.awesomeApi.readEnvVariables();
+      const [fetchedVars, dfxPreference, dfxVersions] = await Promise.all([
+        window.awesomeApi.readEnvVariables(),
+        window.awesomeApi.getDfxPreference(),
+        window.awesomeApi.getDfxVersions(),
+      ]);
+
       const formattedVars: { [key: string]: EnvVar } = {};
       Object.entries(fetchedVars).forEach(([key, value]) => {
         formattedVars[key] = { value: value, path: "" };
       });
       setEnvVars(formattedVars);
+      setUseBundledDfx(dfxPreference);
 
-      const bundledDfxUsed = await window.awesomeApi.getUseBundledDfx();
-      setUseBundledDfx(bundledDfxUsed);
-
-      const customPath = await window.awesomeApi.getCustomDfxPath();
-      setCustomDfxPath(customPath);
-      setEnvVars((prevEnvVars) => ({
-        ...prevEnvVars,
-        CUSTOM_DFX_PATH: { value: customPath, path: "" },
-      }));
-
-      const systemDfxCheck = await window.awesomeApi.checkSystemDfx();
-      setSystemDfxAvailable(systemDfxCheck);
-
-      const bundledPath = await window.awesomeApi.getBundledDfxPath();
-      setBundledDfxPath(bundledPath);
+      updateDfxInfo(dfxPreference, dfxVersions);
     } catch (error) {
       console.error("Error fetching initial data:", error);
       setError("Failed to load settings. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateDfxInfo = (
+    preference: boolean,
+    versions: { system: string; bundled: string }
+  ) => {
+    if (preference) {
+      setDfxVersion(versions.bundled);
+      setDfxType("Bundled");
+    } else {
+      setDfxVersion(versions.system);
+      setDfxType("System");
     }
   };
 
@@ -78,13 +85,6 @@ export default function EnvironmentVariables() {
   };
 
   const updateEnvVar = async (key: string) => {
-    if (key === "CUSTOM_DFX_PATH") {
-      await handleCustomDfxPathChange({
-        target: { value: customDfxPath },
-      } as React.ChangeEvent<HTMLInputElement>);
-      return;
-    }
-
     const variable = envVars[key];
     if (!variable || !variable.path) {
       console.error("Path for the variable is not defined");
@@ -103,83 +103,42 @@ export default function EnvironmentVariables() {
     }
   };
 
-  const handleUseBundledDfxChange = async (checked: boolean) => {
-    setIsLoading(true);
-    setError(null);
+  const handleDfxPreferenceChange = async (checked: boolean) => {
     try {
-      const result = await window.awesomeApi.setUseBundledDfx(checked);
-      if (result) {
-        setUseBundledDfx(checked);
-        if (checked) {
-          await window.awesomeApi.setupBundledDfx();
-          // Clear custom DFX path when switching to bundled DFX
-          setCustomDfxPath("");
-          setEnvVars((prevEnvVars) => ({
-            ...prevEnvVars,
-            CUSTOM_DFX_PATH: { value: "", path: "" },
-          }));
-        }
-        await fetchData(); // Refresh data after changing DFX
-        await window.awesomeApi.reloadApplication(); // Reload the app after changing DFX
-      } else {
-        throw new Error("Failed to change DFX settings");
-      }
+      setIsLoading(true);
+      await window.awesomeApi.setDfxPreference(checked);
+      setUseBundledDfx(checked);
+      const dfxVersions = await window.awesomeApi.getDfxVersions();
+      updateDfxInfo(checked, dfxVersions);
+      setShowFallbackAlert(false);
+      setError(null);
+      await window.awesomeApi.reloadApplication();
     } catch (error) {
-      console.error("Error changing bundled DFX usage:", error);
-      setError("Failed to change DFX settings. Please try again.");
+      console.error("Error updating DFX preference:", error);
+      setError(
+        "Failed to update DFX preference. The application may have fallen back to system DFX."
+      );
+      setShowFallbackAlert(true);
+      const currentPreference = await window.awesomeApi.getDfxPreference();
+      const dfxVersions = await window.awesomeApi.getDfxVersions();
+      setUseBundledDfx(currentPreference);
+      updateDfxInfo(currentPreference, dfxVersions);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleCustomDfxPathChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const path = e.target.value;
-    setCustomDfxPath(path);
-    setEnvVars((prevEnvVars) => ({
-      ...prevEnvVars,
-      CUSTOM_DFX_PATH: { value: path, path: "" },
-    }));
-
-    if (!useBundledDfx) {
-      setIsLoading(true);
-      setError(null);
-      try {
-        await window.awesomeApi.setCustomDfxPath(path);
-        await fetchData(); // Refresh data after changing custom DFX path
-        await window.awesomeApi.reloadApplication(); // Reload the app after changing custom DFX path
-      } catch (error) {
-        console.error("Error setting custom DFX path:", error);
-        setError("Failed to set custom DFX path. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
     }
   };
 
   const renderEnvVarFields = () => {
     return defaultKeys.map((key) => (
       <div key={key} className="flex items-center justify-between space-x-4">
-        <Label className="w-72">{key}</Label>
+        <Label className="w-[420px]">{key}</Label>
         <Input
-          value={
-            key === "CUSTOM_DFX_PATH"
-              ? customDfxPath
-              : envVars[key]?.value || ""
-          }
+          value={envVars[key]?.value || ""}
           placeholder={!envVars[key] ? "Not Defined" : ""}
-          onChange={(e) =>
-            key === "CUSTOM_DFX_PATH"
-              ? handleCustomDfxPathChange(e)
-              : handleInputChange(key, e.target.value)
-          }
-          disabled={key === "CUSTOM_DFX_PATH" && (useBundledDfx || isLoading)}
+          onChange={(e) => handleInputChange(key, e.target.value)}
+          disabled={isLoading}
         />
-        <Button
-          onClick={() => updateEnvVar(key)}
-          disabled={key === "CUSTOM_DFX_PATH" && useBundledDfx}
-        >
+        <Button onClick={() => updateEnvVar(key)} disabled={isLoading}>
           Update
         </Button>
       </div>
@@ -187,41 +146,48 @@ export default function EnvironmentVariables() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-106px)]">
-      <Alert className="mt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <CodeIcon className="h-5 w-5" />
-            <div>
-              <AlertTitle className="mb-2">Use Bundled Dfx</AlertTitle>
-              <AlertDescription>
-                DFX GUI uses dfx version{" "}
-                <span className="font-semibold">0.21.0</span> by default. If you
-                want to use a custom DFX version, you can toggle the switch.
-              </AlertDescription>
-            </div>
+    <div className="space-y-6 relative">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+        <div className="flex items-center justify-between space-x-4 p-3 rounded-lg border w-[400px]">
+          <div className="flex items-center space-x-3">
+            <Label htmlFor="dfx-preference" className="text-sm font-medium">
+              Use Bundled DFX
+            </Label>
+            <Switch
+              id="dfx-preference"
+              checked={useBundledDfx}
+              onCheckedChange={handleDfxPreferenceChange}
+              disabled={isLoading}
+            />
           </div>
-          <Switch
-            id="use-bundled-dfx"
-            checked={useBundledDfx}
-            onCheckedChange={handleUseBundledDfxChange}
-            disabled={isLoading}
-          />
+          <div className="flex items-center space-x-2">
+            <Badge variant="default" className="px-2 py-1">
+              {dfxType}
+            </Badge>
+            <Badge variant="outline" className="px-2 py-1">
+              v{dfxVersion}
+            </Badge>
+          </div>
         </div>
-        {!useBundledDfx && !systemDfxAvailable && (
-          <div className="mt-2 text-red-500">
-            Warning: System DFX is not available. Please provide a valid custom
-            DFX path in the environment variables below.
-          </div>
-        )}
-        {error && <div className="mt-2 text-red-500">{error}</div>}
-        {isLoading && <div className="mt-2">Loading...</div>}
-      </Alert>
+      </div>
+      <Separator />
 
-      <ScrollArea className="h-[calc(85vh-180px)] overflow-y-auto mt-6">
+      <ScrollArea className="h-[calc(90vh-90px)] overflow-y-auto relative">
         <div className="space-y-4">{renderEnvVarFields()}</div>
         <ScrollBar />
+        {isLoading && (
+          <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          </div>
+        )}
       </ScrollArea>
+      {error && (
+        <Alert variant="destructive" className="mt-4">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

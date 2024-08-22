@@ -66,13 +66,9 @@ interface Versions {
     }) => void
   ) => void;
   runCommand: (command: string) => Promise<any>;
-  setUseBundledDfx: (value: boolean) => Promise<boolean>;
-  getUseBundledDfx: () => Promise<boolean>;
-  setCustomDfxPath: (path: string) => Promise<boolean>;
-  getCustomDfxPath: () => Promise<string>;
-  checkSystemDfx: () => Promise<boolean>;
-  getBundledDfxPath: () => Promise<string>;
-  setupBundledDfx: () => Promise<boolean>;
+  getDfxPreference: () => Promise<boolean>;
+  setDfxPreference: (useBundled: boolean) => Promise<void>;
+  getDfxVersions: () => Promise<{ system: string; bundled: string }>;
 }
 
 interface Window {

@@ -1,13 +1,13 @@
 {
   "private": true,
   "name": "dfinity-dfx-gui",
-  "description": "DFINITY DFX GUI is a cross platform, electron based application designed to streamline the use of the DFINITY's Internet Computer `dfx` CLI.",
-  "version": "0.2.0-beta",
+  "description": "DFX Dashboard is a cross platform, electron based application designed to streamline the use of the DFINITY's Internet Computer `dfx` CLI.",
+  "version": "0.2.1-beta",
   "author": "Tolga Yaycı <tolgayayci@protonmail.com>",
   "main": "app/background.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tolgayayci/dfinity-dfx-gui.git"
+    "url": "https://github.com/tolgayayci/dfx-dashboard.git"
   },
   "scripts": {
     "dev": "nextron",
@@ -58,7 +58,6 @@
     "fix-path": "3.0.0",
     "lucide-react": "^0.279.0",
     "next-themes": "^0.2.1",
-    "node-pty": "^1.0.0",
     "react-hook-form": "^7.47.0",
     "react-json-editor-ajrm": "^2.5.14",
     "react-json-view": "^1.21.3",
@@ -67,9 +66,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
     "tar": "^7.4.1",
-    "universal-analytics": "^0.5.3",
-    "zod": "^3.22.4",
-    "zx": "^7.2.3"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",

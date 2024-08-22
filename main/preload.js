@@ -100,6 +100,9 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   checkFileExists: async (filePath) => {
     return ipcRenderer.invoke("check-file-exists", filePath);
   },
+  getDfxVersions: async () => {
+    return ipcRenderer.invoke("get-dfx-versions");
+  },
   runAssistedCommand: async (
     command,
     canisterName,
@@ -123,4 +126,8 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   offAssistedCommandOutput: (callback) => {
     ipcRenderer.removeListener("assisted-command-output", callback);
   },
+  getDfxPreference: () => ipcRenderer.invoke("get-dfx-preference"),
+  setDfxPreference: (useBundled) =>
+    ipcRenderer.invoke("set-dfx-preference", useBundled),
+  getDfxVersions: () => ipcRenderer.invoke("get-dfx-versions"),
 });
