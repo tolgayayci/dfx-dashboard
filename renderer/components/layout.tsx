@@ -27,6 +27,7 @@ import {
   SettingsIcon,
   BookIcon,
   BookKeyIcon,
+  RecycleIcon,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -123,6 +124,15 @@ export default function Layout({ children }: LayoutProps) {
                         href: "/identities",
                         icon: CircuitBoardIcon,
                         variant: router.pathname.startsWith("/identities")
+                          ? "default"
+                          : "ghost",
+                      },
+                      {
+                        title: "Cycles",
+                        label: "",
+                        href: "/cycles",
+                        icon: RecycleIcon,
+                        variant: router.pathname.startsWith("/cycles")
                           ? "default"
                           : "ghost",
                       },
