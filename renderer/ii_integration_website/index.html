@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-itunes-app" content="app-id=6473462222" />
+    <title>DFX Dashboard - Internet Identity Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+        }
+        .description {
+            color: #4a5568;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        ii-login-button {
+            display: block;
+            margin: 0 auto 2rem;
+        }
+        .instructions {
+            color: #4a5568;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .instructions h2 {
+            color: #1a202c;
+            font-size: 1.1rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .instructions ol {
+            padding-left: 1.5rem;
+            margin: 0;
+            text-align: left;
+        }
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome!</h1>
+        <p class="description">
+            Securely log in to DFX Dashboard using Internet Identity. Internet Identity is a free, open-source identity provider built on the Internet Computer.
+        </p>
+        <ii-login-button></ii-login-button>
+        <div class="instructions">
+            <h2>Login Process</h2>
+            <ol>
+                <li>Click the "Login with Internet Identity" button above and complete the authentication.</li>
+                <li>When prompted "Are you sure to open with dfx://", click "Yes".</li>
+                <li>The DFX Dashboard app will open automatically. Once you see your Internet Identity in the app, you can close this page.</li>
+            </ol>
+        </div>
+        <p class="footer">
+            Review DFX Dashboard on <a href="https://github.com/tolgayayci/dfx-dashboard">GitHub</a>
+        </p>
+    </div>
+    <script type="module" src="./index.js"></script>
+</body>
+</html>
