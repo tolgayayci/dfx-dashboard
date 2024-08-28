@@ -131,7 +131,6 @@ Encountering issues? Here are some quick solutions for common project problems:
 
 ## Additional Resources
 
-- [DFX Command Line Reference](/dfx-reference)
 - [Internet Computer Developer Documentation](https://internetcomputer.org/docs/current/developer-docs/)
 - [DFX Dashboard GitHub Repository](https://github.com/dfinity/dfx-dashboard)
 
