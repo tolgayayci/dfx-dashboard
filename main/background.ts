@@ -13,7 +13,6 @@ import { createWindow } from "./helpers";
 import {
   executeDfxCommand,
   executeBundledDfxCommand,
-  clearExtractedDfxPath,
 } from "./helpers/dfx-helper";
 import { handleIdentities } from "./helpers/manage-identities";
 import { handleProjects } from "./helpers/manage-projects";
@@ -86,9 +85,15 @@ const schema = {
     },
     additionalProperties: true,
   },
+  useBundledDfx: {
+    type: "boolean",
+    default: true,
+  },
 };
 
 const store = new Store({ schema });
+
+console.log("Use Bundled Dfx:", store.get("useBundledDfx"));
 
 autoUpdater.setFeedURL({
   provider: "github",
@@ -132,13 +137,13 @@ function getBundledDfxPath(): string {
   }
 
   const platformFolder = process.platform === "darwin" ? "mac" : "linux";
-  const dfxFileName =
-    process.platform === "darwin"
-      ? "dfx-0.22.0-x86_64-darwin.tar.gz"
-      : "dfx-0.22.0-x86_64-linux.tar.gz";
 
-  const dfxPath = path.join(resourcePath, platformFolder, dfxFileName);
-
+  const dfxPath = path.join(
+    resourcePath,
+    platformFolder,
+    "dfx-extracted",
+    "dfx"
+  );
   // Log the path for debugging
   console.log("Bundled DFX Path:", dfxPath);
 
@@ -363,7 +368,9 @@ if (isProd) {
     };
 
     const getDfxVersion = async () => {
-      const useBundledDfx = store.get("useBundledDfx", false);
+      const useBundledDfx = store.get("useBundledDfx");
+
+      console.log("Fetching DFX version..." + useBundledDfx);
 
       try {
         let versionOutput: string;
@@ -440,7 +447,7 @@ if (isProd) {
   ipcMain.handle(
     "dfx-command",
     async (event, command, subcommand, args?, flags?, path?) => {
-      const useBundledDfx = store.get("useBundledDfx", false);
+      const useBundledDfx = store.get("useBundledDfx");
 
       try {
         let result;
@@ -640,11 +647,22 @@ if (isProd) {
   );
 
   async function retrieveAndStoreIdentities() {
+    const useBundledDfx = store.get("useBundledDfx");
+
     try {
-      // Fetch the current list of identities from the CLI
-      const result = await executeDfxCommand("identity", "list");
+      let result;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(
+          bundledDfxPath,
+          "identity",
+          "list"
+        );
+      } else {
+        result = await executeDfxCommand("identity", "list");
+      }
+
       if (typeof result !== "string") {
-        throw new Error("Unexpected result type from executeDfxCommand");
+        throw new Error("Unexpected result type from DFX command");
       }
 
       // Parse the result to get identity names
@@ -657,23 +675,51 @@ if (isProd) {
       store.set("identities", []);
 
       // Rebuild the list of identities
-      const newIdentities = [];
-      for (const name of identityNames) {
-        const identity = {
-          name: name,
-          isInternetIdentity: false, // You might want to determine this dynamically if possible
-        };
-        newIdentities.push(identity);
-      }
+      const newIdentities = identityNames.map((name) => ({
+        name: name,
+        isInternetIdentity: false, // You might want to determine this dynamically if possible
+      }));
 
       // Store the new list of identities
       store.set("identities", newIdentities);
-
       console.log("Identities updated successfully:", newIdentities);
       return newIdentities;
     } catch (error) {
       console.error("Error retrieving identities:", error);
-      throw error; // Re-throw the error so the caller can handle it if needed
+
+      if (useBundledDfx) {
+        console.log("Falling back to system DFX...");
+        try {
+          const result = await executeDfxCommand("identity", "list");
+          // If successful, update the preference to use system DFX
+          store.set("useBundledDfx", false);
+
+          // Process the result as before
+          const identityNames = result
+            .split("\n")
+            .map((name) => name.trim())
+            .filter((name) => name !== "" && name !== "*");
+
+          const newIdentities = identityNames.map((name) => ({
+            name: name,
+            isInternetIdentity: false,
+          }));
+
+          store.set("identities", newIdentities);
+          console.log(
+            "Identities updated successfully using system DFX:",
+            newIdentities
+          );
+          return newIdentities;
+        } catch (fallbackError) {
+          console.error("Error with fallback to system DFX:", fallbackError);
+          throw new Error(
+            "Failed to retrieve identities with both bundled and system DFX"
+          );
+        }
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -712,33 +758,36 @@ if (isProd) {
   await retrieveAndStoreIdentities();
 
   ipcMain.handle("get-dfx-preference", () => {
-    return store.get("useBundledDfx", false);
+    console.log("Getting DFX preference...");
+    console.log("Use Bundled Dfx:", store.get("useBundledDfx"));
+    return store.get("useBundledDfx");
   });
 
   ipcMain.handle("set-dfx-preference", (event, useBundled: boolean) => {
     store.set("useBundledDfx", useBundled);
-    if (!useBundled) {
-      clearExtractedDfxPath();
-    }
   });
 
   ipcMain.handle("get-dfx-versions", async () => {
     let systemVersion = "Not installed";
     let bundledVersion = "Not available";
+    const useBundledDfx = store.get("useBundledDfx", false);
 
     try {
-      systemVersion = await executeDfxCommand("--version");
+      if (useBundledDfx) {
+        bundledVersion = await executeBundledDfxCommand(
+          bundledDfxPath,
+          "--version"
+        );
+
+        systemVersion = await executeDfxCommand("--version");
+      } else {
+        systemVersion = await executeDfxCommand("--version");
+      }
     } catch (error) {
-      console.error("Error getting system DFX version:", error);
-    }
-
-    try {
-      bundledVersion = await executeBundledDfxCommand(
-        bundledDfxPath,
-        "--version"
+      console.error(
+        `Error getting ${useBundledDfx ? "bundled" : "system"} DFX version:`,
+        error
       );
-    } catch (error) {
-      console.error("Error getting bundled DFX version:", error);
     }
 
     return {

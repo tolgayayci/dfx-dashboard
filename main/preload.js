@@ -129,5 +129,4 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   getDfxPreference: () => ipcRenderer.invoke("get-dfx-preference"),
   setDfxPreference: (useBundled) =>
     ipcRenderer.invoke("set-dfx-preference", useBundled),
-  getDfxVersions: () => ipcRenderer.invoke("get-dfx-versions"),
 });

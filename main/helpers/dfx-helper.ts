@@ -1,10 +1,7 @@
 import { spawn } from "child_process";
-import { createReadStream, promises as fs } from "fs";
-import { extract } from "tar";
+import { promises as fs } from "fs";
 import path from "path";
-import os from "os";
-
-let extractedDfxPath: string | null = null;
+import { app } from "electron";
 
 export function executeDfxCommand(
   command: string,
@@ -66,16 +63,18 @@ export async function executeBundledDfxCommand(
   workingPath?: string
 ): Promise<string> {
   try {
-    const dfxPath = await getOrExtractDfxPath(bundledDfxPath);
     const argStr = args || [];
     const flagStr = flags || [];
     const allArgs = [command, subcommand, ...argStr, ...flagStr].filter(
       Boolean
     );
-    const commandStr = `${dfxPath} ${allArgs.join(" ")}`;
+    const commandStr = `${bundledDfxPath} ${allArgs.join(" ")}`;
 
     return new Promise((resolve, reject) => {
-      const child = spawn(dfxPath, allArgs, { cwd: workingPath, shell: true });
+      const child = spawn(bundledDfxPath, allArgs, {
+        cwd: workingPath,
+        shell: true,
+      });
       let stdoutData = "";
       let stderrData = "";
 
@@ -117,84 +116,33 @@ export async function executeBundledDfxCommand(
   }
 }
 
-async function getOrExtractDfxPath(bundledDfxPath: string): Promise<string> {
-  if (extractedDfxPath) {
-    return extractedDfxPath;
+export function getBundledDfxPath(): string {
+  const isProduction = app.isPackaged;
+  let basePath: string;
+  let resourcePath: string;
+
+  if (isProduction) {
+    basePath = path.dirname(app.getPath("exe"));
+    resourcePath = path.join(basePath, "..", "Resources");
+  } else {
+    basePath = app.getAppPath();
+    resourcePath = path.join(basePath, "resources");
   }
 
-  const tempDir = path.join(os.tmpdir(), "dfx-extracted");
+  const platformFolder = process.platform === "darwin" ? "mac" : "linux";
+  const dfxPath = path.join(
+    resourcePath,
+    platformFolder,
+    "dfx-extracted",
+    "dfx"
+  );
 
-  try {
-    // Ensure the directory exists
-    await fs.mkdir(tempDir, { recursive: true });
+  console.log("Bundled DFX Path:", dfxPath);
 
-    await new Promise<void>((resolve, reject) => {
-      createReadStream(bundledDfxPath)
-        .pipe(extract({ cwd: tempDir }))
-        .on("finish", () => {
-          extractedDfxPath = path.join(tempDir, "dfx");
-          resolve();
-        })
-        .on("error", (err) => {
-          reject(err);
-        });
-    });
-
-    // Verify the extracted file exists and is executable
-    await fs.access(extractedDfxPath!, fs.constants.X_OK);
-
-    return extractedDfxPath!;
-  } catch (error) {
-    console.error("Error extracting or accessing DFX:", error);
-    throw new Error(
-      `Failed to extract or access bundled DFX: ${error.message}`
-    );
-  }
-}
-
-export function clearExtractedDfxPath() {
-  extractedDfxPath = null;
-}
-
-export async function isDfxInstalled(): Promise<boolean> {
-  try {
-    const result = await executeDfxCommand("--version");
-    return result.trim().startsWith("dfx");
-  } catch (error) {
-    console.error("Error checking DFX installation:", error);
-    return false;
-  }
-}
-
-export async function getDfxVersions(
-  bundledDfxPath: string
-): Promise<{ system: string; bundled: string }> {
-  let systemVersion = "Not installed";
-  let bundledVersion = "Not available";
-
-  try {
-    systemVersion = await executeDfxCommand("--version");
-  } catch (error) {
-    console.error("Error getting system DFX version:", error);
-  }
-
-  try {
-    bundledVersion = await executeBundledDfxCommand(
-      bundledDfxPath,
-      "--version"
-    );
-  } catch (error) {
-    console.error("Error getting bundled DFX version:", error);
-  }
-
-  return {
-    system: systemVersion,
-    bundled: bundledVersion,
-  };
+  return dfxPath;
 }
 
 export async function executeDfxCommandWithFallback(
-  bundledDfxPath: string,
   useBundledDfx: boolean,
   command: string,
   subcommand?: string,
@@ -204,6 +152,7 @@ export async function executeDfxCommandWithFallback(
 ): Promise<string> {
   try {
     if (useBundledDfx) {
+      const bundledDfxPath = getBundledDfxPath();
       return await executeBundledDfxCommand(
         bundledDfxPath,
         command,

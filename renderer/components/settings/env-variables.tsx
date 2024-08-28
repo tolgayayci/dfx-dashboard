@@ -161,14 +161,16 @@ export default function EnvironmentVariables() {
               disabled={isLoading}
             />
           </div>
-          <div className="flex items-center space-x-2">
-            <Badge variant="default" className="px-2 py-1">
-              {dfxType}
-            </Badge>
-            <Badge variant="outline" className="px-2 py-1">
-              v{dfxVersion}
-            </Badge>
-          </div>
+          {!isLoading && (
+            <div className="flex items-center space-x-2">
+              <Badge variant="default" className="px-2 py-1">
+                {dfxType}
+              </Badge>
+              <Badge variant="outline" className="px-2 py-1">
+                {dfxVersion}
+              </Badge>
+            </div>
+          )}
         </div>
       </div>
       <Separator />
