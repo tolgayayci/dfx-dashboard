@@ -24,6 +24,6 @@ dmg:
   sign: false
 publish: null
 extraResources:
-  - from: "resources"
-    to: "."
+  - from: "resources/mac/dfx-extracted/dfx"
+    to: "resources/mac/dfx-extracted/dfx"
     filter: ["**/*"]
