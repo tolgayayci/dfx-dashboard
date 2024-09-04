@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import useCanister from "renderer/hooks/useCanister";
 import CliCommandSelector from "@components/canisters/canister/command-selector";
@@ -20,57 +20,13 @@ export default function CanisterDetail() {
   const [commandError, setCommandError] = useState();
   const [latestCommand, setLatestCommand] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [executedCommand, setExecutedCommand] = useState("");
 
   const router = useRouter();
   const { path, canisterName, command } = router.query;
 
   const { canisterData } = useCanister(path as string, canisterName as string);
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (commandOutput && !commandError) {
-      toast({
-        title: "Command Executed Successfully",
-        description: (
-          <div>
-            <pre className="bg-gray-100 text-black p-1 px-2 rounded-md mt-1">
-              {latestCommand}
-            </pre>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setIsModalOpen(true)}
-              className="mt-2"
-            >
-              View Output
-            </Button>
-          </div>
-        ),
-        variant: "default",
-        className: "border-green-500",
-      });
-    } else if (commandError) {
-      toast({
-        title: "Command Execution Failed",
-        description: (
-          <div>
-            <pre className="bg-gray-100 text-black p-1 px-2 rounded-md mt-1">
-              {latestCommand}
-            </pre>
-            <Button
-              variant="default"
-              onClick={() => setIsModalOpen(true)}
-              className="mt-2"
-            >
-              View Output
-            </Button>
-          </div>
-        ),
-        variant: "default",
-        className: "border-red-500",
-      });
-    }
-  }, [commandOutput, commandError, latestCommand, toast]);
 
   if (canisterData) {
     return (
@@ -91,6 +47,7 @@ export default function CanisterDetail() {
                 isOpen={isModalOpen}
                 onOpenChange={setIsModalOpen}
                 latestCommand={latestCommand}
+                runnedCommand={executedCommand}
                 commandOutput={commandOutput}
                 commandError={commandError}
               />
@@ -118,6 +75,7 @@ export default function CanisterDetail() {
               setCommandError={setCommandError}
               setCommandOutput={setCommandOutput}
               setLatestCommand={setLatestCommand}
+              setRunnedCommand={setExecutedCommand}
             />
           </div>
         </div>

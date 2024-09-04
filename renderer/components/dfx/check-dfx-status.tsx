@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { KillAll } from "@components/dfx/killall";
+
 import { Button } from "@components/ui/button";
 import {
   Dialog,
@@ -9,12 +11,20 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@components/ui/dialog";
-import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
-import { Loader } from "lucide-react";
 import { Checkbox } from "@components/ui/checkbox";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@components/ui/dropdown-menu";
+import { useToast } from "@components/ui/use-toast";
+
+import { Loader } from "lucide-react";
+import { CaretDownIcon } from "@radix-ui/react-icons";
 
 interface DfxStartOptions {
   background?: boolean;
@@ -106,6 +116,7 @@ export default function CheckDfxStatus() {
   const [dfxStatus, setDfxStatus] = useState<"running" | "stopped">("stopped");
   const [isStartModalOpen, setIsStartModalOpen] = useState(false);
   const [isStopModalOpen, setIsStopModalOpen] = useState(false);
+  const [isKillAllModalOpen, setIsKillAllModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [commandOutput, setCommandOutput] = useState("");
   const [commandError, setCommandError] = useState("");
@@ -114,6 +125,8 @@ export default function CheckDfxStatus() {
     background: true,
     clean: true,
   });
+
+  const { toast } = useToast();
 
   useEffect(() => {
     checkDfxStatus();
@@ -261,6 +274,27 @@ export default function CheckDfxStatus() {
     }
   };
 
+  async function killAllDfx() {
+    try {
+      const result = await window.awesomeApi.runDfxCommand("killall");
+      toast({
+        title: "DFX Processes Killed",
+        description: result || "All DFX processes have been terminated.",
+      });
+
+      await window.awesomeApi.reloadApplication();
+    } catch (error) {
+      console.error(`Error: ${error}`);
+      toast({
+        title: "Error",
+        description: "Failed to kill DFX processes. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsKillAllModalOpen(false);
+    }
+  }
+
   return (
     <div className="flex items-center gap-4 border rounded-lg p-4">
       <div className="grid gap-1 flex-1 items-center">
@@ -279,17 +313,34 @@ export default function CheckDfxStatus() {
             {isRunning ? "Running" : "Stopped"}
           </div>
         </div>
-        <Button
-          variant={isRunning ? "destructive" : "outline"}
-          onClick={() =>
-            isRunning ? setIsStopModalOpen(true) : setIsStartModalOpen(true)
-          }
-          className="mt-2 w-full"
-          disabled={isLoading}
-        >
-          {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
-          {isRunning ? "Stop" : "Start"}
-        </Button>
+        <div className="flex items-center">
+          <Button
+            variant={isRunning ? "destructive" : "outline"}
+            onClick={() =>
+              isRunning ? setIsStopModalOpen(true) : setIsStartModalOpen(true)
+            }
+            className="mt-2 w-full rounded-r-none"
+            disabled={isLoading}
+          >
+            {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
+            {isRunning ? "Stop" : "Start"}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className={"mt-2 rounded-l-none border-l-0 px-2"}
+              >
+                <CaretDownIcon />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setIsKillAllModalOpen(true)}>
+                Kill All
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <Dialog open={isStartModalOpen} onOpenChange={setIsStartModalOpen}>
@@ -402,6 +453,30 @@ export default function CheckDfxStatus() {
             >
               {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
               Stop
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isKillAllModalOpen} onOpenChange={setIsKillAllModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="mb-2">Kill All DFX Processes</DialogTitle>
+            <DialogDescription>
+              This forcibly kill every DFX-related process. This may impact IDE
+              plugins, including from other versions of DFX. For ordinary usage
+              `dfx stop` should be preferred. Are you sure you want to continue?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsKillAllModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={killAllDfx}>
+              Continue
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -127,7 +127,7 @@ export default function CommandAssist({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="default" size="sm">
           Command Assist
         </Button>
       </DialogTrigger>

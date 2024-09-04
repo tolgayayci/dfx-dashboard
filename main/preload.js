@@ -129,4 +129,10 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   getDfxPreference: () => ipcRenderer.invoke("get-dfx-preference"),
   setDfxPreference: (useBundled) =>
     ipcRenderer.invoke("set-dfx-preference", useBundled),
+  getTrackingAllowed: async () => {
+    return ipcRenderer.invoke("store:get-tracking", "trackingAllowed");
+  },
+  setTrackingAllowed: async (value) => {
+    return ipcRenderer.invoke("store:set-tracking", "trackingAllowed", value);
+  },
 });

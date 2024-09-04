@@ -48,8 +48,6 @@ export default function CanistersComponent() {
 
   const columns = createColumns();
 
-  console.log(allCanisters);
-
   return (
     <div className="flex flex-col h-[calc(100vh-106px)]">
       {allCanisters.length > 0 ? (

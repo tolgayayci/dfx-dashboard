@@ -35,9 +35,6 @@ const isProd: boolean = process.env.NODE_ENV === "production";
 
 const Store = require("electron-store");
 
-// Aptabase Analytics
-initialize("A-EU-1521640385");
-
 // Set up logging
 const commandLog = log.create("command");
 commandLog.transports.file.format = "[{y}-{m}-{d} {h}:{i}:{s}.{ms}]  {text}";
@@ -89,11 +86,13 @@ const schema = {
     type: "boolean",
     default: true,
   },
+  trackingAllowed: {
+    type: "boolean",
+    default: true,
+  },
 };
 
 const store = new Store({ schema });
-
-console.log("Use Bundled Dfx:", store.get("useBundledDfx"));
 
 autoUpdater.setFeedURL({
   provider: "github",
@@ -168,7 +167,21 @@ if (!gotTheLock) {
   app.whenReady().then(async () => {
     let useBundledDfx = store.get("useBundledDfx");
 
-    console.log(useBundledDfx);
+    // Handle tracking preference
+    let trackingAllowed = store.get("trackingAllowed");
+
+    if (typeof trackingAllowed === "undefined") {
+      trackingAllowed = true; // Default to true if not set
+      store.set("trackingAllowed", trackingAllowed);
+    }
+
+    // Initialize Aptabase Analytics if tracking is allowed
+    if (trackingAllowed) {
+      initialize("A-EU-1521640385");
+      console.log("Analytics initialized");
+    } else {
+      console.log("Analytics disabled");
+    }
 
     // If it's not set, determine the default value
     if (typeof useBundledDfx === "undefined") {
@@ -190,7 +203,12 @@ if (!gotTheLock) {
     });
 
     autoUpdater.checkForUpdatesAndNotify();
-    trackEvent("app_started");
+
+    // Track app_started event if tracking is allowed
+    if (trackingAllowed) {
+      trackEvent("app_started");
+    }
+
     bundledDfxPath = getBundledDfxPath();
   });
 
@@ -355,6 +373,15 @@ if (isProd) {
       console.error("Error deleting value:", error);
       return { success: false, message: error.toString() };
     }
+  });
+
+  ipcMain.handle("store:get-tracking", async (event, key) => {
+    return store.get(key);
+  });
+
+  ipcMain.handle("store:set-tracking", async (event, key, value) => {
+    store.set(key, value);
+    return { success: true };
   });
 
   ipcMain.handle("check-editors", async () => {
@@ -739,29 +766,23 @@ if (isProd) {
                 "Fallback to system DFX successful. Updating preference."
               );
               store.set("useBundledDfx", false);
-              trackEvent("dfx-command-fallback-success");
               return result;
             } else {
               console.error("System DFX not available for fallback");
-              trackEvent("dfx-command-fallback-failed", {
-                reason: "system-dfx-unavailable",
-              });
+
               throw new Error(
                 "Failed to execute DFX command and system DFX is not available for fallback"
               );
             }
           } catch (fallbackError) {
             console.error("Error with fallback to system DFX:", fallbackError);
-            trackEvent("dfx-command-fallback-failed", {
-              reason: "execution-error",
-            });
+
             throw new Error(
               "Failed to execute DFX command with both bundled and system DFX"
             );
           }
         } else {
           console.error("Error with system DFX and no fallback available");
-          trackEvent("dfx-command-failed", { usedBundledDfx: false });
           throw error;
         }
       }
@@ -875,9 +896,7 @@ if (isProd) {
               "Identities updated successfully using system DFX:",
               newIdentities
             );
-            trackEvent("identities-retrieved-fallback", {
-              count: newIdentities.length,
-            });
+
             return newIdentities;
           } else {
             console.error("System DFX not available for fallback");

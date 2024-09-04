@@ -47,6 +47,7 @@ export default defineConfig({
           },
         ],
       },
+      { text: "Privacy Policy", link: "/privacy-policy" },
     ],
 
     socialLinks: [

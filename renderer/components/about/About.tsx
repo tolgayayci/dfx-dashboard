@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Label } from "@components/ui/label";
 import { Input } from "@components/ui/input";
 import { Separator } from "@components/ui/separator";
+import { Switch } from "@components/ui/switch";
 
 import {
   Card,
@@ -23,6 +24,7 @@ export default function EnvironmentVariables() {
   const [dfxvmVersion, setDfxvmVersion] = useState("Loading...");
   const [dfxError, setDfxError] = useState(null);
   const [dfxvmError, setDfxvmError] = useState(null);
+  const [trackingAllowed, setTrackingAllowed] = useState(false);
 
   useEffect(() => {
     async function fetchVersions() {
@@ -54,8 +56,31 @@ export default function EnvironmentVariables() {
     }
   }
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const trackingPreference = await window.awesomeApi.getTrackingAllowed();
+        setTrackingAllowed(trackingPreference);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const handleTrackingPreferenceChange = async (checked: boolean) => {
+    try {
+      await window.awesomeApi.setTrackingAllowed(checked);
+      setTrackingAllowed(checked);
+      await window.awesomeApi.reloadApplication();
+    } catch (error) {
+      console.error("Error updating tracking preference:", error);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-[calc(100vh-90px)] space-y-6">
+    <div className="flex flex-col h-[calc(100vh-90px)] space-y-4">
       <div className="w-full">
         <Label className="text-xl">About Dfx Dashboard</Label>
         <Separator className="mt-3 mb-6" />
@@ -90,9 +115,22 @@ export default function EnvironmentVariables() {
               </Alert>
             )}
           </div>
+          <div className="flex items-center justify-between space-x-4 p-3 rounded-lg border">
+            <Label
+              htmlFor="tracking-preference"
+              className="text-sm font-medium"
+            >
+              Allow Analytics
+            </Label>
+            <Switch
+              id="tracking-preference"
+              checked={trackingAllowed}
+              onCheckedChange={handleTrackingPreferenceChange}
+            />
+          </div>
         </div>
       </div>
-      <div className="w-full grid grid-cols-3 gap-4 pt-6">
+      <div className="w-full grid grid-cols-3 gap-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">Make a Feature Request</CardTitle>

@@ -69,6 +69,8 @@ interface Versions {
   getDfxPreference: () => Promise<boolean>;
   setDfxPreference: (useBundled: boolean) => Promise<void>;
   getDfxVersions: () => Promise<{ system: string; bundled: string }>;
+  getTrackingAllowed: () => Promise<boolean>;
+  setTrackingAllowed: (value: boolean) => Promise<{ success: boolean }>;
 }
 
 interface Window {

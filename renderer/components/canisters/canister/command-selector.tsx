@@ -37,6 +37,7 @@ const CliCommandSelector = ({
   setCommandOutput,
   setCommandError,
   setLatestCommand,
+  setRunnedCommand,
 }) => {
   const defaultCommand = commands.length > 0 ? commands[0].value : "";
 
@@ -144,9 +145,12 @@ const CliCommandSelector = ({
 
   const handleRunCommand = async () => {
     setIsRunningCommand(true);
+    setRunnedCommand(latestCommand);
     try {
       await runCli(selectedCommand, Object.values(commandArgs)).then(() => {
         console.log("Command executed successfully");
+        // Update the runnedCommand state with the executed command
+        setRunnedCommand(latestCommand);
       });
     } catch (error) {
       console.error("Error executing command:", error);
