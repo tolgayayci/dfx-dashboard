@@ -1,125 +1,356 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@components/ui/table";
+import { Input } from "@components/ui/input";
+import { Button } from "@components/ui/button";
+import { Search, ArrowUpDown, Edit, Plus, Trash2 } from "lucide-react";
 import JSONInput from "react-json-editor-ajrm";
 import locale from "react-json-editor-ajrm/locale/en";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import Loading from "@components/common/loading";
-import { AlertCircle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@components/ui/select";
+import { Label } from "@components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@components/ui/alert-dialog";
+import { useToast } from "@components/ui/use-toast";
+
+import { NetworkData, NetworkType } from "./types";
+import { LocalNetworkForm } from "./forms/LocalNetworkForm";
+import { ICNetworkForm } from "./forms/ICNetworkForm";
+import { CustomNetworkForm } from "./forms/CustomNetworkForm";
+import { sortAndFilterNetworks } from "./utils";
+import { checkNetworkJson, updateJson, getNetworkJsonPath } from "./api";
 
 export default function NetworkComponent() {
-  const [networkJson, setNetworkJson] = useState(null);
+  const [networkData, setNetworkData] = useState<NetworkData>({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState<"name" | "type">("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isLoading, setIsLoading] = useState(true);
-
-  function splitPath(path) {
-    var index = path.lastIndexOf("/");
-    var part1 = path.substring(0, index);
-    var part2 = path.substring(index);
-    return [part1, part2];
-  }
-
-  async function checkNetworkJson() {
-    try {
-      const result = await window.awesomeApi.runDfxCommand(
-        "info",
-        "networks-json-path",
-        [],
-        []
-      );
-      await readJson(result);
-    } catch (error) {
-      console.log("Error invoking remote method:", error);
-      setIsLoading(false);
-    }
-  }
-
-  const readJson = async (path) => {
-    var parts = splitPath(path);
-    try {
-      if (parts) {
-        const data = await window.awesomeApi.jsonRead(
-          parts[0],
-          "/networks.json"
-        );
-        if (data) {
-          setNetworkJson(data);
-          setIsLoading(false);
-        } else {
-          await createDefaultJson(parts[0]);
-        }
-      }
-    } catch (error) {
-      console.error("Error reading networks.json:", error);
-      setIsLoading(false);
-    }
-  };
-
-  const createDefaultJson = async (path) => {
-    const defaultData = {
-      local: {
-        bind: "127.0.0.1:4943",
-        type: "ephemeral",
-        replica: {
-          subnet_type: "application",
-        },
-      },
-    };
-    await updateJson(path, defaultData);
-    await window.awesomeApi.reloadApplication();
-  };
-
-  const updateJson = async (path, newData) => {
-    if (path) {
-      const success = await window.awesomeApi.jsonWrite(
-        path,
-        "/networks.json",
-        newData
-      );
-      if (success) {
-        setNetworkJson(newData);
-        setIsLoading(false);
-        console.log("File updated successfully");
-      }
-    } else {
-      console.error("Failed to update file");
-      setIsLoading(false);
-    }
-  };
-
-  const handleJsonChange = async (newData) => {
-    const result = await window.awesomeApi.runDfxCommand(
-      "info",
-      "networks-json-path",
-      [],
-      []
-    );
-    var parts = splitPath(result);
-    if (newData.jsObject && parts[0]) {
-      updateJson(parts[0], newData.jsObject);
-    }
-  };
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedNetworkType, setSelectedNetworkType] =
+    useState<NetworkType>("local");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingNetwork, setEditingNetwork] = useState<string | null>(null);
+  const [networkToRemove, setNetworkToRemove] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    checkNetworkJson();
+    checkNetworkJson(setNetworkData, setIsLoading);
   }, []);
 
+  const handleSort = (column: "name" | "type") => {
+    if (column === sortColumn) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const handleEdit = (name: string) => {
+    setEditingNetwork(name);
+    if (name === "local" || name === "ic") {
+      setSelectedNetworkType(name);
+    } else {
+      setSelectedNetworkType("custom");
+    }
+    setIsDialogOpen(true);
+  };
+
+  const handleAddNetwork = () => {
+    setEditingNetwork(null);
+    setSelectedNetworkType("local");
+    setIsDialogOpen(true);
+  };
+
+  const handleNetworkTypeChange = (value: NetworkType) => {
+    setSelectedNetworkType(value);
+  };
+
+  const handleJsonChange = async (newData: { jsObject: NetworkData }) => {
+    if (newData.jsObject) {
+      const path = await getNetworkJsonPath();
+      if (path) {
+        await updateJson(path, newData.jsObject);
+        setNetworkData(newData.jsObject);
+      }
+    }
+  };
+
+  const handleRemove = async (name: string) => {
+    setNetworkToRemove(name);
+  };
+
+  const confirmRemove = async () => {
+    if (networkToRemove) {
+      const updatedNetworkData = { ...networkData };
+      delete updatedNetworkData[networkToRemove];
+
+      const path = await getNetworkJsonPath();
+      if (path) {
+        await updateJson(path, updatedNetworkData);
+        setNetworkData(updatedNetworkData);
+        toast({
+          title: "Network Removed",
+          description: `${networkToRemove} has been successfully removed.`,
+        });
+      }
+      setNetworkToRemove(null);
+    }
+  };
+
+  const sortedAndFilteredNetworks = sortAndFilterNetworks(
+    networkData,
+    searchTerm,
+    sortColumn,
+    sortDirection
+  );
+
   return (
-    <div>
+    <div className="w-full">
       {isLoading ? (
         <Loading />
-      ) : networkJson ? (
-        <JSONInput
-          id="network_json"
-          width="100%"
-          height="calc(100vh - 100px)"
-          placeholder={networkJson}
-          locale={locale}
-          onChange={handleJsonChange}
-        />
       ) : (
-        <div className="h-[85vh] flex flex-col items-center justify-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mb-4" />{" "}
-          <div className="text-md font-semibold text-gray-800">
-            Error loading network configuration
-          </div>
-        </div>
+        <>
+          <Tabs defaultValue="form" className="w-full">
+            <TabsList className="w-full">
+              <TabsTrigger value="form" className="flex-1">
+                Network Manager
+              </TabsTrigger>
+              <TabsTrigger value="json" className="flex-1">
+                network.json
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="form" className="mt-4">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="relative flex-grow mr-4">
+                  <Input
+                    type="text"
+                    placeholder="Search networks..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
+                </div>
+                <Button onClick={handleAddNetwork}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Network
+                </Button>
+              </div>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead
+                        onClick={() => handleSort("name")}
+                        className="cursor-pointer"
+                      >
+                        Name{" "}
+                        {sortColumn === "name" && (
+                          <ArrowUpDown className="ml-2 h-4 w-4 inline" />
+                        )}
+                      </TableHead>
+                      <TableHead
+                        onClick={() => handleSort("type")}
+                        className="cursor-pointer"
+                      >
+                        Type{" "}
+                        {sortColumn === "type" && (
+                          <ArrowUpDown className="ml-2 h-4 w-4 inline" />
+                        )}
+                      </TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedAndFilteredNetworks.length > 0 ? (
+                      sortedAndFilteredNetworks.map(([name, details]) => (
+                        <TableRow key={name}>
+                          <TableCell className="font-medium">{name}</TableCell>
+                          <TableCell>{details.type || "N/A"}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(name)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleRemove(name)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={3}
+                          className="text-center py-4 h-[calc(90vh-200px)]"
+                        >
+                          No results found for "{searchTerm}"
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+            <TabsContent value="json" className="mt-4">
+              <div className="border rounded-md p-4 bg-background">
+                <JSONInput
+                  id="network_json"
+                  placeholder={networkData}
+                  locale={locale}
+                  height="500px"
+                  width="100%"
+                  onChange={handleJsonChange}
+                  theme="light_mitsuketa_tribute"
+                  colors={{
+                    background: "transparent",
+                    default: "#000000",
+                    string: "#00ff00",
+                    number: "#ffff00",
+                    colon: "#ff0000",
+                    keys: "#0000ff",
+                    keys_whiteSpace: "#0000ff",
+                    primitive: "#ff00ff",
+                  }}
+                  style={{
+                    contentBox: {
+                      fontSize: "15px",
+                      fontFamily: "monospace",
+                    },
+                  }}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingNetwork ? "Edit Network" : "Add Network"}
+                </DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                <p>
+                  {editingNetwork
+                    ? "Edit the network configuration in the global networks.json file."
+                    : "Add a system-wide network configuration to the global networks.json file. These networks can be used by any project in your local environment."}
+                </p>
+              </DialogDescription>
+              <div className="space-y-3">
+                {!editingNetwork && (
+                  <div className="space-y-1">
+                    <Label htmlFor="networkType">Network Type</Label>
+                    <Select
+                      onValueChange={handleNetworkTypeChange}
+                      defaultValue="local"
+                    >
+                      <SelectTrigger id="networkType">
+                        <SelectValue placeholder="Select network type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="local">Local</SelectItem>
+                        <SelectItem value="ic">IC</SelectItem>
+                        <SelectItem value="custom">Custom</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {selectedNetworkType === "local" && (
+                  <LocalNetworkForm
+                    networkData={networkData}
+                    setNetworkData={setNetworkData}
+                    setIsDialogOpen={setIsDialogOpen}
+                    isSubmitting={isSubmitting}
+                    setIsSubmitting={setIsSubmitting}
+                    editingNetwork={editingNetwork}
+                  />
+                )}
+                {selectedNetworkType === "ic" && (
+                  <ICNetworkForm
+                    networkData={networkData}
+                    setNetworkData={setNetworkData}
+                    setIsDialogOpen={setIsDialogOpen}
+                    isSubmitting={isSubmitting}
+                    setIsSubmitting={setIsSubmitting}
+                    editingNetwork={editingNetwork}
+                  />
+                )}
+                {selectedNetworkType === "custom" && (
+                  <CustomNetworkForm
+                    networkData={networkData}
+                    setNetworkData={setNetworkData}
+                    setIsDialogOpen={setIsDialogOpen}
+                    isSubmitting={isSubmitting}
+                    setIsSubmitting={setIsSubmitting}
+                    editingNetwork={editingNetwork}
+                  />
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+          <AlertDialog
+            open={!!networkToRemove}
+            onOpenChange={() => setNetworkToRemove(null)}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  {networkToRemove && ` "${networkToRemove}"`} network.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={confirmRemove}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
       )}
     </div>
   );

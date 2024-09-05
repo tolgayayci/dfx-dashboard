@@ -71,6 +71,8 @@ interface Versions {
   getDfxVersions: () => Promise<{ system: string; bundled: string }>;
   getTrackingAllowed: () => Promise<boolean>;
   setTrackingAllowed: (value: boolean) => Promise<{ success: boolean }>;
+  getNetworkPreference: () => Promise<"ic" | "local">;
+  setNetworkPreference: (preference: "ic" | "local") => Promise<"ic" | "local">;
 }
 
 interface Window {

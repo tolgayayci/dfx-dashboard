@@ -392,6 +392,7 @@ export default function VersionManager() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleUninstall(version.number)}
+                            disabled={activeVersion === version.number}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

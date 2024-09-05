@@ -90,6 +90,11 @@ const schema = {
     type: "boolean",
     default: true,
   },
+  networkPreference: {
+    type: "string",
+    enum: ["ic", "local"],
+    default: "local",
+  },
 };
 
 const store = new Store({ schema });
@@ -986,6 +991,21 @@ if (isProd) {
       bundled: bundledVersion,
     };
   });
+
+  ipcMain.handle("get-network-preference", () => {
+    const preference = store.get("networkPreference", "local");
+    console.log("Getting network preference:", preference);
+    return preference;
+  });
+
+  ipcMain.handle(
+    "set-network-preference",
+    (event, preference: "ic" | "local") => {
+      console.log("Setting network preference to:", preference);
+      store.set("networkPreference", preference);
+      return store.get("networkPreference");
+    }
+  );
 
   if (isProd) {
     await mainWindow.loadURL("app://./projects");

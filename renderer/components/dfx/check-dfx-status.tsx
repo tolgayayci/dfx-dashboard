@@ -22,8 +22,9 @@ import {
   DropdownMenuItem,
 } from "@components/ui/dropdown-menu";
 import { useToast } from "@components/ui/use-toast";
+import { Badge } from "@components/ui/badge";
 
-import { Loader } from "lucide-react";
+import { Loader, XIcon } from "lucide-react";
 import { CaretDownIcon } from "@radix-ui/react-icons";
 
 interface DfxStartOptions {
@@ -296,46 +297,51 @@ export default function CheckDfxStatus() {
   }
 
   return (
-    <div className="flex items-center gap-4 border rounded-lg p-4">
+    <div className="flex items-center">
       <div className="grid gap-1 flex-1 items-center">
-        <div className="flex items-center justify-between w-full">
-          <div className="font-semibold">dfx</div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {isLoading ? (
-              <Loader className="h-4 w-4 animate-spin" />
-            ) : (
-              <span
-                className={`h-2 w-2 rounded-full ${
-                  isRunning ? "bg-green-600" : "bg-red-600"
-                }`}
-              />
-            )}
-            {isRunning ? "Running" : "Stopped"}
-          </div>
-        </div>
-        <div className="flex items-center">
-          <Button
-            variant={isRunning ? "destructive" : "outline"}
-            onClick={() =>
-              isRunning ? setIsStopModalOpen(true) : setIsStartModalOpen(true)
-            }
-            className="mt-2 w-full rounded-r-none"
-            disabled={isLoading}
-          >
-            {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
-            {isRunning ? "Stop" : "Start"}
-          </Button>
+        <div className="flex items-center w-full">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="outline"
-                className={"mt-2 rounded-l-none border-l-0 px-2"}
+                variant="ghost"
+                className={`w-full border-t rounded-none justify-start h-14 ${
+                  isRunning ? "" : "bg-red-50 text-red-600 border-red-200"
+                }`}
+                disabled={isLoading}
               >
-                <CaretDownIcon />
+                {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
+                <span className="font-semibold text-sm">Dfx</span>
+                {isRunning ? (
+                  <Badge
+                    variant="outline"
+                    className="ml-4 bg-green-50 text-green-600 border-green-200 rounded-md"
+                  >
+                    Running
+                    <CaretDownIcon className="" />
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className="ml-4 bg-red-50 text-red-600 border-red-200"
+                  >
+                    Stopped
+                    <CaretDownIcon className="" />
+                  </Badge>
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem
+                onClick={() =>
+                  isRunning
+                    ? setIsStopModalOpen(true)
+                    : setIsStartModalOpen(true)
+                }
+              >
+                {isRunning ? "Stop" : "Start"}
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setIsKillAllModalOpen(true)}>
+                <XIcon className="mr-2 h-4 w-4" />
                 Kill All
               </DropdownMenuItem>
             </DropdownMenuContent>

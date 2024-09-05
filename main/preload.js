@@ -135,4 +135,7 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   setTrackingAllowed: async (value) => {
     return ipcRenderer.invoke("store:set-tracking", "trackingAllowed", value);
   },
+  getNetworkPreference: () => ipcRenderer.invoke("get-network-preference"),
+  setNetworkPreference: (preference) =>
+    ipcRenderer.invoke("set-network-preference", preference),
 });

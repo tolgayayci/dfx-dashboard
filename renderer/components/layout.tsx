@@ -12,6 +12,7 @@ import { cn } from "@lib/utils";
 import { TooltipProvider } from "@components/ui/tooltip";
 import { Separator } from "@components/ui/separator";
 import CheckDfxStatus from "@components/dfx/check-dfx-status";
+import NetworkIndicator from "@components/network-indicator";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -174,8 +175,11 @@ export default function Layout({ children }: LayoutProps) {
                   />
                   <Separator />
                 </div>
-                <div className="p-2">
+
+                <div className="">
                   <CheckDfxStatus />
+
+                  <NetworkIndicator />
                 </div>
               </div>
             </ResizablePanel>
