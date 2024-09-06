@@ -103,29 +103,6 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   getDfxVersions: async () => {
     return ipcRenderer.invoke("get-dfx-versions");
   },
-  runAssistedCommand: async (
-    command,
-    canisterName,
-    customPath,
-    alwaysAssist
-  ) => {
-    return ipcRenderer.invoke(
-      "run-assisted-command",
-      command,
-      canisterName,
-      customPath,
-      alwaysAssist
-    );
-  },
-  sendAssistedCommandInput: async (input) => {
-    return ipcRenderer.invoke("send-assisted-command-input", input);
-  },
-  onAssistedCommandOutput: (callback) => {
-    ipcRenderer.on("assisted-command-output", (event, data) => callback(data));
-  },
-  offAssistedCommandOutput: (callback) => {
-    ipcRenderer.removeListener("assisted-command-output", callback);
-  },
   getDfxPreference: () => ipcRenderer.invoke("get-dfx-preference"),
   setDfxPreference: (useBundled) =>
     ipcRenderer.invoke("set-dfx-preference", useBundled),
@@ -138,4 +115,35 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   getNetworkPreference: () => ipcRenderer.invoke("get-network-preference"),
   setNetworkPreference: (preference) =>
     ipcRenderer.invoke("set-network-preference", preference),
+
+  runAssistedCommand: (command, canisterName, customPath, methodName) =>
+    ipcRenderer.invoke(
+      "run-assisted-command",
+      command,
+      canisterName,
+      customPath,
+      methodName
+    ),
+
+  onAssistedCommandOutput: (callback) =>
+    ipcRenderer.on("assisted-command-output", (_, data) => callback(data)),
+
+  onAssistedCommandInputRequired: (callback) =>
+    ipcRenderer.on("assisted-command-input-required", (_, data) =>
+      callback(data)
+    ),
+
+  sendAssistedCommandInput: (input) =>
+    ipcRenderer.invoke("assisted-command-input", input),
+
+  offAssistedCommandOutput: (callback) =>
+    ipcRenderer.removeListener("assisted-command-output", callback),
+
+  offAssistedCommandInputRequired: (callback) =>
+    ipcRenderer.removeListener("assisted-command-input-required", callback),
+
+  terminateAssistedCommand: () =>
+    ipcRenderer.invoke("terminate-assisted-command"),
+
+  // ... rest of the methods ...
 });

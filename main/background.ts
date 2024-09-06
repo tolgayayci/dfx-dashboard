@@ -4,6 +4,7 @@ fixPath();
 import { app, ipcMain, dialog } from "electron";
 import serve from "electron-serve";
 const { readFile } = require("fs").promises;
+import * as pty from "node-pty";
 
 // Analytics
 import { initialize, trackEvent } from "@aptabase/electron/main";
@@ -110,7 +111,6 @@ autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
 
 let mainWindow;
-let assistedCommandProcess = null;
 let bundledDfxPath: string;
 
 if (process.defaultApp) {
@@ -259,92 +259,74 @@ if (isProd) {
     }
   });
 
+  let ptyProcess: pty.IPty | null = null;
+
   ipcMain.handle(
     "run-assisted-command",
-    async (event, command, canisterName, customPath, alwaysAssist) => {
-      console.log(
-        `Starting assisted command: dfx canister ${command} ${canisterName} ${
-          alwaysAssist ? "--always-assist" : ""
-        }`
-      );
-      console.log(`Working directory: ${customPath}`);
-      try {
-        const args = ["canister", command, canisterName];
-        if (alwaysAssist) {
-          args.push("--always-assist");
+    async (event, command, canisterName, customPath, methodName) => {
+      const shell = process.platform === "win32" ? "powershell.exe" : "bash";
+      ptyProcess = pty.spawn(shell, [], {
+        name: "xterm-color",
+        cols: 80,
+        rows: 30,
+        cwd: customPath,
+        env: process.env,
+      });
+
+      ptyProcess.onData((data) => {
+        event.sender.send("assisted-command-output", {
+          type: "stdout",
+          content: data,
+        });
+
+        if (
+          data.includes("?") ||
+          data.toLowerCase().includes("enter") ||
+          data.includes("Do you want to send this message?")
+        ) {
+          event.sender.send("assisted-command-input-required", {
+            prompt: data,
+          });
         }
+      });
 
-        assistedCommandProcess = spawn("dfx", args, {
-          cwd: customPath,
-          shell: true,
-          stdio: ["pipe", "pipe", "pipe"],
-        });
-
-        assistedCommandProcess.stdout.on("data", (data) => {
-          const output = data.toString();
-          console.log(`Stdout: ${output}`);
-          mainWindow.webContents.send("assisted-command-output", {
-            type: "stdout",
-            content: output,
-          });
-        });
-
-        assistedCommandProcess.stderr.on("data", (data) => {
-          const output = data.toString();
-          if (alwaysAssist) {
-            // When always-assist is used, we'll handle stderr differently
-            handleAlwaysAssistStderr(output);
-          } else {
-            console.error(`Stderr: ${output}`);
-            mainWindow.webContents.send("assisted-command-output", {
-              type: "stderr",
-              content: output,
-            });
-          }
-        });
-
-        assistedCommandProcess.on("close", (code) => {
-          console.log(`Child process exited with code ${code}`);
-          mainWindow.webContents.send("assisted-command-output", {
-            type: "status",
-            content: `Process completed with exit code ${code}`,
-            success: code === 0,
-          });
-          assistedCommandProcess = null;
-        });
-
-        assistedCommandProcess.on("error", (error) => {
-          console.error(`Process error: ${error.message}`);
-          mainWindow.webContents.send("assisted-command-output", {
-            type: "error",
-            content: `Process error: ${error.message}`,
-          });
-        });
-
-        return { success: true };
-      } catch (error) {
-        console.error(`Error starting assisted command: ${error.message}`);
-        return { success: false, error: error.message };
+      const dfxCommand = ["dfx", "canister", command];
+      if (command === "call" || command === "sign") {
+        dfxCommand.push(canisterName, methodName);
+      } else {
+        dfxCommand.push(canisterName);
       }
+      dfxCommand.push("--always-assist");
+
+      ptyProcess.write(`${dfxCommand.join(" ")}\r`);
+
+      return new Promise<void>((resolve) => {
+        ptyProcess.onExit(() => {
+          ptyProcess = null;
+          resolve();
+        });
+      });
     }
   );
 
-  function handleAlwaysAssistStderr(output) {
-    // Here you can implement custom logic for handling stderr when always-assist is used
-    // For example, you might want to:
-    // 1. Ignore certain types of messages
-    // 2. Reclassify some stderr messages as stdout
-    // 3. Only log specific types of errors
-
-    // This is a simple example that ignores messages containing "warning" and sends others as info
-    if (!output.toLowerCase().includes("warning")) {
-      console.log(`Always-assist stderr (treated as info): ${output}`);
-      mainWindow.webContents.send("assisted-command-output", {
-        type: "info",
-        content: output,
-      });
+  ipcMain.handle("assisted-command-input", (event, input: string) => {
+    if (ptyProcess) {
+      ptyProcess.write(`${input}\r`);
+      return { success: true };
+    } else {
+      return { success: false, error: "No active assisted command process" };
     }
-  }
+  });
+
+  ipcMain.handle("terminate-assisted-command", () => {
+    if (ptyProcess) {
+      ptyProcess.kill();
+      ptyProcess = null;
+      return { success: true };
+    } else {
+      return { success: false, error: "No active assisted command process" };
+    }
+  });
 
   // The rest of your code (ipcMain.handle for "send-assisted-command-input") remains the same
   // Set a key-value pair

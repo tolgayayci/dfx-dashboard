@@ -42,29 +42,6 @@ interface Versions {
   getDfxVersion: () => Promise<any>;
   readCommandLogs: () => Promise<string>;
   checkFileExists: (filePath) => Promise<boolean>;
-  runAssistedCommand: (
-    command: string,
-    canisterName: string,
-    customPath: string,
-    alwaysAssist: boolean
-  ) => Promise<{ success: boolean; error?: string }>;
-  sendAssistedCommandInput: (
-    input: string
-  ) => Promise<{ success: boolean; error?: string }>;
-  onAssistedCommandOutput: (
-    callback: (data: {
-      type: string;
-      content: string;
-      success?: boolean;
-    }) => void
-  ) => void;
-  offAssistedCommandOutput: (
-    callback: (data: {
-      type: string;
-      content: string;
-      success?: boolean;
-    }) => void
-  ) => void;
   runCommand: (command: string) => Promise<any>;
   getDfxPreference: () => Promise<boolean>;
   setDfxPreference: (useBundled: boolean) => Promise<void>;
@@ -73,6 +50,35 @@ interface Versions {
   setTrackingAllowed: (value: boolean) => Promise<{ success: boolean }>;
   getNetworkPreference: () => Promise<"ic" | "local">;
   setNetworkPreference: (preference: "ic" | "local") => Promise<"ic" | "local">;
+
+  runAssistedCommand: (
+    command: string,
+    canisterName: string,
+    customPath: string,
+    methodName?: string
+  ) => Promise<void>;
+
+  onAssistedCommandOutput: (
+    callback: (data: { type: "stdout" | "stderr"; content: string }) => void
+  ) => void;
+
+  onAssistedCommandInputRequired: (
+    callback: (data: { prompt: string }) => void
+  ) => void;
+
+  sendAssistedCommandInput: (input: string) => Promise<{ success: boolean; error?: string }>;
+
+  offAssistedCommandOutput: (
+    callback: (data: { type: "stdout" | "stderr"; content: string }) => void
+  ) => void;
+
+  offAssistedCommandInputRequired: (
+    callback: (data: { prompt: string }) => void
+  ) => void;
+
+  terminateAssistedCommand: () => Promise<{ success: boolean; error?: string }>;
+
+  // ... rest of the methods ...
 }
 
 interface Window {

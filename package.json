@@ -20,7 +20,8 @@
     "postinstall": "electron-builder install-app-deps",
     "docs:dev": "vitepress dev documentation",
     "docs:build": "vitepress build documentation",
-    "docs:preview": "vitepress preview documentation"
+    "docs:preview": "vitepress preview documentation",
+    "rebuild": "electron-rebuild"
   },
   "dependencies": {
     "@aptabase/electron": "^0.3.1",
@@ -56,6 +57,7 @@
     "electron-deeplink": "^1.0.10",
     "electron-is-dev": "^3.0.1",
     "electron-log": "^5.1.7",
+    "electron-rebuild": "^3.2.9",
     "electron-serve": "^1.1.0",
     "electron-store": "^8.1.0",
     "electron-updater": "^6.2.1",
@@ -63,6 +65,7 @@
     "lucide-react": "^0.279.0",
     "mkdirp": "^3.0.1",
     "next-themes": "^0.2.1",
+    "node-pty": "^1.0.0",
     "react-hook-form": "^7.47.0",
     "react-json-editor-ajrm": "^2.5.14",
     "react-json-view": "^1.21.3",

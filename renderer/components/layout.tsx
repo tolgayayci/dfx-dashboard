@@ -178,7 +178,6 @@ export default function Layout({ children }: LayoutProps) {
 
                 <div className="">
                   <CheckDfxStatus />
-
                   <NetworkIndicator />
                 </div>
               </div>
