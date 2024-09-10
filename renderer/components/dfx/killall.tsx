@@ -23,6 +23,7 @@ export function KillAll() {
       toast({
         title: "DFX Processes Killed",
         description: result || "All DFX processes have been terminated.",
+        duration: 2000,
       });
 
       await window.awesomeApi.reloadApplication();
@@ -32,6 +33,7 @@ export function KillAll() {
         title: "Error",
         description: "Failed to kill DFX processes. Please try again.",
         variant: "destructive",
+        duration: 2000,
       });
     } finally {
       setDialogOpen(false);

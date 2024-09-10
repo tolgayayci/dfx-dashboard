@@ -47,6 +47,19 @@ const CliCommandSelector = ({
   const [commandArgs, setCommandArgs] = useState({});
   const [commandOptions, setCommandOptions] = useState({});
   const [isRunningCommand, setIsRunningCommand] = useState(false);
+  const [networkPreference, setNetworkPreference] = useState("local");
+
+  useEffect(() => {
+    const fetchNetworkPreference = async () => {
+      const preference = await window.awesomeApi.getNetworkPreference();
+      setNetworkPreference(preference);
+      // Update command options when network preference changes
+      if (selectedCommand) {
+        handleCommandChange(selectedCommand, [], preference);
+      }
+    };
+    fetchNetworkPreference();
+  }, []);
 
   useEffect(() => {
     if (initialCommand) {
@@ -92,7 +105,8 @@ const CliCommandSelector = ({
       })
       .join(" ");
 
-    const newLatestCommand = `dfx canister ${selectedCommandDetails.value} ${argsString} ${optionsString}`;
+    // Remove the separate icFlag variable and logic
+    const newLatestCommand = `dfx canister ${selectedCommandDetails.value} ${argsString} ${optionsString}`.trim();
     setLatestCommand(newLatestCommand);
   };
 
@@ -100,7 +114,7 @@ const CliCommandSelector = ({
     updateLatestCommand();
   }, [selectedCommand, commandArgs, commandOptions]);
 
-  const handleCommandChange = (commandValue, initialArgs = []) => {
+  const handleCommandChange = (commandValue, initialArgs = [], currentNetworkPreference = networkPreference) => {
     setSelectedCommand(commandValue);
     const command = commands.find((c) => c.value === commandValue);
 
@@ -130,7 +144,12 @@ const CliCommandSelector = ({
           initialArg.startsWith(option.name)
         );
         if (option.type === "flag") {
-          optionsInitialState[option.name] = !!optionValue;
+          if (option.name === "--ic") {
+            // Always set the IC flag based on the current network preference
+            optionsInitialState[option.name] = currentNetworkPreference === "ic";
+          } else {
+            optionsInitialState[option.name] = !!optionValue;
+          }
         } else if (option.type === "argument") {
           optionsInitialState[option.name] = optionValue
             ? optionValue.split(option.name)[1].trim()

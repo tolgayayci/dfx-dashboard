@@ -77,13 +77,17 @@ export const createCommandHistoryColumns = (
         <DataTableColumnHeader column={column} title="Date" />
       ),
       cell: ({ row }) => <div className="uppercase">{row.original.date}</div>,
+      sortingFn: (rowA, rowB, columnId) => {
+        const dateTimeA = new Date(`${rowA.original.date} ${rowA.original.time}`);
+        const dateTimeB = new Date(`${rowB.original.date} ${rowB.original.time}`);
+        return dateTimeB.getTime() - dateTimeA.getTime(); // Descending order
+      },
     },
     {
       accessorKey: "time",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Time" />
-      ),
+      header: "Time",
       cell: ({ row }) => <div className="uppercase">{row.original.time}</div>,
+      enableSorting: false,
     },
     {
       accessorKey: "subcommand",
@@ -226,7 +230,7 @@ export const createCommandHistoryColumns = (
                 toast({
                   title: "Copied to Clipboard",
                   description: (
-                    <pre className="bg-gray-100 text-black p-1 px-2 rounded-md mt-1">
+                    <pre className="bg-gray-100 text-black p-1 px-2 rounded-md mt-1 overflow-hidden text-ellipsis whitespace-nowrap max-w-[360px]">
                       {row.original.command}
                     </pre>
                   ),

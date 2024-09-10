@@ -1,7 +1,4 @@
 import { spawn } from "child_process";
-import { promises as fs } from "fs";
-import path from "path";
-import { app } from "electron";
 
 export function executeDfxCommand(
   command: string,

@@ -3,10 +3,8 @@ import { useRouter } from "next/router";
 import useCanister from "renderer/hooks/useCanister";
 import CliCommandSelector from "@components/canisters/canister/command-selector";
 
-import { Button } from "@components/ui/button";
 import { Separator } from "@components/ui/separator";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
-import { useToast } from "@components/ui/use-toast";
 
 // Modals
 import OutputModal from "@components/canisters/canister/modals/output-modal";
@@ -26,7 +24,6 @@ export default function CanisterDetail() {
   const { path, canisterName, command } = router.query;
 
   const { canisterData } = useCanister(path as string, canisterName as string);
-  const { toast } = useToast();
 
   if (canisterData) {
     return (

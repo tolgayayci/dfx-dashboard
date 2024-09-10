@@ -40,7 +40,10 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "count", desc: true }
+  ]);
+
 
   const table = useReactTable({
     data,
@@ -51,7 +54,7 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
       pagination: {
-        pageSize: 5,
+        pageSize: 5, // Keep the original page size
       },
     },
     state: {
@@ -60,7 +63,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -85,9 +88,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="h-[9.7vh]" 
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-2"> 
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -100,9 +104,9 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[57vh] text-center"
                 >
-                  No results.
+                  No Canister Logs Found.
                 </TableCell>
               </TableRow>
             )}

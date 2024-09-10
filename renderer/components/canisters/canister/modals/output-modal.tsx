@@ -29,12 +29,12 @@ export default function OutputModal({
   commandOutput,
   commandError,
 }: OutputModalProps) {
-  const { toast } = useToast();
+  const { toast, dismiss} = useToast();
   const [accordionValue, setAccordionValue] = useState<string>("status");
 
   useEffect(() => {
     if (commandOutput && !commandError) {
-      toast({
+      const { id } = toast({
         title: "Command Executed Successfully",
         description: (
           <div>
@@ -44,7 +44,10 @@ export default function OutputModal({
             <Button
               variant="default"
               size="sm"
-              onClick={() => onOpenChange(true)}
+              onClick={() => {
+                onOpenChange(true);
+                dismiss(id);
+              }}
               className="mt-2"
             >
               View Output
@@ -53,9 +56,10 @@ export default function OutputModal({
         ),
         variant: "default",
         className: "border-green-500",
+        duration: 2000,
       });
     } else if (commandError) {
-      toast({
+      const { id } =toast({
         title: "Command Execution Failed",
         description: (
           <div>
@@ -64,7 +68,10 @@ export default function OutputModal({
             </pre>
             <Button
               variant="default"
-              onClick={() => onOpenChange(true)}
+              onClick={() => {
+                onOpenChange(true);
+                dismiss(id);
+              }}
               className="mt-2"
             >
               View Output
@@ -73,6 +80,8 @@ export default function OutputModal({
         ),
         variant: "default",
         className: "border-red-500",
+        duration: 2000,
+
       });
     }
   }, [commandOutput, commandError, runnedCommand, onOpenChange]);

@@ -31,9 +31,10 @@ const NetworkIndicator: React.FC = () => {
     toast({
       title: "Network Changed",
       description: `Switched to ${checked ? "IC Mainnet" : "Local Network"}`,
+      duration: 2000,
     });
 
-    // await window.awesomeApi.reloadApplication();
+    await window.awesomeApi.reloadApplication();
   };
 
   return (

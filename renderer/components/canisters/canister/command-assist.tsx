@@ -1,26 +1,22 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@components/ui/dialog";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { ScrollArea } from "@components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { Label } from "@components/ui/label";
+import { RefreshCw, Copy, X } from "lucide-react";
+import { useToast } from "@components/ui/use-toast";
 
 interface CommandAssistProps {
   selectedCommand: string;
   canisterName: string;
   customPath: string;
   methodName?: string;
-}
-
-interface OutputItem {
-  type: "stdout" | "stderr";
-  content: string;
 }
 
 export default function CommandAssist({
@@ -30,42 +26,65 @@ export default function CommandAssist({
   methodName: initialMethodName,
 }: CommandAssistProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [output, setOutput] = useState<OutputItem[]>([]);
-  const [inputRequired, setInputRequired] = useState(false);
+  const [commandOutput, setCommandOutput] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
-  const [prompt, setPrompt] = useState("");
   const [methodName, setMethodName] = useState(initialMethodName || "");
+  const [isMethodNameEntered, setIsMethodNameEntered] = useState(
+    !!initialMethodName
+  );
+  const [isInputRequired, setIsInputRequired] = useState(false);
+  const [inputLabel, setInputLabel] = useState("");
+  const { toast } = useToast();
 
   const handleRunCommand = useCallback(async () => {
-    setOutput([]);
-    setInputRequired(false);
+    setCommandOutput("");
     setInputValue("");
-    setPrompt("");
+    setIsInputRequired(false);
 
     try {
-      await window.awesomeApi.runAssistedCommand(
+      const output = await window.awesomeApi.runAssistedCommand(
         selectedCommand,
         canisterName,
         customPath,
         methodName
       );
+      setCommandOutput(output);
     } catch (error) {
       console.error("Error running assisted command:", error);
-      setOutput((prev) => [
-        ...prev,
-        { type: "stderr", content: `Error: ${error.message}` },
-      ]);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      setCommandOutput(`Error: ${errorMessage}`);
     }
   }, [selectedCommand, canisterName, customPath, methodName]);
 
   useEffect(() => {
-    const handleOutput = (data: OutputItem) => {
-      setOutput((prev) => [...prev, data]);
+    const handleOutput = (data: {
+      type: "stdout" | "stderr";
+      content: string;
+    }) => {
+      const cleanContent = data.content
+        .replace(/\[\d+m/g, "")
+        .replace(/\u001b\[\d+m/g, "")
+        .replace(/^WARN:.*$/gm, "")
+        .replace(/^bash-3\.2\$.*$/gm, "")
+        .trim();
+
+      if (cleanContent) {
+        setCommandOutput((prev) => prev + cleanContent + "\n");
+      }
     };
 
     const handleInputRequired = (data: { prompt: string }) => {
-      setInputRequired(true);
-      setPrompt(data.prompt);
+      const formattedPrompt = data.prompt
+        .replace(/\[\d+m/g, "")
+        .replace(/\u001b\[\d+m/g, "")
+        .replace(/\?/g, "")
+        .replace(/\[38;5;8m›/, "")
+        .trim()
+        .replace(/^\s+/, "")
+        .replace(/\s*\(type :e to use editor\)/i, "");
+      setInputLabel(formattedPrompt);
+      setIsInputRequired(true);
     };
 
     window.awesomeApi.onAssistedCommandOutput(handleOutput);
@@ -77,13 +96,84 @@ export default function CommandAssist({
     };
   }, []);
 
-  const handleSendInput = async () => {
-    if (inputValue) {
-      await window.awesomeApi.sendAssistedCommandInput(inputValue);
-      setInputRequired(false);
-      setInputValue("");
-      setPrompt("");
+  const handleSendInput = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim() === "") return;
+
+    await window.awesomeApi.sendAssistedCommandInput(inputValue);
+    setInputValue("");
+    setIsInputRequired(false);
+  };
+
+  const handleMethodNameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (methodName.trim() === "") return;
+    setIsMethodNameEntered(true);
+    handleRunCommand();
+  };
+
+  const handleReset = () => {
+    setCommandOutput("");
+    setInputValue("");
+    setIsMethodNameEntered(false);
+    setMethodName("");
+    setIsInputRequired(false);
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(commandOutput);
+    toast({
+      title: "Copied to clipboard",
+      description: "The command output has been copied to your clipboard.",
+      duration: 2000,
+
+    });
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  const renderOutput = () => {
+    if (commandOutput) {
+      return (
+        <div className="bg-gray-900 text-white p-4 rounded-md -mt-1">
+          <ScrollArea className="h-[calc(80vh-106px)]">
+            <pre className="font-mono text-sm whitespace-pre-wrap overflow-x-auto">
+              {commandOutput.split("\n").map((line, index) => (
+                <div key={index}>
+                  {line
+                    .split(
+                      /(\s--[\w-]+(?:\s+<[\w_]+>)?|\s-\w(?:\s+<[\w_]+>)?)/g
+                    )
+                    .map((part, partIndex) => {
+                      if (part.trim().match(/^--[\w-]+(?:\s+<[\w_]+>)?$/)) {
+                        return (
+                          <span key={partIndex} className="text-blue-400">
+                            {part}
+                          </span>
+                        );
+                      } else if (part.trim().match(/^-\w(?:\s+<[\w_]+>)?$/)) {
+                        return (
+                          <span key={partIndex} className="text-blue-400">
+                            {part}
+                          </span>
+                        );
+                      } else if (part.trim() === "") {
+                        return <br key={partIndex} />;
+                      } else {
+                        return <span key={partIndex}>{part}</span>;
+                      }
+                    })}
+                </div>
+              ))}
+            </pre>
+            <ScrollBar />
+          </ScrollArea>
+        </div>
+      );
     }
+    return null;
   };
 
   const buttonText = `Assist ${selectedCommand}`;
@@ -92,42 +182,64 @@ export default function CommandAssist({
     <>
       <Button onClick={() => setIsOpen(true)}>{buttonText}</Button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
+        <DialogContent
+          className="sm:max-w-[550px]"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
-            <DialogTitle>Command Assist: {selectedCommand}</DialogTitle>
-          </DialogHeader>
-          {(selectedCommand === "call" || selectedCommand === "sign") && (
-            <div className="mb-4">
-              <Label htmlFor="methodName">Method Name</Label>
-              <Input
-                id="methodName"
-                value={methodName}
-                onChange={(e) => setMethodName(e.target.value)}
-                placeholder="Enter method name"
-              />
-            </div>
-          )}
-          <Button onClick={handleRunCommand}>Run Command</Button>
-          <ScrollArea className="h-[300px] w-full mt-4">
-            {output.map((item, index) => (
-              <div
-                key={index}
-                className={item.type === "stderr" ? "text-red-500" : ""}
-              >
-                {item.content}
+            <DialogTitle className="flex justify-between items-center">
+              <span>Command Assist: {selectedCommand}</span>
+              <div className="flex space-x-2">
+                {commandOutput && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCopyToClipboard}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button variant="outline" size="icon" onClick={handleReset}>
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={handleClose}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-            ))}
-          </ScrollArea>
-          {inputRequired && (
-            <div className="mt-4">
-              <p>{prompt}</p>
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Enter your response"
-              />
-              <Button onClick={handleSendInput} className="mt-2">Send</Button>
-            </div>
+            </DialogTitle>
+          </DialogHeader>
+          {(selectedCommand === "call" || selectedCommand === "sign") &&
+          !isMethodNameEntered ? (
+            <form onSubmit={handleMethodNameSubmit}>
+              <Label htmlFor="methodName">Method Name</Label>
+              <div className="flex items-center space-x-2 mt-2">
+                <Input
+                  id="methodName"
+                  value={methodName}
+                  onChange={(e) => setMethodName(e.target.value)}
+                  placeholder="Enter method name"
+                />
+                <Button type="submit">Start</Button>
+              </div>
+            </form>
+          ) : (
+            <>
+              {renderOutput()}
+              {isInputRequired && (
+                <form onSubmit={handleSendInput}>
+                  <Label htmlFor="userInput">{inputLabel}</Label>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Input
+                      id="userInput"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      placeholder="Type your input..."
+                    />
+                    <Button type="submit">Send</Button>
+                  </div>
+                </form>
+              )}
+            </>
           )}
         </DialogContent>
       </Dialog>

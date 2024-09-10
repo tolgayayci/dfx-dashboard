@@ -54,6 +54,7 @@ export default function EditorModal({
         toast({
           title: "Editor opened",
           description: `The project has been opened in ${editor.name}.`,
+          duration: 2000,
         });
       } catch (error) {
         console.error("Error opening project:", error);
@@ -62,6 +63,7 @@ export default function EditorModal({
           title: "Error opening editor",
           description:
             "Please make sure you have the selected editor installed.",
+          duration: 2000,
         });
       }
     }

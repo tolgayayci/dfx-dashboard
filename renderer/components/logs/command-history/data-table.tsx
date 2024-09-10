@@ -10,6 +10,7 @@ import {
   ColumnFiltersState,
   getFilteredRowModel,
   SortingState,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 
 import {
@@ -51,7 +52,9 @@ export function CommandHistoryDataTable<TData, TValue>({
   data,
   subcommandFilter,
 }: DataTableProps<TData, TValue> & { subcommandFilter: string }) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "date", desc: false }
+  ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
@@ -61,6 +64,8 @@ export function CommandHistoryDataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     initialState: {
       pagination: {
         pageSize: 5,
@@ -137,7 +142,7 @@ export function CommandHistoryDataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[47vh] text-center"
+                    className="h-[48vh] text-center"
                   >
                     Command History Not Found
                   </TableCell>
@@ -147,7 +152,7 @@ export function CommandHistoryDataTable<TData, TValue>({
           </Table>
         </div>
       </div>
-      <div className="flex justify-between mt-6">
+      <div className="flex items-center justify-between mt-6">
         <div className="flex-1 text-sm text-muted-foreground">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
@@ -163,7 +168,7 @@ export function CommandHistoryDataTable<TData, TValue>({
                 />
               </SelectTrigger>
               <SelectContent side="top">
-                {[5, 10, 15].map((pageSize) => (
+                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
                   <SelectItem
                     key={pageSize}
                     value={`${pageSize}`}
@@ -176,7 +181,7 @@ export function CommandHistoryDataTable<TData, TValue>({
             </Select>
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center w-[100px] justify-center text-sm font-medium">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}

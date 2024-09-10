@@ -1,8 +1,7 @@
-"use client";
-import { useState, useEffect } from "react";
-import { KillAll } from "@components/dfx/killall";
-
+import React, { useState, useEffect } from "react";
 import { Button } from "@components/ui/button";
+import { useToast } from "@components/ui/use-toast";
+import { PlayCircle, StopCircle, XCircle, Loader } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +10,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@components/ui/dialog";
-import { Checkbox } from "@components/ui/checkbox";
-import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
+import { Input } from "@components/ui/input";
+import { Checkbox } from "@components/ui/checkbox";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import {
   DropdownMenu,
@@ -21,11 +20,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@components/ui/dropdown-menu";
-import { useToast } from "@components/ui/use-toast";
-import { Badge } from "@components/ui/badge";
-
-import { Loader, XIcon } from "lucide-react";
-import { CaretDownIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 interface DfxStartOptions {
   background?: boolean;
@@ -113,12 +108,12 @@ const DFX_START_OPTIONS: Array<{
   },
 ];
 
-export default function CheckDfxStatus() {
+export default function DfxStatus() {
   const [dfxStatus, setDfxStatus] = useState<"running" | "stopped">("stopped");
+  const [isLoading, setIsLoading] = useState(false);
   const [isStartModalOpen, setIsStartModalOpen] = useState(false);
   const [isStopModalOpen, setIsStopModalOpen] = useState(false);
   const [isKillAllModalOpen, setIsKillAllModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [commandOutput, setCommandOutput] = useState("");
   const [commandError, setCommandError] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
@@ -126,7 +121,6 @@ export default function CheckDfxStatus() {
     background: true,
     clean: true,
   });
-
   const { toast } = useToast();
 
   useEffect(() => {
@@ -137,15 +131,13 @@ export default function CheckDfxStatus() {
     setIsLoading(true);
     try {
       const output = await window.awesomeApi.runCommand("lsof -i tcp:4943");
-      if (
+      setDfxStatus(
         output.includes("dfx") ||
-        output.includes("replica") ||
-        output.includes("icx-proxy")
-      ) {
-        setDfxStatus("running");
-      } else {
-        setDfxStatus("stopped");
-      }
+          output.includes("replica") ||
+          output.includes("icx-proxy")
+          ? "running"
+          : "stopped"
+      );
     } catch (error) {
       setDfxStatus("stopped");
     }
@@ -229,7 +221,6 @@ export default function CheckDfxStatus() {
       );
     }
 
-    // Always add --clean and --background flags
     if (!flags.includes("--clean")) flags.push("--clean");
     if (!flags.includes("--background")) flags.push("--background");
 
@@ -240,31 +231,24 @@ export default function CheckDfxStatus() {
     try {
       setIsStopModalOpen(false);
       await handleDfxCommand("stop");
-      // Check if dfx is still running
       const output = await window.awesomeApi.runCommand("lsof -i tcp:4943");
       if (
         output.includes("dfx") ||
         output.includes("replica") ||
         output.includes("icx-proxy")
       ) {
-        // If dfx is still running, use the killall command
         await window.awesomeApi.runCommand("killall dfx icx-proxy");
         await checkDfxStatus();
         if (dfxStatus === "stopped") {
           setStatusMessage("dfx stopped successfully using killall");
-          setIsStopModalOpen(false);
         } else {
           setCommandError("Failed to stop dfx even after using killall");
         }
       }
-      setIsStopModalOpen(false);
     } catch (error) {
       console.error("Error stopping dfx:", error);
-      setIsStopModalOpen(false);
     }
   };
-
-  const isRunning = dfxStatus === "running";
 
   const handleStartOptionChange = (
     option: keyof DfxStartOptions,
@@ -281,8 +265,8 @@ export default function CheckDfxStatus() {
       toast({
         title: "DFX Processes Killed",
         description: result || "All DFX processes have been terminated.",
+        duration: 2000,
       });
-
       await window.awesomeApi.reloadApplication();
     } catch (error) {
       console.error(`Error: ${error}`);
@@ -290,6 +274,7 @@ export default function CheckDfxStatus() {
         title: "Error",
         description: "Failed to kill DFX processes. Please try again.",
         variant: "destructive",
+        duration: 2000,
       });
     } finally {
       setIsKillAllModalOpen(false);
@@ -297,196 +282,207 @@ export default function CheckDfxStatus() {
   }
 
   return (
-    <div className="flex items-center">
-      <div className="grid gap-1 flex-1 items-center">
-        <div className="flex items-center w-full">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className={`w-full border-t rounded-none justify-start h-14 ${
-                  isRunning ? "" : "bg-red-50 text-red-600 border-red-200"
-                }`}
-                disabled={isLoading}
-              >
-                {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
-                <span className="font-semibold text-sm">Dfx</span>
-                {isRunning ? (
-                  <Badge
-                    variant="outline"
-                    className="ml-4 bg-green-50 text-green-600 border-green-200 rounded-md"
-                  >
-                    Running
-                    <CaretDownIcon className="" />
-                  </Badge>
-                ) : (
-                  <Badge
-                    variant="outline"
-                    className="ml-4 bg-red-50 text-red-600 border-red-200"
-                  >
-                    Stopped
-                    <CaretDownIcon className="" />
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                onClick={() =>
-                  isRunning
-                    ? setIsStopModalOpen(true)
-                    : setIsStartModalOpen(true)
-                }
-              >
-                {isRunning ? "Stop" : "Start"}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setIsKillAllModalOpen(true)}>
-                <XIcon className="mr-2 h-4 w-4" />
-                Kill All
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <>
+      <div className="mt-auto border-t py-2 px-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                dfxStatus === "running" ? "bg-green-500" : "bg-red-500"
+              }`}
+            />
+            <span className="text-sm font-medium">dfx</span>
+          </div>
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs font-normal rounded-r-none border-r-0"
+              onClick={() =>
+                dfxStatus === "running"
+                  ? setIsStopModalOpen(true)
+                  : setIsStartModalOpen(true)
+              }
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader className="h-3 w-3 animate-spin mr-1" />
+              ) : dfxStatus === "running" ? (
+                <StopCircle className="h-3 w-3 mr-1" />
+              ) : (
+                <PlayCircle className="h-3 w-3 mr-1" />
+              )}
+              <span className="font-semibold">
+                {dfxStatus === "running" ? "Stop" : "Start"}
+              </span>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-1 rounded-l-none"
+                >
+                  <ChevronDownIcon className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  onClick={() => setIsKillAllModalOpen(true)}
+                  disabled={isLoading || dfxStatus === "stopped"}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Kill All
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-      </div>
 
-      <Dialog open={isStartModalOpen} onOpenChange={setIsStartModalOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Start dfx</DialogTitle>
-            <DialogDescription>
-              Configure and start the dfx network
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="max-h-[calc(70vh-130px)] overflow-y-auto">
-            <div className="grid gap-4 mt-4">
-              <div className="grid grid-cols-3 gap-4 mb-2">
+        <Dialog open={isStartModalOpen} onOpenChange={setIsStartModalOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Start dfx</DialogTitle>
+              <DialogDescription>
+                Configure and start the dfx network
+              </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="max-h-[calc(70vh-130px)] overflow-y-auto">
+              <div className="grid gap-4 mt-4">
+                <div className="grid grid-cols-3 gap-4 mb-2">
+                  {DFX_START_OPTIONS.filter(
+                    (option) => option.type === "checkbox"
+                  ).map((option) => (
+                    <div
+                      key={option.name}
+                      className="flex items-center space-x-2"
+                    >
+                      <Checkbox
+                        id={option.name}
+                        checked={
+                          option.name === "background" ||
+                          option.name === "clean" ||
+                          (dfxStartOptions[option.name] as boolean) ||
+                          false
+                        }
+                        onCheckedChange={(checked) =>
+                          handleStartOptionChange(option.name, checked)
+                        }
+                        disabled={
+                          option.name === "background" ||
+                          option.name === "clean"
+                        }
+                      />
+                      <Label htmlFor={option.name}>--{option.name}</Label>
+                    </div>
+                  ))}
+                </div>
                 {DFX_START_OPTIONS.filter(
-                  (option) => option.type === "checkbox"
+                  (option) => option.type !== "checkbox"
                 ).map((option) => (
-                  <div
-                    key={option.name}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={option.name}
-                      checked={
-                        option.name === "background" ||
-                        option.name === "clean" ||
-                        (dfxStartOptions[option.name] as boolean) ||
-                        false
-                      }
-                      onCheckedChange={(checked) =>
-                        handleStartOptionChange(option.name, checked)
-                      }
-                      disabled={
-                        option.name === "background" || option.name === "clean"
-                      }
-                    />
+                  <div key={option.name} className="space-y-2">
                     <Label htmlFor={option.name}>--{option.name}</Label>
+                    {option.type === "multiInput" ? (
+                      <Input
+                        id={option.name}
+                        placeholder={option.placeholder}
+                        value={(
+                          (dfxStartOptions[option.name] as string[]) || []
+                        ).join(", ")}
+                        onChange={(e) =>
+                          handleStartOptionChange(
+                            option.name,
+                            e.target.value.split(", ")
+                          )
+                        }
+                      />
+                    ) : (
+                      <Input
+                        id={option.name}
+                        placeholder={option.placeholder}
+                        value={(dfxStartOptions[option.name] as string) || ""}
+                        onChange={(e) =>
+                          handleStartOptionChange(option.name, e.target.value)
+                        }
+                      />
+                    )}
                   </div>
                 ))}
               </div>
-              {DFX_START_OPTIONS.filter(
-                (option) => option.type !== "checkbox"
-              ).map((option) => (
-                <div key={option.name} className="space-y-2">
-                  <Label htmlFor={option.name}>--{option.name}</Label>
-                  {option.type === "multiInput" ? (
-                    <Input
-                      id={option.name}
-                      placeholder={option.placeholder}
-                      value={(
-                        (dfxStartOptions[option.name] as string[]) || []
-                      ).join(", ")}
-                      onChange={(e) =>
-                        handleStartOptionChange(
-                          option.name,
-                          e.target.value.split(", ")
-                        )
-                      }
-                    />
-                  ) : (
-                    <Input
-                      id={option.name}
-                      placeholder={option.placeholder}
-                      value={(dfxStartOptions[option.name] as string) || ""}
-                      onChange={(e) =>
-                        handleStartOptionChange(option.name, e.target.value)
-                      }
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-            <ScrollBar />
-          </ScrollArea>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsStartModalOpen(false)}
-              disabled={isLoading}
-            >
-              Close
-            </Button>
-            <Button onClick={handleStartDfx} disabled={isLoading || isRunning}>
-              {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
-              Start
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <ScrollBar />
+            </ScrollArea>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsStartModalOpen(false)}
+                disabled={isLoading}
+              >
+                Close
+              </Button>
+              <Button
+                onClick={handleStartDfx}
+                disabled={isLoading || dfxStatus === "running"}
+              >
+                {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
+                Start
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      <Dialog open={isStopModalOpen} onOpenChange={setIsStopModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Stop</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to stop the dfx network?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsStopModalOpen(false)}
-              disabled={isLoading}
-            >
-              Close
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleStopDfx}
-              disabled={isLoading || !isRunning}
-            >
-              {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
-              Stop
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <Dialog open={isStopModalOpen} onOpenChange={setIsStopModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Stop</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to stop the dfx network?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsStopModalOpen(false)}
+                disabled={isLoading}
+              >
+                Close
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleStopDfx}
+                disabled={isLoading || dfxStatus !== "running"}
+              >
+                {isLoading && <Loader className="h-4 w-4 mr-2 animate-spin" />}
+                Stop
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      <Dialog open={isKillAllModalOpen} onOpenChange={setIsKillAllModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="mb-2">Kill All DFX Processes</DialogTitle>
-            <DialogDescription>
-              This forcibly kill every DFX-related process. This may impact IDE
-              plugins, including from other versions of DFX. For ordinary usage
-              `dfx stop` should be preferred. Are you sure you want to continue?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsKillAllModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={killAllDfx}>
-              Continue
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+        <Dialog open={isKillAllModalOpen} onOpenChange={setIsKillAllModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="mb-2">Kill All DFX Processes</DialogTitle>
+              <DialogDescription>
+                This forcibly kill every DFX-related process. This may impact
+                IDE plugins, including from other versions of DFX. For ordinary
+                usage `dfx stop` should be preferred. Are you sure you want to
+                continue?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsKillAllModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={killAllDfx}>
+                Continue
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   );
 }

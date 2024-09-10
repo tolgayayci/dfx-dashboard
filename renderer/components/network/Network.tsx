@@ -40,6 +40,11 @@ import {
   AlertDialogTitle,
 } from "@components/ui/alert-dialog";
 import { useToast } from "@components/ui/use-toast";
+import { useTheme } from "next-themes";
+import { Card } from "@components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
+import { AlertCircle, Save, RotateCcw } from "lucide-react";
+import { Skeleton } from "@components/ui/skeleton";
 
 import { NetworkData, NetworkType } from "./types";
 import { LocalNetworkForm } from "./forms/LocalNetworkForm";
@@ -121,6 +126,7 @@ export default function NetworkComponent() {
         toast({
           title: "Network Removed",
           description: `${networkToRemove} has been successfully removed.`,
+          duration: 2000,
         });
       }
       setNetworkToRemove(null);
@@ -134,6 +140,117 @@ export default function NetworkComponent() {
     sortDirection
   );
 
+  const JsonEditor = () => {
+    const { theme } = useTheme();
+    const [localNetworkData, setLocalNetworkData] = useState(networkData);
+    const [error, setError] = useState<string | null>(null);
+    const [networkJsonPath, setNetworkJsonPath] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+      getNetworkJsonPath().then((path) => {
+        setNetworkJsonPath(path);
+        setIsLoading(false);
+      });
+    }, []);
+
+    const handleSave = async () => {
+      try {
+        const path = await getNetworkJsonPath();
+        if (path) {
+          await updateJson(path, localNetworkData);
+          setNetworkData(localNetworkData);
+          toast({
+            title: "Changes Saved",
+            description: "The network configuration has been updated.",
+            duration: 2000,
+          });
+        }
+      } catch (err) {
+        setError("Failed to save changes. Please try again.");
+      }
+    };
+
+    const handleReset = () => {
+      setLocalNetworkData(networkData);
+      setError(null);
+      toast({
+        title: "Changes Reset",
+        description: "The editor has been reset to the last saved state.",
+        duration: 2000,
+      });
+    };
+
+    const editorColors = {
+      background: "hsl(var(--background))",
+      default: "hsl(var(--foreground))",
+      string: "hsl(var(--primary))",
+      number: "hsl(var(--secondary))",
+      colon: "hsl(var(--muted-foreground))",
+      keys: theme === "dark" ? "#4299e1" : "#3182ce", // Blue hex color
+      keys_whiteSpace: theme === "dark" ? "#4299e1" : "#3182ce",
+      primitive: "hsl(var(--destructive))",
+    };
+
+    return (
+      <Card className="p-6">
+        <div className="flex justify-between items-center mb-4 border-b pb-4">
+          <div>
+            <h3 className="text-xl font-semibold mb-1">networks.json</h3>
+            {isLoading ? (
+              <Skeleton className="h-4 w-[250px]" />
+            ) : (
+              networkJsonPath && (
+                <p className="text-sm text-muted-foreground">{networkJsonPath}</p>
+              )
+            )}
+          </div>
+          <div className="space-x-2">
+            <Button variant="outline" onClick={handleReset}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
+            <Button onClick={handleSave}>
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+        </div>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <JSONInput
+          id="network_json"
+          placeholder={localNetworkData}
+          locale={locale}
+          height="calc(100vh - 300px)"
+          width="100%"
+          onChange={(value) => {
+            setLocalNetworkData(value.jsObject);
+            setError(null);
+          }}
+          waitAfterKeyPress={2000}
+          theme={theme === "dark" ? "dark_vscode_tribute" : "light_mitsuketa_tribute"}
+          colors={{
+            background: theme === "dark" ? "#1e1e1e" : "#ffffff",
+            ...editorColors,
+          }}
+          style={{
+            contentBox: {
+              fontSize: "14px",
+              fontFamily: "var(--font-mono)",
+              fontWeight: "500",
+            },
+          }}
+        />
+      </Card>
+    );
+  };
+
   return (
     <div className="w-full">
       {isLoading ? (
@@ -146,7 +263,7 @@ export default function NetworkComponent() {
                 Network Manager
               </TabsTrigger>
               <TabsTrigger value="json" className="flex-1">
-                network.json
+                JSON Editor
               </TabsTrigger>
             </TabsList>
             <TabsContent value="form" className="mt-4">
@@ -234,33 +351,7 @@ export default function NetworkComponent() {
               </div>
             </TabsContent>
             <TabsContent value="json" className="mt-4">
-              <div className="border rounded-md p-4 bg-background">
-                <JSONInput
-                  id="network_json"
-                  placeholder={networkData}
-                  locale={locale}
-                  height="500px"
-                  width="100%"
-                  onChange={handleJsonChange}
-                  theme="light_mitsuketa_tribute"
-                  colors={{
-                    background: "transparent",
-                    default: "#000000",
-                    string: "#00ff00",
-                    number: "#ffff00",
-                    colon: "#ff0000",
-                    keys: "#0000ff",
-                    keys_whiteSpace: "#0000ff",
-                    primitive: "#ff00ff",
-                  }}
-                  style={{
-                    contentBox: {
-                      fontSize: "15px",
-                      fontFamily: "monospace",
-                    },
-                  }}
-                />
-              </div>
+              <JsonEditor />
             </TabsContent>
           </Tabs>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

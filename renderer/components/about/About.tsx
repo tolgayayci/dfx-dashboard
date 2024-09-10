@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 import { Label } from "@components/ui/label";
 import { Input } from "@components/ui/input";
-import { Separator } from "@components/ui/separator";
 import { Switch } from "@components/ui/switch";
+import { BarChart2 } from "lucide-react";
 
 import {
   Card,
@@ -79,11 +79,16 @@ export default function EnvironmentVariables() {
     }
   };
 
+  const handlePrivacyPolicyClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.awesomeApi.openExternalLink(
+      "https://dfx-dashboard-docs.netlify.app/privacy-policy"
+    );
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-90px)] space-y-4">
       <div className="w-full">
-        <Label className="text-xl">About Dfx Dashboard</Label>
-        <Separator className="mt-3 mb-6" />
         <div className="space-y-4">
           <div className="flex flex-col justify-between space-y-3">
             <Label className="w-full">Dfx Dashboard App Version</Label>
@@ -115,22 +120,38 @@ export default function EnvironmentVariables() {
               </Alert>
             )}
           </div>
-          <div className="flex items-center justify-between space-x-4 p-3 rounded-lg border">
-            <Label
-              htmlFor="tracking-preference"
-              className="text-sm font-medium"
-            >
-              Allow Analytics
-            </Label>
-            <Switch
-              id="tracking-preference"
-              checked={trackingAllowed}
-              onCheckedChange={handleTrackingPreferenceChange}
-            />
-          </div>
         </div>
       </div>
-      <div className="w-full grid grid-cols-3 gap-4">
+      <div className="flex items-center border p-4 rounded-lg mb-5">
+        <div className="flex-shrink-0 mr-4">
+          <BarChart2 className="h-7 w-7 text-primary" />
+        </div>
+        <div className="flex-grow">
+          <Label htmlFor="tracking-preference" className="text-sm font-medium">
+            Allow Analytics
+          </Label>
+          <p className="text-sm text-muted-foreground mb-1 mt-1">
+            {trackingAllowed
+              ? "Analytics are currently enabled. We collect anonymous usage data to improve our service."
+              : "Analytics are currently disabled. Enable to help us improve our service."}
+          </p>
+          <a
+            href="/privacy-policy"
+            onClick={handlePrivacyPolicyClick}
+            className="text-xs text-primary hover:text-foreground cursor-pointer"
+          >
+            View our Privacy Policy
+          </a>
+        </div>
+        <div className="flex-shrink-0 ml-4">
+          <Switch
+            id="tracking-preference"
+            checked={trackingAllowed}
+            onCheckedChange={handleTrackingPreferenceChange}
+          />
+        </div>
+      </div>
+      <div className="w-full grid grid-cols-3 gap-4 pt-1">
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">Make a Feature Request</CardTitle>
