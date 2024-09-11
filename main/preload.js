@@ -146,4 +146,13 @@ contextBridge.exposeInMainWorld("awesomeApi", {
     ipcRenderer.invoke("terminate-assisted-command"),
 
   // ... rest of the methods ...
+
+  runInstallCommand: (version) => ipcRenderer.invoke("run-install-command", version),
+
+  onInstallOutput: (callback) =>
+    ipcRenderer.on("install-output", (_, data) => callback(data)),
+
+  offInstallOutput: (callback) =>
+    ipcRenderer.removeListener("install-output", callback),
+
 });

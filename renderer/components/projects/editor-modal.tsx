@@ -70,7 +70,7 @@ export default function EditorModal({
   };
 
   return (
-    <Dialog open={showEditorDialog}>
+    <Dialog open={showEditorDialog} onOpenChange={setShowEditorDialog}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Open "{projectName}"</DialogTitle>

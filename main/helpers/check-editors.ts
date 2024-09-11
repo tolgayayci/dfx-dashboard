@@ -35,6 +35,28 @@ export const checkEditors = async () => {
         "C:\\Program Files (x86)\\JetBrains\\CLion\\bin\\clion.bat",
       ],
     },
+    {
+      name: "Visual Studio Code Insiders",
+      command: "code-insiders",
+      paths: [
+        "/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code-insiders",
+        "/usr/local/bin/code-insiders",
+        "/usr/bin/code-insiders",
+        "C:\\Program Files\\Microsoft VS Code Insiders\\bin\\code-insiders.cmd",
+        "C:\\Program Files (x86)\\Microsoft VS Code Insiders\\bin\\code-insiders.cmd",
+      ],
+    },
+    {
+      name: "Cursor",
+      command: "cursor",
+      paths: [
+        "/Applications/Cursor.app/Contents/MacOS/Cursor",
+        "/usr/local/bin/cursor",
+        "/usr/bin/cursor",
+        "C:\\Program Files\\Cursor\\cursor.exe",
+        "C:\\Program Files (x86)\\Cursor\\cursor.exe",
+      ],
+    },
   ];
 
   const installedEditors = [];

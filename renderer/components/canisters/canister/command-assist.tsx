@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef, useLayoutEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,8 @@ export default function CommandAssist({
   const [isInputRequired, setIsInputRequired] = useState(false);
   const [inputLabel, setInputLabel] = useState("");
   const { toast } = useToast();
+  const outputRef = useRef<HTMLPreElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const handleRunCommand = useCallback(async () => {
     setCommandOutput("");
@@ -62,13 +64,7 @@ export default function CommandAssist({
       type: "stdout" | "stderr";
       content: string;
     }) => {
-      const cleanContent = data.content
-        .replace(/\[\d+m/g, "")
-        .replace(/\u001b\[\d+m/g, "")
-        .replace(/^WARN:.*$/gm, "")
-        .replace(/^bash-3\.2\$.*$/gm, "")
-        .trim();
-
+      const cleanContent = cleanOutputContent(data.content);
       if (cleanContent) {
         setCommandOutput((prev) => prev + cleanContent + "\n");
       }
@@ -95,6 +91,32 @@ export default function CommandAssist({
       window.awesomeApi.offAssistedCommandInputRequired(handleInputRequired);
     };
   }, []);
+
+  useEffect(() => {
+    if (outputRef.current) {
+      outputRef.current.scrollTop = outputRef.current.scrollHeight;
+    }
+  }, [commandOutput]);
+
+  useLayoutEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector(
+        '[data-radix-scroll-area-viewport]'
+      );
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [commandOutput]);
+
+  const cleanOutputContent = (content: string) => {
+    return content
+      .replace(/\[\d+m/g, "")
+      .replace(/\u001b\[\d+m/g, "")
+      .replace(/^WARN:.*$/gm, "")
+      .replace(/^bash-3\.2\$.*$/gm, "")
+      .trim();
+  };
 
   const handleSendInput = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +148,6 @@ export default function CommandAssist({
       title: "Copied to clipboard",
       description: "The command output has been copied to your clipboard.",
       duration: 2000,
-
     });
   };
 
@@ -138,8 +159,10 @@ export default function CommandAssist({
     if (commandOutput) {
       return (
         <div className="bg-gray-900 text-white p-4 rounded-md -mt-1">
-          <ScrollArea className="h-[calc(80vh-106px)]">
-            <pre className="font-mono text-sm whitespace-pre-wrap overflow-x-auto">
+          <ScrollArea ref={scrollAreaRef} className="h-[calc(60vh-50px)]">
+            <pre
+              className="font-mono text-sm whitespace-pre-wrap"
+            >
               {commandOutput.split("\n").map((line, index) => (
                 <div key={index}>
                   {line
@@ -159,8 +182,6 @@ export default function CommandAssist({
                             {part}
                           </span>
                         );
-                      } else if (part.trim() === "") {
-                        return <br key={partIndex} />;
                       } else {
                         return <span key={partIndex}>{part}</span>;
                       }
@@ -184,7 +205,7 @@ export default function CommandAssist({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent
           className="sm:max-w-[550px]"
-          onInteractOutside={(e) => e.preventDefault()}
+          onInteractOutside={() => setIsOpen(false)}
         >
           <DialogHeader>
             <DialogTitle className="flex justify-between items-center">
@@ -208,39 +229,41 @@ export default function CommandAssist({
               </div>
             </DialogTitle>
           </DialogHeader>
-          {(selectedCommand === "call" || selectedCommand === "sign") &&
-          !isMethodNameEntered ? (
-            <form onSubmit={handleMethodNameSubmit}>
-              <Label htmlFor="methodName">Method Name</Label>
-              <div className="flex items-center space-x-2 mt-2">
-                <Input
-                  id="methodName"
-                  value={methodName}
-                  onChange={(e) => setMethodName(e.target.value)}
-                  placeholder="Enter method name"
-                />
-                <Button type="submit">Start</Button>
-              </div>
-            </form>
-          ) : (
-            <>
-              {renderOutput()}
-              {isInputRequired && (
-                <form onSubmit={handleSendInput}>
-                  <Label htmlFor="userInput">{inputLabel}</Label>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Input
-                      id="userInput"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      placeholder="Type your input..."
-                    />
-                    <Button type="submit">Send</Button>
-                  </div>
-                </form>
-              )}
-            </>
-          )}
+          <div>
+            {(selectedCommand === "call" || selectedCommand === "sign") &&
+            !isMethodNameEntered ? (
+              <form onSubmit={handleMethodNameSubmit}>
+                <Label htmlFor="methodName">Method Name</Label>
+                <div className="flex items-center space-x-2 mt-2">
+                  <Input
+                    id="methodName"
+                    value={methodName}
+                    onChange={(e) => setMethodName(e.target.value)}
+                    placeholder="Enter method name"
+                  />
+                  <Button type="submit">Start</Button>
+                </div>
+              </form>
+            ) : (
+              <>
+                {renderOutput()}
+                {isInputRequired && (
+                  <form onSubmit={handleSendInput} className="mt-4">
+                    <Label htmlFor="userInput">{inputLabel}</Label>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Input
+                        id="userInput"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder="Type your input..."
+                      />
+                      <Button type="submit">Send</Button>
+                    </div>
+                  </form>
+                )}
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </>

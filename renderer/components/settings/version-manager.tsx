@@ -26,8 +26,9 @@ import {
   DialogFooter,
 } from "@components/ui/dialog";
 import { Input } from "@components/ui/input";
-import { PlusCircle, Package, Trash2 } from "lucide-react";
+import { PlusCircle, Package, Trash2, ExternalLink } from "lucide-react";
 import { dfxVersions } from "@lib/dfx-versions";
+import { Progress } from "@components/ui/progress";
 
 interface DfxVersion {
   version: string;
@@ -68,9 +69,61 @@ export default function VersionManager() {
   const [versionToUninstall, setVersionToUninstall] = useState<string | null>(
     null
   );
+  const [isDfxvmInstalled, setIsDfxvmInstalled] = useState(true);
+  const [installOutput, setInstallOutput] = useState<string>("");
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isInstallComplete, setIsInstallComplete] = useState(false);
 
   useEffect(() => {
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const handleInstallOutput = (data: { content: string }) => {
+      // Parse the progress from the output
+      const match = data.content.match(/(\d+\.\d+)MB\/(\d+\.\d+)MB/);
+      if (match) {
+        const [, downloaded, total] = match;
+        const progress = Math.round((parseFloat(downloaded) / parseFloat(total)) * 100);
+        setDownloadProgress(progress);
+      }
+      setInstallOutput((prev) => prev + data.content + "\n");
+
+      // Check if installation is complete
+      if (data.content.includes("installed dfx")) {
+        const versionMatch = data.content.match(/installed dfx (\d+\.\d+\.\d+)/);
+        if (versionMatch) {
+          const installedVersion = versionMatch[1];
+          setIsInstallComplete(true);
+          setIsInstalling(false);
+          toast({
+            title: "Installation Successful",
+            description: `DFX version ${installedVersion} has been installed.`,
+            duration: 3000,
+          });
+          fetchInstalledVersions(); // Refresh the list of installed versions
+          setIsInstallModalOpen(false); // Close the install modal
+        }
+      }
+
+      // Check for error messages
+      if (data.content.toLowerCase().includes("error") || data.content.toLowerCase().includes("failed")) {
+        setError(data.content);
+        setIsInstalling(false);
+        toast({
+          title: "Installation Failed",
+          description: "An error occurred during installation. Please check the error message and try again.",
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
+    };
+
+    window.awesomeApi.onInstallOutput(handleInstallOutput);
+
+    return () => {
+      window.awesomeApi.offInstallOutput(handleInstallOutput);
+    };
   }, []);
 
   const fetchData = async () => {
@@ -89,6 +142,7 @@ export default function VersionManager() {
         fetchGithubReleases(),
         fetchInstalledVersions(),
         fetchActiveVersion(),
+        checkDfxvmInstallation(),
       ]);
     } catch (error) {
       console.error("Error fetching initial data:", error);
@@ -210,20 +264,15 @@ export default function VersionManager() {
   const handleInstall = async () => {
     if (selectedVersion) {
       setIsInstalling(true);
+      setIsInstallComplete(false);
+      setInstallOutput("");
+      setDownloadProgress(0);
+      setError(null); // Reset error state
       try {
-        await window.awesomeApi.runCommand(`dfxvm install ${selectedVersion}`);
-        await fetchInstalledVersions();
-        setError(null);
-        toast({
-          title: "Installation Successful",
-          description: `Version ${selectedVersion} has been installed.`,
-          duration: 2000,
-        });
-        setIsInstallModalOpen(false);
+        await window.awesomeApi.runInstallCommand(selectedVersion);
       } catch (error) {
         console.error("Error installing version:", error);
-        setError("Failed to install version. Please try again.");
-      } finally {
+        setError("Failed to start installation process. Please try again.");
         setIsInstalling(false);
       }
     }
@@ -297,6 +346,19 @@ export default function VersionManager() {
     await handleDfxPreferenceChange(false);
   };
 
+  const checkDfxvmInstallation = async () => {
+    try {
+      await window.awesomeApi.runCommand("dfxvm --version");
+      setIsDfxvmInstalled(true);
+    } catch (error) {
+      setIsDfxvmInstalled(false);
+    }
+  };
+
+  const handleInstallDfxvm = () => {
+    window.awesomeApi.openExternalLink("https://github.com/dfinity/dfxvm");
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -310,7 +372,7 @@ export default function VersionManager() {
                 onClick={() => setIsInstallModalOpen(true)}
                 variant="outline"
                 className="h-10"
-                disabled={useBundledDfx}
+                disabled={useBundledDfx || !isDfxvmInstalled}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Install New Version
@@ -334,6 +396,22 @@ export default function VersionManager() {
             {isLoading ? (
               <div className="flex items-center justify-center h-[calc(100vh-270px)]">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              </div>
+            ) : !isDfxvmInstalled ? (
+              <div className="h-[calc(100vh-270px)] w-full rounded-md border p-4 flex flex-col items-center justify-center space-y-4 mt-3">
+                <Package className="h-12 w-12" />
+                <p className="text-lg">DFXVM is not installed</p>
+                <p className="text-sm text-gray-600 text-center max-w-md">
+                  DFXVM (DFX Version Manager) is required to manage multiple versions of DFX. Please install it to continue and reload the application.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={handleInstallDfxvm}
+                  className="flex items-center"
+                >
+                  Install DFXVM
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </Button>
               </div>
             ) : useBundledDfx ? (
               <div className="h-[calc(100vh-270px)] w-full rounded-md border p-4 flex flex-col items-center justify-center space-y-4 mt-3">
@@ -382,7 +460,8 @@ export default function VersionManager() {
                             }
                             size="sm"
                             className="w-24"
-                            onClick={() => handleActivate(version.id)}
+                            onClick={() => {
+                              version.number === activeVersion ? null : handleActivate(version.id)}}
                           >
                             {activeVersion === version.number
                               ? "Active"
@@ -447,6 +526,14 @@ export default function VersionManager() {
                 : "These versions are fetched from the DFINITY SDK GitHub repository."}
             </p>
           </div>
+          {isInstalling && (
+            <div className="space-y-2">
+              <Progress value={downloadProgress} className="w-full" />
+              <p className="text-sm text-gray-500">
+                Downloading: {downloadProgress}%
+              </p>
+            </div>
+          )}
           {error && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
@@ -456,13 +543,15 @@ export default function VersionManager() {
           <DialogFooter>
             <Button
               onClick={handleInstall}
-              disabled={!selectedVersion || isInstalling}
+              disabled={!selectedVersion || isInstalling || isInstallComplete}
             >
               {isInstalling ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Installing...
                 </>
+              ) : isInstallComplete ? (
+                "Installation Complete"
               ) : (
                 "Install"
               )}

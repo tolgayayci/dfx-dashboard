@@ -56,7 +56,7 @@ interface Versions {
     canisterName: string,
     customPath: string,
     methodName?: string
-  ) => Promise<void>;
+  ) => Promise<string>;
 
   onAssistedCommandOutput: (
     callback: (data: { type: "stdout" | "stderr"; content: string }) => void
@@ -77,6 +77,12 @@ interface Versions {
   ) => void;
 
   terminateAssistedCommand: () => Promise<{ success: boolean; error?: string }>;
+
+  runInstallCommand: (version: string) => Promise<void>;
+
+  onInstallOutput: (callback: (data: { content: string }) => void) => void;
+
+  offInstallOutput: (callback: (data: { content: string }) => void) => void;
 
   // ... rest of the methods ...
 }

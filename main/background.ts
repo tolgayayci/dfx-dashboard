@@ -273,38 +273,40 @@ if (isProd) {
         env: process.env,
       });
 
-      ptyProcess.onData((data) => {
-        event.sender.send("assisted-command-output", {
-          type: "stdout",
-          content: data,
+      return new Promise<string>((resolve) => {
+        let output = "";
+        ptyProcess.onData((data) => {
+          output += data;
+          event.sender.send("assisted-command-output", {
+            type: "stdout",
+            content: data,
+          });
+
+          if (
+            data.includes("?") ||
+            data.toLowerCase().includes("enter") ||
+            data.includes("Do you want to send this message?")
+          ) {
+            event.sender.send("assisted-command-input-required", {
+              prompt: data,
+            });
+          }
         });
 
-        if (
-          data.includes("?") ||
-          data.toLowerCase().includes("enter") ||
-          data.includes("Do you want to send this message?")
-        ) {
-          event.sender.send("assisted-command-input-required", {
-            prompt: data,
-          });
-        }
-      });
-
-      const dfxCommand = ["dfx", "canister", command];
-      if (command === "call" || command === "sign") {
-        dfxCommand.push(canisterName, methodName);
-      } else {
-        dfxCommand.push(canisterName);
-      }
-      dfxCommand.push("--always-assist");
-
-      ptyProcess.write(`${dfxCommand.join(" ")}\r`);
-
-      return new Promise<void>((resolve) => {
         ptyProcess.onExit(() => {
           ptyProcess = null;
-          resolve();
+          resolve(output);
         });
+
+        const dfxCommand = ["dfx", "canister", command];
+        if (command === "call" || command === "sign") {
+          dfxCommand.push(canisterName, methodName);
+        } else {
+          dfxCommand.push(canisterName);
+        }
+        dfxCommand.push("--always-assist");
+
+        ptyProcess.write(`${dfxCommand.join(" ")}\r`);
       });
     }
   );
@@ -988,6 +990,34 @@ if (isProd) {
       return store.get("networkPreference");
     }
   );
+
+  ipcMain.handle("run-install-command", async (event, version) => {
+    const shell = process.platform === "win32" ? "powershell.exe" : "bash";
+    const ptyProcess = pty.spawn(shell, [], {
+      name: "xterm-color",
+      cols: 80,
+      rows: 30,
+      cwd: process.cwd(),
+      env: process.env,
+    });
+
+    ptyProcess.onData((data) => {
+      event.sender.send("install-output", { content: data });
+    });
+
+    const command = `dfxvm install ${version}`;
+    ptyProcess.write(`${command}\r`);
+
+    return new Promise<void>((resolve, reject) => {
+      ptyProcess.onExit(({ exitCode }) => {
+        if (exitCode === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Installation failed with exit code ${exitCode}`));
+        }
+      });
+    });
+  });
 
   if (isProd) {
     await mainWindow.loadURL("app://./projects");

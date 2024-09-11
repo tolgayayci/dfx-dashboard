@@ -20,14 +20,14 @@ import {
 } from "@components/ui/resizable";
 
 import {
-  HomeIcon,
-  DatabaseIcon,
   NetworkIcon,
-  CircuitBoardIcon,
   SettingsIcon,
-  BookIcon,
-  BookKeyIcon,
   RecycleIcon,
+  FolderIcon,
+  BoxIcon,
+  UserIcon,
+  ScrollTextIcon,
+  InfoIcon,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -103,7 +103,7 @@ export default function Layout({ children }: LayoutProps) {
                         title: "Projects",
                         label: "",
                         href: "/projects",
-                        icon: DatabaseIcon,
+                        icon: FolderIcon,
                         variant: router.pathname.startsWith("/projects")
                           ? "default"
                           : "ghost",
@@ -112,7 +112,7 @@ export default function Layout({ children }: LayoutProps) {
                         title: "Canisters",
                         label: "",
                         href: "/canisters",
-                        icon: HomeIcon,
+                        icon: BoxIcon,
                         variant: router.pathname.startsWith("/canisters")
                           ? "default"
                           : "ghost",
@@ -121,7 +121,7 @@ export default function Layout({ children }: LayoutProps) {
                         title: "Identities",
                         label: "",
                         href: "/identities",
-                        icon: CircuitBoardIcon,
+                        icon: UserIcon,
                         variant: router.pathname.startsWith("/identities")
                           ? "default"
                           : "ghost",
@@ -148,7 +148,7 @@ export default function Layout({ children }: LayoutProps) {
                         title: "Logs",
                         label: "",
                         href: "/logs",
-                        icon: BookKeyIcon,
+                        icon: ScrollTextIcon,
                         variant: router.pathname.startsWith("/logs")
                           ? "default"
                           : "ghost",
@@ -157,7 +157,7 @@ export default function Layout({ children }: LayoutProps) {
                         title: "About",
                         label: "",
                         href: "/about",
-                        icon: BookIcon,
+                        icon: InfoIcon,
                         variant: router.pathname.startsWith("/about")
                           ? "default"
                           : "ghost",
