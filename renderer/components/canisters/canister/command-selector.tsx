@@ -217,7 +217,7 @@ const CliCommandSelector = ({
     }
   };
 
-  const shouldShowModalButton = ["call", "sign", "install"].includes(
+  const shouldShowModalButton = ["call"].includes(
     selectedCommand
   );
 

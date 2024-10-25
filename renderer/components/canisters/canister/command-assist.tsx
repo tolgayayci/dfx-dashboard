@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, useLayoutEffect } from "react";
+import { debounce } from 'lodash'; // Make sure to install lodash if not already installed
 import {
   Dialog,
   DialogContent,
@@ -47,6 +48,7 @@ export default function CommandAssist({
   const [selectedMethod, setSelectedMethod] = useState<string | undefined>(undefined);
   const [includeNetwork, setIncludeNetwork] = useState(true);
   const ansiUp = new AnsiUp();
+  const [debouncedOutput, setDebouncedOutput] = useState("");
 
   useEffect(() => {
     const fetchMethods = async () => {
@@ -94,11 +96,30 @@ export default function CommandAssist({
   }, [selectedCommand, canisterName, customPath, methodName, includeNetwork, networkPreference]);
 
   useEffect(() => {
+    const debouncedSetOutput = debounce((newOutput: string) => {
+      setCommandOutput(newOutput);
+    }, 100); // Adjust the debounce delay as needed
+
+    debouncedSetOutput(debouncedOutput);
+
+    return () => {
+      debouncedSetOutput.cancel();
+    };
+  }, [debouncedOutput]);
+
+  useEffect(() => {
     const handleOutput = (data: {
       type: "stdout" | "stderr";
       content: string;
     }) => {
-      setCommandOutput((prev) => prev + data.content);
+      setDebouncedOutput((prev) => {
+        const lines = prev.split('\n');
+        const lastLine = lines[lines.length - 1];
+        if (lastLine !== data.content.trim()) {
+          return prev + data.content;
+        }
+        return prev;
+      });
     };
 
     const handleInputRequired = (data: { prompt: string }) => {
@@ -191,8 +212,9 @@ export default function CommandAssist({
     if (commandOutput) {
       const htmlOutput = ansiUp.ansi_to_html(commandOutput);
       return (
-        <div className="bg-[#1e1e1e] text-[#d4d4d4] p-4 rounded-md -mt-1 font-mono shadow-md border border-[#444]">
-          <ScrollArea ref={scrollAreaRef} className="h-[calc(60vh-50px)] rounded-b-md overflow-x-auto">
+        <div className="bg-[#1e1e1e] text-[#d4d4d4] p-4 rounded-md -mt-1 font-mono shadow-md border border-[#444] max-w-lg ">
+        
+          <ScrollArea ref={scrollAreaRef} className="h-[calc(60vh-50px)] rounded-b-md overflow-auto">
             <pre ref={outputRef} className="text-sm leading-relaxed whitespace-pre-wrap break-words" dangerouslySetInnerHTML={{ __html: htmlOutput }}></pre>
             <ScrollBar />
           </ScrollArea>
