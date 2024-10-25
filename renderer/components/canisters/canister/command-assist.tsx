@@ -13,8 +13,8 @@ import { RefreshCw, Copy, X } from "lucide-react";
 import { useToast } from "@components/ui/use-toast";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@components/ui/select";
 import * as path from 'path';
-import { cn } from "@lib/utils";
 import { Switch } from "@components/ui/switch";
+import { AnsiUp } from 'ansi_up';
 
 interface CommandAssistProps {
   selectedCommand: string;
@@ -46,6 +46,7 @@ export default function CommandAssist({
   const [availableMethods, setAvailableMethods] = useState<string[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<string | undefined>(undefined);
   const [includeNetwork, setIncludeNetwork] = useState(true);
+  const ansiUp = new AnsiUp();
 
   useEffect(() => {
     const fetchMethods = async () => {
@@ -54,15 +55,10 @@ export default function CommandAssist({
           const declarationsPath = path.join(customPath, 'src', 'declarations', canisterName);
           const candidFile = path.join(declarationsPath, `${canisterName}.did`);
 
-          console.log(`Checking for Candid file: ${candidFile}`);
-
           if (await window.awesomeApi.checkFileExists(candidFile)) {
-            console.log("Reading methods from Candid file");
             const methods = await window.awesomeApi.readMethodsFromFile(candidFile);
-            console.log("Fetched methods:", methods);
             setAvailableMethods(methods);
           } else {
-            console.log("Candid file not found");
             setAvailableMethods([]);
           }
         } catch (error) {
@@ -102,16 +98,12 @@ export default function CommandAssist({
       type: "stdout" | "stderr";
       content: string;
     }) => {
-      const cleanContent = cleanOutputContent(data.content);
-      if (cleanContent) {
-        setCommandOutput((prev) => prev + cleanContent + "\n");
-      }
+      setCommandOutput((prev) => prev + data.content);
     };
 
     const handleInputRequired = (data: { prompt: string }) => {
       const formattedPrompt = data.prompt
-        .replace(/\[\d+m/g, "")
-        .replace(/\u001b\[\d+m/g, "")
+        .replace(/\x1B\[[0-9;]*[mK]/g, "") // Remove ANSI color codes
         .replace(/\?/g, "")
         .replace(/\[38;5;8m›/, "")
         .trim()
@@ -146,17 +138,6 @@ export default function CommandAssist({
       }
     }
   }, [commandOutput]);
-
-  const cleanOutputContent = (content: string) => {
-    return content
-      .replace(/\u001b\[\d+m/g, '') // Remove ANSI color codes
-      .replace(/^\? /gm, '') // Remove leading question marks
-      .replace(/\[38;5;8m›/g, '') // Remove specific color code
-      .replace(/\[2K|\[1A|\[1B/g, '') // Remove cursor movement codes
-      .replace(/\r/g, '') // Remove carriage returns
-      .replace(/\n+/g, '\n') // Replace multiple newlines with a single newline
-      .trim();
-  };
 
   const handleSendInput = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,28 +189,11 @@ export default function CommandAssist({
 
   const renderOutput = () => {
     if (commandOutput) {
+      const htmlOutput = ansiUp.ansi_to_html(commandOutput);
       return (
-        <div className="bg-black text-white p-4 rounded-md -mt-1 font-mono">
-          <ScrollArea ref={scrollAreaRef} className="h-[calc(60vh-50px)]">
-            <pre className="text-sm whitespace-pre-wrap">
-              {commandOutput.split('\n').map((line, index) => {
-                // Remove ANSI escape codes
-                line = line.replace(/\x1B\[[0-9;]*[JKmsu]/g, '');
-
-                // Handle different types of output
-                if (line.startsWith('$') || line.startsWith('>')) {
-                  return <span key={index} className="text-green-400">{line}</span>;
-                } else if (line.includes('Error:')) {
-                  return <span key={index} className="text-red-500">{line}</span>;
-                } else if (line.includes('Warning:')) {
-                  return <span key={index} className="text-yellow-500">{line}</span>;
-                } else if (line.match(/^\s*\[.*\]\s*$/)) {
-                  return <span key={index} className="text-blue-400">{line}</span>;
-                } else {
-                  return <span key={index}>{line}</span>;
-                }
-              })}
-            </pre>
+        <div className="bg-[#1e1e1e] text-[#d4d4d4] p-4 rounded-md -mt-1 font-mono shadow-md border border-[#444]">
+          <ScrollArea ref={scrollAreaRef} className="h-[calc(60vh-50px)] rounded-b-md overflow-x-auto">
+            <pre ref={outputRef} className="text-sm leading-relaxed whitespace-pre-wrap break-words" dangerouslySetInnerHTML={{ __html: htmlOutput }}></pre>
             <ScrollBar />
           </ScrollArea>
         </div>

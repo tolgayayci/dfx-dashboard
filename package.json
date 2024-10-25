@@ -52,6 +52,8 @@
     "@tanstack/react-table": "^8.10.7",
     "@types/xterm": "^3.0.0",
     "@types/yauzl": "^2.10.3",
+    "ansi-up": "^1.0.0",
+    "ansi_up": "^6.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
