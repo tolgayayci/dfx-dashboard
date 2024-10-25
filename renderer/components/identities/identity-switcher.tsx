@@ -9,8 +9,8 @@ import {
   PlusCircledIcon,
   UpdateIcon,
 } from "@radix-ui/react-icons";
+import { UserCircle } from "lucide-react";
 import { cn } from "@lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
 import {
   Command,
@@ -172,19 +172,15 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label="Select a team"
-            className={cn("w-[200px] justify-between", className)}
+            aria-label="Select an identity"
+            className={cn("w-[150px] justify-between", className)}
           >
-            <Avatar className="mr-2 h-5 w-5 flex-shrink-0">
-              <AvatarImage
-                src={`https://avatar.vercel.sh/${selectedIdentity.value}.png`}
-                alt={selectedIdentity.label}
-              />
-              <AvatarFallback>DFX</AvatarFallback>
-            </Avatar>
-            <span className="truncate flex-grow text-left">
-              {selectedIdentity.label || "No Identity"}
-            </span>
+            <div className="flex items-center">
+              <UserCircle className="mr-2 h-4 w-4 flex-shrink-0" />
+              <span className="truncate flex-grow text-left">
+                {selectedIdentity.label || "No Identity"}
+              </span>
+            </div>
             <CaretSortIcon className="ml-2 h-4 w-4 flex-shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -195,17 +191,15 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
               <CommandEmpty>No identity found.</CommandEmpty>
               <CommandGroup heading="Active Identity">
                 <CommandItem key={selectedIdentity.value} className="text-sm">
-                  <Avatar className="mr-2 h-5 w-5">
-                    <AvatarImage
-                      src={`https://avatar.vercel.sh/${selectedIdentity.value}.png`}
-                      alt={selectedIdentity.label}
-                    />
-                    <AvatarFallback>SC</AvatarFallback>
-                  </Avatar>
-                  {selectedIdentity.label}
-                  {selectedIdentity.isInternetIdentity &&
-                    " (Internet Identity)"}
-                  <CheckIcon className="ml-auto h-4 w-4 opacity-100" />
+                  <div className="flex items-center w-full">
+                    <UserCircle className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <span className="flex-grow truncate">
+                      {selectedIdentity.label}
+                      {selectedIdentity.isInternetIdentity &&
+                        " (Internet Identity)"}
+                    </span>
+                    <CheckIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                  </div>
                 </CommandItem>
               </CommandGroup>
               <CommandGroup heading="Identities">
@@ -223,24 +217,21 @@ export default function IdentitySwitcher({ className }: TeamSwitcherProps) {
                     }}
                     className="text-sm"
                   >
-                    <Avatar className="mr-2 h-5 w-5">
-                      <AvatarImage
-                        src={`https://avatar.vercel.sh/${team.value}.png`}
-                        alt={team.label}
-                        className="grayscale"
+                    <div className="flex items-center w-full">
+                      <UserCircle className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span className="flex-grow truncate">
+                        {team.label}
+                        {team.isInternetIdentity && " (Internet Identity)"}
+                      </span>
+                      <CheckIcon
+                        className={cn(
+                          "ml-2 h-4 w-4 flex-shrink-0",
+                          selectedIdentity.value === team.value
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
                       />
-                      <AvatarFallback>SC</AvatarFallback>
-                    </Avatar>
-                    {team.label}
-                    {team.isInternetIdentity && " (Internet Identity)"}
-                    <CheckIcon
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        selectedIdentity.value === team.value
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
+                    </div>
                   </CommandItem>
                 ))}
               </CommandGroup>

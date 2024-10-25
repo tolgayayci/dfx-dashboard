@@ -438,7 +438,7 @@ export default function VersionManager() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="mb-4 mt-3"
                 />
-                <ScrollArea className="h-[calc(100vh-320px)] w-full rounded-md border p-4">
+                <ScrollArea className="h-[calc(100vh-340px)] w-full rounded-md border p-4">
                   <div className="space-y-4">
                     {sortedVersions.map((version) => (
                       <div

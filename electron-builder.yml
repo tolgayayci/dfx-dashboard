@@ -10,9 +10,10 @@ files:
       - package.json
       - app
       - main/preload.js
-afterSign: "scripts/notarize.js"
+# afterSign: "scripts/notarize.js"
 mac:
-  notarize: { teamId: "FPJS89TYWV" }
+  # notarize: { teamId: "FPJS89TYWV" }
+  notarize: false
   hardenedRuntime: true
   gatekeeperAssess: false
   entitlements: "scripts/entitlements.mac.plist"
@@ -22,7 +23,6 @@ mac:
       protocol: https
 dmg:
   sign: false
-publish: null
 extraResources:
   - from: "resources"
     to: "resources"

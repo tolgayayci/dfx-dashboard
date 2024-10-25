@@ -40,7 +40,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { CodeIcon } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import ProjectModal from "@components/projects/project-modal";
 import EditorModal from "@components/projects/editor-modal";
@@ -109,11 +108,13 @@ const ProjectCard = ({
           </Avatar>
           <div className="flex flex-col space-y-1 overflow-hidden">
             <CardTitle className="text-medium">{project.name}</CardTitle>
-            <CardDescription className="truncate inline-flex items-center">
-              <FolderCheck className="w-4 h-4 mr-1" />
-              {project.path.split("/").slice(-2)[0] +
-                "/" +
-                project.path.split("/").slice(-2)[1]}
+            <CardDescription className="flex items-center">
+              <FolderCheck className="w-4 h-4 min-w-[16px] mr-2" />
+              <span className="truncate max-w-[115px]">
+                {project.path.split("/").slice(-2)[0] +
+                  "/" +
+                  project.path.split("/").slice(-2)[1]}
+              </span>
             </CardDescription>
           </div>
           <Button

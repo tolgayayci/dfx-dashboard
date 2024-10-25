@@ -4,8 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 import { customSchema, CustomNetworkData, NetworkData } from "../types";
 import { updateJson, getNetworkJsonPath } from "../api";
+import { useToast } from "@components/ui/use-toast";
 
 type CustomNetworkFormProps = {
   networkData: NetworkData;
@@ -29,9 +31,11 @@ export function CustomNetworkForm({
     defaultValues: {
       name: "",
       bind: "",
-      replica: { subnet_type: "" },
+      replica: { subnet_type: "application" },
     },
   });
+
+  const { toast } = useToast();
 
   useEffect(() => {
     if (editingNetwork && networkData[editingNetwork]) {
@@ -49,13 +53,27 @@ export function CustomNetworkForm({
       ...networkData,
       [name]: networkConfig,
     };
-    const path = await getNetworkJsonPath();
-    if (path) {
-      await updateJson(path, updatedNetworkData);
-      setNetworkData(updatedNetworkData);
+    try {
+      const path = await getNetworkJsonPath();
+      if (path) {
+        await updateJson(path, updatedNetworkData);
+        setNetworkData(updatedNetworkData);
+        setIsDialogOpen(false);
+        toast({
+          title: "Success",
+          description: "Custom network configuration updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update network data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update custom network configuration.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
-    setIsDialogOpen(false);
   };
 
   return (
@@ -84,7 +102,18 @@ export function CustomNetworkForm({
           <Controller
             name="replica.subnet_type"
             control={control}
-            render={({ field }) => <Input {...field} />}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select subnet type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="application">Application</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                  <SelectItem value="verifiedapplication">Verified Application</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           />
         </div>
         <div className="flex justify-end space-x-2">

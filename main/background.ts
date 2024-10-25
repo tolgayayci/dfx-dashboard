@@ -93,8 +93,14 @@ const schema = {
   },
   networkPreference: {
     type: "string",
-    enum: ["ic", "local"],
     default: "local",
+  },
+  networks: {
+    type: "object",
+    default: {
+      local: { type: "local" },
+      ic: { type: "ic" },
+    },
   },
 };
 
@@ -800,6 +806,66 @@ if (isProd) {
     }
   });
 
+  ipcMain.handle("get-networks", () => {
+    try { 
+      return store.get("networks");
+    } catch (error) {
+      console.error("Error getting networks:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("get-network-preference", () => {
+    try {
+      const preference = store.get("networkPreference", "local");
+      console.log("Getting network preference:", preference);
+      return preference;
+    } catch (error) {
+      console.error("Error getting network preference:", error);
+      return "local";
+    }
+  });
+
+  ipcMain.handle("set-network-preference", (event, preference: string) => {
+    try { 
+      console.log("Setting network preference to:", preference);
+      store.set("networkPreference", preference);
+      return store.get("networkPreference");
+    } catch (error) {
+      console.error("Error setting network preference:", error);
+      return "local";
+    }
+  });
+
+  ipcMain.handle('read-methods-from-file', async (event, filePath) => {
+    try {
+      const content = await fs.promises.readFile(filePath, 'utf8');
+      const methods = parseCandidFile(content);
+      console.log(`Detected methods for ${filePath}:`, methods);
+      return methods;
+    } catch (error) {
+      console.error('Error reading methods from file:', error);
+      return [];
+    }
+  });
+
+  function parseCandidFile(content: string): string[] {
+    const serviceRegex = /service\s*:.*?{([\s\S]*?)}/;
+    const methodRegex = /^\s*(\w+)\s*:/gm;
+    const methods = [];
+
+    const serviceMatch = serviceRegex.exec(content);
+    if (serviceMatch && serviceMatch[1]) {
+      const serviceContent = serviceMatch[1];
+      let match;
+      while ((match = methodRegex.exec(serviceContent)) !== null) {
+        methods.push(match[1]);
+      }
+    }
+
+    return methods;
+  }
+
   async function retrieveAndStoreIdentities() {
     const useBundledDfx = store.get("useBundledDfx");
     console.log(`Retrieving identities. Using bundled DFX: ${useBundledDfx}`);
@@ -975,21 +1041,6 @@ if (isProd) {
       bundled: bundledVersion,
     };
   });
-
-  ipcMain.handle("get-network-preference", () => {
-    const preference = store.get("networkPreference", "local");
-    console.log("Getting network preference:", preference);
-    return preference;
-  });
-
-  ipcMain.handle(
-    "set-network-preference",
-    (event, preference: "ic" | "local") => {
-      console.log("Setting network preference to:", preference);
-      store.set("networkPreference", preference);
-      return store.get("networkPreference");
-    }
-  );
 
   ipcMain.handle("run-install-command", async (event, version) => {
     const shell = process.platform === "win32" ? "powershell.exe" : "bash";

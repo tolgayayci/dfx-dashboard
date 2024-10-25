@@ -2,7 +2,7 @@
   "private": true,
   "name": "dfinity-dfx-gui",
   "description": "DFX Dashboard is a cross platform, electron based application designed to streamline the use of the DFINITY's Internet Computer `dfx` CLI.",
-  "version": "0.2.1-beta",
+  "version": "0.2.2-beta",
   "author": "Tolga Yaycı <tolgayayci@protonmail.com>",
   "main": "app/background.js",
   "repository": {
@@ -20,14 +20,13 @@
     "postinstall": "electron-builder install-app-deps",
     "docs:dev": "vitepress dev documentation",
     "docs:build": "vitepress build documentation",
-    "docs:preview": "vitepress preview documentation",
-    "rebuild": "electron-rebuild"
+    "docs:preview": "vitepress preview documentation"
   },
   "dependencies": {
     "@aptabase/electron": "^0.3.1",
     "@dfinity/agent": "^0.20.1",
     "@dfinity/auth-client": "^0.20.1",
-    "@dfinity/candid": "^0.20.1",
+    "@dfinity/candid": "^2.0.0",
     "@dfinity/identity": "^0.20.1",
     "@dfinity/principal": "^0.20.1",
     "@hookform/resolvers": "^3.3.2",
@@ -51,6 +50,7 @@
     "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@tanstack/react-table": "^8.10.7",
+    "@types/xterm": "^3.0.0",
     "@types/yauzl": "^2.10.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
@@ -58,7 +58,6 @@
     "electron-deeplink": "^1.0.10",
     "electron-is-dev": "^3.0.1",
     "electron-log": "^5.1.7",
-    "electron-rebuild": "^3.2.9",
     "electron-serve": "^1.1.0",
     "electron-store": "^8.1.0",
     "electron-updater": "^6.2.1",

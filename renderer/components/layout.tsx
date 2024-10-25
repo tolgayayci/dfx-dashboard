@@ -28,7 +28,10 @@ import {
   UserIcon,
   ScrollTextIcon,
   InfoIcon,
+  BookOpenIcon,
 } from "lucide-react";
+
+import { Button } from "@components/ui/button"; // Add this import if not already present
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -66,8 +69,17 @@ export default function Layout({ children }: LayoutProps) {
             height={20}
             alt="icp_logo"
           />
-          <div className="flex flex-row space-x-2">
+          <div className="flex flex-row space-x-2 items-center">
+            <NetworkIndicator />
             <IdentitySwitcher />
+            <Button
+              variant="outline"
+              onClick={() => window.awesomeApi.openExternalLink("https://dfx-dashboard-docs.netlify.app/getting-started/quick-start")}
+              className="h-10"
+            >
+              <BookOpenIcon className="h-4 w-4 mr-2" />
+              Docs
+            </Button>
             <ReloadToggle />
             <ModeToggle />
           </div>
@@ -178,7 +190,6 @@ export default function Layout({ children }: LayoutProps) {
 
                 <div className="">
                   <CheckDfxStatus />
-                  <NetworkIndicator />
                 </div>
               </div>
             </ResizablePanel>

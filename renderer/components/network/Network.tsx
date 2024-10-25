@@ -1,4 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import dynamic from 'next/dynamic';
+
+// Add this type definition
+type JSONInputProps = {
+  id: string;
+  placeholder: any;
+  locale: any;
+  height: string;
+  width: string;
+  onChange: (value: { json: string; jsObject: any }) => void;
+  waitAfterKeyPress: number;
+  theme: string;
+  colors: any;
+  style: any;
+};
+
+// Dynamically import JSONInput to avoid SSR issues
+const JSONInput = dynamic(
+  () => import('react-json-editor-ajrm').then((mod) => mod.default as React.ComponentType<JSONInputProps>),
+  { ssr: false }
+);
+
 import {
   Table,
   TableBody,
@@ -10,7 +32,6 @@ import {
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { Search, ArrowUpDown, Edit, Plus, Trash2 } from "lucide-react";
-import JSONInput from "react-json-editor-ajrm";
 import locale from "react-json-editor-ajrm/locale/en";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import Loading from "@components/common/loading";
@@ -52,6 +73,11 @@ import { ICNetworkForm } from "./forms/ICNetworkForm";
 import { CustomNetworkForm } from "./forms/CustomNetworkForm";
 import { sortAndFilterNetworks } from "./utils";
 import { checkNetworkJson, updateJson, getNetworkJsonPath } from "./api";
+
+// Add this type guard function at the top of the file, outside of the component
+function hasReplica(details: any): details is { replica?: { subnet_type?: string } } {
+  return 'replica' in details;
+}
 
 export default function NetworkComponent() {
   const [networkData, setNetworkData] = useState<NetworkData>({});
@@ -146,6 +172,8 @@ export default function NetworkComponent() {
     const [error, setError] = useState<string | null>(null);
     const [networkJsonPath, setNetworkJsonPath] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const jsonInputRef = useRef<any>(null);
+    const cursorPositionRef = useRef<number | null>(null);
 
     useEffect(() => {
       getNetworkJsonPath().then((path) => {
@@ -153,6 +181,10 @@ export default function NetworkComponent() {
         setIsLoading(false);
       });
     }, []);
+
+    useEffect(() => {
+      setLocalNetworkData(networkData);
+    }, [networkData]);
 
     const handleSave = async () => {
       try {
@@ -192,6 +224,29 @@ export default function NetworkComponent() {
       primitive: "hsl(var(--destructive))",
     };
 
+    const handleJsonInputChange = (value: { json: string, jsObject: any }) => {
+      setLocalNetworkData(value.jsObject);
+      setError(null);
+
+      // Store the current cursor position
+      if (jsonInputRef.current) {
+        const textArea = jsonInputRef.current.querySelector('textarea');
+        if (textArea) {
+          cursorPositionRef.current = textArea.selectionStart;
+        }
+      }
+    };
+
+    useEffect(() => {
+      // Restore the cursor position after the component updates
+      if (jsonInputRef.current && cursorPositionRef.current !== null) {
+        const textArea = jsonInputRef.current.querySelector('textarea');
+        if (textArea) {
+          textArea.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
+        }
+      }
+    });
+
     return (
       <Card className="p-6">
         <div className="flex justify-between items-center mb-4 border-b pb-4">
@@ -223,30 +278,29 @@ export default function NetworkComponent() {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        <JSONInput
-          id="network_json"
-          placeholder={localNetworkData}
-          locale={locale}
-          height="calc(100vh - 300px)"
-          width="100%"
-          onChange={(value) => {
-            setLocalNetworkData(value.jsObject);
-            setError(null);
-          }}
-          waitAfterKeyPress={2000}
-          theme={theme === "dark" ? "dark_vscode_tribute" : "light_mitsuketa_tribute"}
-          colors={{
-            background: theme === "dark" ? "#1e1e1e" : "#ffffff",
-            ...editorColors,
-          }}
-          style={{
-            contentBox: {
-              fontSize: "14px",
-              fontFamily: "var(--font-mono)",
-              fontWeight: "500",
-            },
-          }}
-        />
+        <div ref={jsonInputRef}>
+          <JSONInput
+            id="network_json"
+            placeholder={localNetworkData}
+            locale={locale}
+            height="calc(100vh - 300px)"
+            width="100%"
+            onChange={handleJsonInputChange}
+            waitAfterKeyPress={300}
+            theme={theme === "dark" ? "dark_vscode_tribute" : "light_mitsuketa_tribute"}
+            colors={{
+              background: theme === "dark" ? "#1e1e1e" : "#ffffff",
+              ...editorColors,
+            }}
+            style={{
+              contentBox: {
+                fontSize: "14px",
+                fontFamily: "var(--font-mono)",
+                fontWeight: "500",
+              },
+            }}
+          />
+        </div>
       </Card>
     );
   };
@@ -308,6 +362,7 @@ export default function NetworkComponent() {
                           <ArrowUpDown className="ml-2 h-4 w-4 inline" />
                         )}
                       </TableHead>
+                      <TableHead>Subnet Type</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -316,7 +371,12 @@ export default function NetworkComponent() {
                       sortedAndFilteredNetworks.map(([name, details]) => (
                         <TableRow key={name}>
                           <TableCell className="font-medium">{name}</TableCell>
-                          <TableCell>{details.type || "N/A"}</TableCell>
+                          <TableCell>{details.type || "-"}</TableCell>
+                          <TableCell>
+                            {hasReplica(details) && details.replica?.subnet_type
+                              ? details.replica.subnet_type
+                              : "-"}
+                          </TableCell>
                           <TableCell className="text-right space-x-2">
                             <Button
                               variant="outline"
@@ -339,7 +399,7 @@ export default function NetworkComponent() {
                     ) : (
                       <TableRow>
                         <TableCell
-                          colSpan={3}
+                          colSpan={4}
                           className="text-center py-4 h-[calc(90vh-200px)]"
                         >
                           No results found for "{searchTerm}"

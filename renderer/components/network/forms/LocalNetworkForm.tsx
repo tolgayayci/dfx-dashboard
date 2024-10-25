@@ -4,8 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 import { localSchema, LocalNetworkData, NetworkData } from "../types";
 import { updateJson, getNetworkJsonPath } from "../api";
+import { useToast } from "@components/ui/use-toast";
 
 type LocalNetworkFormProps = {
   networkData: NetworkData;
@@ -28,10 +30,11 @@ export function LocalNetworkForm({
     resolver: zodResolver(localSchema),
     defaultValues: networkData.local || {
       bind: "",
-      type: "",
-      replica: { subnet_type: "" },
+      type: "ephemeral",
     },
   });
+
+  const { toast } = useToast();
 
   useEffect(() => {
     if (editingNetwork === "local" && networkData.local) {
@@ -45,13 +48,27 @@ export function LocalNetworkForm({
       ...networkData,
       local: data,
     };
-    const path = await getNetworkJsonPath();
-    if (path) {
-      await updateJson(path, updatedNetworkData);
-      setNetworkData(updatedNetworkData);
+    try {
+      const path = await getNetworkJsonPath();
+      if (path) {
+        await updateJson(path, updatedNetworkData);
+        setNetworkData(updatedNetworkData);
+        setIsDialogOpen(false);
+        toast({
+          title: "Success",
+          description: "Local network configuration updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update network data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update local network configuration.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
-    setIsDialogOpen(false);
   };
 
   return (
@@ -70,15 +87,17 @@ export function LocalNetworkForm({
           <Controller
             name="type"
             control={control}
-            render={({ field }) => <Input {...field} />}
-          />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="replica.subnet_type">Subnet Type</Label>
-          <Controller
-            name="replica.subnet_type"
-            control={control}
-            render={({ field }) => <Input {...field} />}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ephemeral">Ephemeral</SelectItem>
+                  <SelectItem value="persistent">Persistent</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           />
         </div>
         <div className="flex justify-end space-x-2">

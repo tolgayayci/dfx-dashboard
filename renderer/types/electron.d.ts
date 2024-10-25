@@ -41,21 +41,23 @@ interface Versions {
   getAppVersion: () => Promise<any>;
   getDfxVersion: () => Promise<any>;
   readCommandLogs: () => Promise<string>;
-  checkFileExists: (filePath) => Promise<boolean>;
+  checkFileExists: (filePath: string) => Promise<boolean>;
   runCommand: (command: string) => Promise<any>;
   getDfxPreference: () => Promise<boolean>;
   setDfxPreference: (useBundled: boolean) => Promise<void>;
   getDfxVersions: () => Promise<{ system: string; bundled: string }>;
   getTrackingAllowed: () => Promise<boolean>;
   setTrackingAllowed: (value: boolean) => Promise<{ success: boolean }>;
-  getNetworkPreference: () => Promise<"ic" | "local">;
-  setNetworkPreference: (preference: "ic" | "local") => Promise<"ic" | "local">;
+  getNetworkPreference: () => Promise<string>;
+  setNetworkPreference: (preference: string) => Promise<string>;
+  getNetworks: () => Promise<{ [key: string]: { type: string } }>;
 
   runAssistedCommand: (
     command: string,
     canisterName: string,
     customPath: string,
-    methodName?: string
+    methodName?: string,
+    network?: string
   ) => Promise<string>;
 
   onAssistedCommandOutput: (
@@ -84,7 +86,8 @@ interface Versions {
 
   offInstallOutput: (callback: (data: { content: string }) => void) => void;
 
-  // ... rest of the methods ...
+  readMethodsFromFile: (filePath: string) => Promise<string[]>;
+
 }
 
 interface Window {

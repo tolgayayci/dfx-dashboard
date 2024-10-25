@@ -4,8 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 import { icSchema, ICNetworkData, NetworkData } from "../types";
 import { updateJson, getNetworkJsonPath } from "../api";
+import { useToast } from "@components/ui/use-toast";
 
 type ICNetworkFormProps = {
   networkData: NetworkData;
@@ -24,13 +26,15 @@ export function ICNetworkForm({
   setIsSubmitting,
   editingNetwork,
 }: ICNetworkFormProps) {
-  const { control, handleSubmit, reset } = useForm<ICNetworkData>({
+  const { control, handleSubmit, reset, watch } = useForm<ICNetworkData>({
     resolver: zodResolver(icSchema),
     defaultValues: networkData.ic || {
       providers: [""],
-      type: "",
+      type: "ephemeral",
     },
   });
+
+  const { toast } = useToast();
 
   useEffect(() => {
     if (editingNetwork === "ic" && networkData.ic) {
@@ -44,13 +48,27 @@ export function ICNetworkForm({
       ...networkData,
       ic: data,
     };
-    const path = await getNetworkJsonPath();
-    if (path) {
-      await updateJson(path, updatedNetworkData);
-      setNetworkData(updatedNetworkData);
+    try {
+      const path = await getNetworkJsonPath();
+      if (path) {
+        await updateJson(path, updatedNetworkData);
+        setNetworkData(updatedNetworkData);
+        setIsDialogOpen(false);
+        toast({
+          title: "Success",
+          description: "IC network configuration updated successfully.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update network data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update IC network configuration.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
-    setIsDialogOpen(false);
   };
 
   return (
@@ -79,7 +97,17 @@ export function ICNetworkForm({
           <Controller
             name="type"
             control={control}
-            render={({ field }) => <Input {...field} />}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ephemeral">Ephemeral</SelectItem>
+                  <SelectItem value="persistent">Persistent</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           />
         </div>
         <div className="flex justify-end space-x-2">

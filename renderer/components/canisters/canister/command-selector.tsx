@@ -144,16 +144,16 @@ const CliCommandSelector = ({
           initialArg.startsWith(option.name)
         );
         if (option.type === "flag") {
-          if (option.name === "--ic") {
-            // Always set the IC flag based on the current network preference
-            optionsInitialState[option.name] = currentNetworkPreference === "ic";
-          } else {
-            optionsInitialState[option.name] = !!optionValue;
-          }
+          optionsInitialState[option.name] = !!optionValue;
         } else if (option.type === "argument") {
-          optionsInitialState[option.name] = optionValue
-            ? optionValue.split(option.name)[1].trim()
-            : "";
+          if (option.name === "--network") {
+            // Set the network option based on the current network preference
+            optionsInitialState[option.name] = currentNetworkPreference;
+          } else {
+            optionsInitialState[option.name] = optionValue
+              ? optionValue.split(option.name)[1].trim()
+              : "";
+          }
         }
       });
       setCommandOptions(optionsInitialState);
@@ -230,11 +230,12 @@ const CliCommandSelector = ({
             selectedCommand={selectedCommand}
             canisterName={canisterName}
             customPath={path}
+            networkPreference={networkPreference}
           />
         )}
       </div>
       <ScrollArea className="max-h-[calc(82vh-200px)] overflow-y-auto">
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 mx-1 mt-1">
           <Select
             value={selectedCommand}
             onValueChange={(e) => handleCommandChange(e)}
@@ -253,9 +254,9 @@ const CliCommandSelector = ({
             </SelectContent>
           </Select>
           <Accordion
-            type="single"
+            type="multiple"
             className="w-full space-y-4"
-            defaultValue="options"
+            defaultValue={["options"]}
           >
             {selectedCommand &&
               commands.find((c) => c.value === selectedCommand)?.args?.length >
@@ -270,7 +271,7 @@ const CliCommandSelector = ({
                       commands
                         .find((c) => c.value === selectedCommand)
                         ?.args?.map((arg) => (
-                          <div key={arg.name} className="space-y-2 my-4">
+                          <div key={arg.name} className="space-y-2 my-6 mx-1">
                             <Tooltip key={arg.name}>
                               <div className="space-y-2 my-4">
                                 <div className="flex items-center my-4">
@@ -371,7 +372,7 @@ const CliCommandSelector = ({
                           (option) => option.type === "argument"
                         )
                         .map((option) => (
-                          <div key={option.name} className="space-y-2 my-4">
+                          <div key={option.name} className="space-y-2 my-4 mx-1">
                             <Tooltip key={option.name}>
                               <div className="flex items-center my-4">
                                 <Label htmlFor={option.name}>

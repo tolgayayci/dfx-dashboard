@@ -329,7 +329,7 @@ export default function DfxStatus() {
               <DropdownMenuContent>
                 <DropdownMenuItem
                   onClick={() => setIsKillAllModalOpen(true)}
-                  disabled={isLoading || dfxStatus === "stopped"}
+                  disabled={isLoading}
                 >
                   <XCircle className="h-4 w-4 mr-2" />
                   Kill All

@@ -181,16 +181,16 @@ export default function ProjectModal({
                   handleNewProjectFormSubmit
                 )}
               >
-                <DialogHeader>
+                <DialogHeader className="mx-1">
                   <DialogTitle>Create Project</DialogTitle>
                   <DialogDescription>
                     Create a new project for the Internet Computer
                   </DialogDescription>
                 </DialogHeader>
-                <ScrollArea className="max-h-[360px] overflow-y-auto">
+                <ScrollArea className="max-h-[360px] overflow-y-auto pr-2">
                   <div>
                     <div className="space-y-4 py-4 pb-4">
-                      <div>
+                      <div className="mx-1">
                         <FormField
                           control={createNewProjectform.control}
                           name="project_name"
@@ -211,7 +211,7 @@ export default function ProjectModal({
                           )}
                         />
                       </div>
-                      <div>
+                      <div className="mx-1">
                         <FormField
                           control={createNewProjectform.control}
                           name="path"
@@ -246,7 +246,7 @@ export default function ProjectModal({
                           )}
                         />
                       </div>
-                      <div>
+                      <div className="mx-1">
                         <FormField
                           control={createNewProjectform.control}
                           name="frontend"
@@ -279,7 +279,7 @@ export default function ProjectModal({
                           )}
                         />
                       </div>
-                      <div>
+                      <div className="mx-1">
                         <FormField
                           control={createNewProjectform.control}
                           name="type"
@@ -306,12 +306,12 @@ export default function ProjectModal({
                       </div>
 
                       <div className="space-y-4">
-                        <FormLabel className="text-small">Options</FormLabel>
+                        <FormLabel className="text-small mx-1">Options</FormLabel>
                         <FormField
                           control={createNewProjectform.control}
                           name="dry_run"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mx-1">
                               <div className="space-y-0.5">
                                 <FormLabel className="text-base">
                                   Dry Run
@@ -334,7 +334,7 @@ export default function ProjectModal({
                           control={createNewProjectform.control}
                           name="verbose"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mx-1">
                               <div className="space-y-0.5">
                                 <FormLabel className="text-base">
                                   Verbose
@@ -356,7 +356,7 @@ export default function ProjectModal({
                           control={createNewProjectform.control}
                           name="quiet"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mx-1">
                               <div className="space-y-0.5">
                                 <FormLabel className="text-base">
                                   Quiet
@@ -380,7 +380,7 @@ export default function ProjectModal({
                           control={createNewProjectform.control}
                           name="extras"
                           render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="mx-1">
                               <div className="mb-4">
                                 <FormLabel className="text-base">
                                   Extras
@@ -431,9 +431,9 @@ export default function ProjectModal({
                       </div>
                     </div>
                   </div>
-                  <ScrollBar />
+                  <ScrollBar className="w-4"/>
                 </ScrollArea>
-                <DialogFooter>
+                <DialogFooter className="mr-3">
                   <Button
                     variant="outline"
                     type="button"

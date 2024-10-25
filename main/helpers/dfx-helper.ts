@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import { app } from "electron";
+import * as path from "path";
 
 export function executeDfxCommand(
   command: string,
@@ -51,6 +53,27 @@ export function executeDfxCommand(
   });
 }
 
+export function getBundledDfxPath(): string {
+  const isProduction = app.isPackaged;
+  let basePath: string;
+  let resourcePath: string;
+
+  if (isProduction) {
+    basePath = path.dirname(app.getPath("exe"));
+    resourcePath = path.join(basePath, "resources");
+  } else {
+    basePath = app.getAppPath();
+    resourcePath = path.join(basePath, "resources");
+  }
+
+  const platformFolder = process.platform === "darwin" ? "mac" : "linux";
+  const dfxPath = path.join(resourcePath, "dfx-extracted", "dfx");
+
+  console.log("Bundled DFX Path:", dfxPath);
+
+  return dfxPath;
+}
+
 export async function executeBundledDfxCommand(
   bundledDfxPath: string,
   command: string,
@@ -68,13 +91,20 @@ export async function executeBundledDfxCommand(
     );
     const commandStr = `${dfxPath} ${allArgs.join(" ")}`;
 
+    console.log("Executing bundled DFX command:", commandStr);
+
     return new Promise((resolve, reject) => {
-      const child = spawn(dfxPath, allArgs, { cwd: workingPath, shell: true });
+      const child = spawn(dfxPath, allArgs, {
+        cwd: workingPath,
+        shell: true,
+        env: { ...process.env, PATH: `${path.dirname(dfxPath)}:${process.env.PATH}` },
+      });
       let stdoutData = "";
       let stderrData = "";
 
       child.stdout.on("data", (data) => {
         stdoutData += data;
+        console.log("DFX stdout:", data.toString());
         if (data.includes("Dashboard:")) {
           resolve(stdoutData);
         }
@@ -82,9 +112,11 @@ export async function executeBundledDfxCommand(
 
       child.stderr.on("data", (data) => {
         stderrData += data;
+        console.error("DFX stderr:", data.toString());
       });
 
       child.on("error", (error) => {
+        console.error("DFX spawn error:", error);
         reject(error);
       });
 
@@ -93,6 +125,7 @@ export async function executeBundledDfxCommand(
       }, 10000);
 
       child.on("close", (code) => {
+        console.log(`DFX process exited with code ${code}`);
         if (code !== 0) {
           reject(
             new Error(

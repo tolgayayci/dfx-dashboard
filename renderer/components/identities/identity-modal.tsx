@@ -157,17 +157,17 @@ export default function IdentityModal({
               <form
                 onSubmit={newIdentityForm.handleSubmit(handleCreateNewIdentity)}
               >
-                <DialogHeader className="space-y-3">
+                <DialogHeader className="space-y-3 mx-1">
                   <DialogTitle>Create New Identity</DialogTitle>
                   <DialogDescription>
                     Identities you will add are global. They are not confined to
                     a specific project context.
                   </DialogDescription>
                 </DialogHeader>
-                <ScrollArea className="max-h-[340px] overflow-y-auto">
+                <ScrollArea className="max-h-[340px] overflow-y-auto pr-2">
                   <div>
                     <div className="py-4 pb-6">
-                      <div className="space-y-3">
+                      <div className="space-y-3 mx-1">
                         <FormField
                           control={newIdentityForm.control}
                           name="identity_name"
@@ -190,10 +190,10 @@ export default function IdentityModal({
                       </div>
                       <Accordion type="single" collapsible>
                         <AccordionItem value="item-1">
-                          <AccordionTrigger>Options</AccordionTrigger>
+                          <AccordionTrigger className="mx-1">Options</AccordionTrigger>
                           <AccordionContent>
                             <div className="space-y-4">
-                              <div className="space-y-3">
+                              <div className="space-y-3 mx-1">
                                 <FormField
                                   control={newIdentityForm.control}
                                   name="hsm_key_id"
@@ -214,7 +214,7 @@ export default function IdentityModal({
                                   )}
                                 />
                               </div>
-                              <div className="space-y-3">
+                              <div className="space-y-3 mx-1">
                                 <FormField
                                   control={newIdentityForm.control}
                                   name="hsm_pkcs11_lib_path"
@@ -250,7 +250,7 @@ export default function IdentityModal({
                                   )}
                                 />
                               </div>
-                              <div className="space-y-3">
+                              <div className="space-y-3 mx-1">
                                 <FormField
                                   control={newIdentityForm.control}
                                   name="storage_mode"
@@ -291,7 +291,7 @@ export default function IdentityModal({
                                   )}
                                 />
                               </div>
-                              <div className="space-y-3">
+                              <div className="space-y-3 mx-1">
                                 <FormField
                                   control={newIdentityForm.control}
                                   name="force"
@@ -320,9 +320,9 @@ export default function IdentityModal({
                       </Accordion>
                     </div>
                   </div>
-                  <ScrollBar />
+                  <ScrollBar className="w-4"/>
                 </ScrollArea>
-                <DialogFooter>
+                <DialogFooter className="mr-3">
                   <Button
                     variant="outline"
                     type="button"
@@ -348,17 +348,17 @@ export default function IdentityModal({
               <form
                 onSubmit={importIdentityForm.handleSubmit(handleImportIdentity)}
               >
-                <DialogHeader className="space-y-3">
+                <DialogHeader className="space-y-3 mx-1">
                   <DialogTitle>Import Identity</DialogTitle>
                   <DialogDescription>
                     Create a user identity by importing the user’s key
                     information or security certificate from a PEM file.
                   </DialogDescription>
                 </DialogHeader>
-                <ScrollArea className="max-h-[335px] overflow-y-auto">
+                <ScrollArea className="max-h-[335px] overflow-y-auto pr-2">
                   <div>
                     <div className="space-y-4 py-4 pb-6">
-                      <div className="space-y-3">
+                      <div className="space-y-3 mx-1">
                         <FormField
                           control={newIdentityForm.control}
                           name="identity_name"
@@ -379,7 +379,7 @@ export default function IdentityModal({
                           )}
                         />
                       </div>
-                      <div className="space-y-3">
+                      <div className="space-y-3 mx-1">
                         <FormField
                           control={importIdentityForm.control}
                           name="pem_identity"
@@ -403,10 +403,10 @@ export default function IdentityModal({
                       </div>
                       <Accordion type="single" collapsible>
                         <AccordionItem value="item-1">
-                          <AccordionTrigger>Options</AccordionTrigger>
+                          <AccordionTrigger className="mx-1">Options</AccordionTrigger>
                           <AccordionContent>
                             <div className="space-y-4">
-                              <div className="space-y-3">
+                              <div className="space-y-3 mx-1">
                                 <FormField
                                   control={importIdentityForm.control}
                                   name="storage_mode"
@@ -447,7 +447,7 @@ export default function IdentityModal({
                                   )}
                                 />
                               </div>
-                              <div className="space-y-3">
+                              <div className="space-y-3 mx-1">
                                 <FormField
                                   control={importIdentityForm.control}
                                   name="force"
@@ -477,7 +477,7 @@ export default function IdentityModal({
                     </div>
                   </div>
                 </ScrollArea>
-                <DialogFooter>
+                <DialogFooter className="mr-3">
                   <Button
                     variant="outline"
                     type="button"

@@ -98,7 +98,7 @@ contextBridge.exposeInMainWorld("awesomeApi", {
     return ipcRenderer.invoke("fetch-command-logs");
   },
   checkFileExists: async (filePath) => {
-    return ipcRenderer.invoke("check-file-exists", filePath);
+    return ipcRenderer.invoke('check-file-exists', filePath);
   },
   getDfxVersions: async () => {
     return ipcRenderer.invoke("get-dfx-versions");
@@ -112,17 +112,21 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   setTrackingAllowed: async (value) => {
     return ipcRenderer.invoke("store:set-tracking", "trackingAllowed", value);
   },
+  getNetworks: async () => {
+    return ipcRenderer.invoke("get-networks");
+  },
   getNetworkPreference: () => ipcRenderer.invoke("get-network-preference"),
   setNetworkPreference: (preference) =>
     ipcRenderer.invoke("set-network-preference", preference),
 
-  runAssistedCommand: (command, canisterName, customPath, methodName) =>
+  runAssistedCommand: (command, canisterName, customPath, methodName, network) =>
     ipcRenderer.invoke(
       "run-assisted-command",
       command,
       canisterName,
       customPath,
-      methodName
+      methodName,
+      network
     ),
 
   onAssistedCommandOutput: (callback) =>
@@ -155,4 +159,7 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   offInstallOutput: (callback) =>
     ipcRenderer.removeListener("install-output", callback),
 
+  readMethodsFromFile: async (filePath) => {
+    return ipcRenderer.invoke('read-methods-from-file', filePath);
+  },
 });

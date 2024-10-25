@@ -11,12 +11,17 @@ import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { Label } from "@components/ui/label";
 import { RefreshCw, Copy, X } from "lucide-react";
 import { useToast } from "@components/ui/use-toast";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@components/ui/select";
+import * as path from 'path';
+import { cn } from "@lib/utils";
+import { Switch } from "@components/ui/switch";
 
 interface CommandAssistProps {
   selectedCommand: string;
   canisterName: string;
   customPath: string;
   methodName?: string;
+  networkPreference: string;
 }
 
 export default function CommandAssist({
@@ -24,6 +29,7 @@ export default function CommandAssist({
   canisterName,
   customPath,
   methodName: initialMethodName,
+  networkPreference,
 }: CommandAssistProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [commandOutput, setCommandOutput] = useState<string>("");
@@ -37,6 +43,37 @@ export default function CommandAssist({
   const { toast } = useToast();
   const outputRef = useRef<HTMLPreElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [availableMethods, setAvailableMethods] = useState<string[]>([]);
+  const [selectedMethod, setSelectedMethod] = useState<string | undefined>(undefined);
+  const [includeNetwork, setIncludeNetwork] = useState(true);
+
+  useEffect(() => {
+    const fetchMethods = async () => {
+      if (customPath && canisterName) {
+        try {
+          const declarationsPath = path.join(customPath, 'src', 'declarations', canisterName);
+          const candidFile = path.join(declarationsPath, `${canisterName}.did`);
+
+          console.log(`Checking for Candid file: ${candidFile}`);
+
+          if (await window.awesomeApi.checkFileExists(candidFile)) {
+            console.log("Reading methods from Candid file");
+            const methods = await window.awesomeApi.readMethodsFromFile(candidFile);
+            console.log("Fetched methods:", methods);
+            setAvailableMethods(methods);
+          } else {
+            console.log("Candid file not found");
+            setAvailableMethods([]);
+          }
+        } catch (error) {
+          console.error("Error reading methods from file:", error);
+          setAvailableMethods([]);
+        }
+      }
+    };
+
+    fetchMethods();
+  }, [customPath, canisterName]);
 
   const handleRunCommand = useCallback(async () => {
     setCommandOutput("");
@@ -44,20 +81,21 @@ export default function CommandAssist({
     setIsInputRequired(false);
 
     try {
-      const output = await window.awesomeApi.runAssistedCommand(
+      const networkFlag = includeNetwork ? networkPreference : undefined;
+      await window.awesomeApi.runAssistedCommand(
         selectedCommand,
         canisterName,
         customPath,
-        methodName
+        methodName,
+        networkFlag
       );
-      setCommandOutput(output);
     } catch (error) {
       console.error("Error running assisted command:", error);
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       setCommandOutput(`Error: ${errorMessage}`);
     }
-  }, [selectedCommand, canisterName, customPath, methodName]);
+  }, [selectedCommand, canisterName, customPath, methodName, includeNetwork, networkPreference]);
 
   useEffect(() => {
     const handleOutput = (data: {
@@ -111,10 +149,12 @@ export default function CommandAssist({
 
   const cleanOutputContent = (content: string) => {
     return content
-      .replace(/\[\d+m/g, "")
-      .replace(/\u001b\[\d+m/g, "")
-      .replace(/^WARN:.*$/gm, "")
-      .replace(/^bash-3\.2\$.*$/gm, "")
+      .replace(/\u001b\[\d+m/g, '') // Remove ANSI color codes
+      .replace(/^\? /gm, '') // Remove leading question marks
+      .replace(/\[38;5;8m›/g, '') // Remove specific color code
+      .replace(/\[2K|\[1A|\[1B/g, '') // Remove cursor movement codes
+      .replace(/\r/g, '') // Remove carriage returns
+      .replace(/\n+/g, '\n') // Replace multiple newlines with a single newline
       .trim();
   };
 
@@ -129,9 +169,19 @@ export default function CommandAssist({
 
   const handleMethodNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (methodName.trim() === "") return;
+    if (methodName.trim() === "" && !selectedMethod) return;
     setIsMethodNameEntered(true);
     handleRunCommand();
+  };
+
+  const handleMethodNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMethodName(e.target.value);
+    setSelectedMethod(undefined);
+  };
+
+  const handleSelectChange = (value: string) => {
+    setSelectedMethod(value);
+    setMethodName(value);
   };
 
   const handleReset = () => {
@@ -140,6 +190,7 @@ export default function CommandAssist({
     setIsMethodNameEntered(false);
     setMethodName("");
     setIsInputRequired(false);
+    setSelectedMethod(undefined); // Reset the selected method
   };
 
   const handleCopyToClipboard = () => {
@@ -158,36 +209,26 @@ export default function CommandAssist({
   const renderOutput = () => {
     if (commandOutput) {
       return (
-        <div className="bg-gray-900 text-white p-4 rounded-md -mt-1">
+        <div className="bg-black text-white p-4 rounded-md -mt-1 font-mono">
           <ScrollArea ref={scrollAreaRef} className="h-[calc(60vh-50px)]">
-            <pre
-              className="font-mono text-sm whitespace-pre-wrap"
-            >
-              {commandOutput.split("\n").map((line, index) => (
-                <div key={index}>
-                  {line
-                    .split(
-                      /(\s--[\w-]+(?:\s+<[\w_]+>)?|\s-\w(?:\s+<[\w_]+>)?)/g
-                    )
-                    .map((part, partIndex) => {
-                      if (part.trim().match(/^--[\w-]+(?:\s+<[\w_]+>)?$/)) {
-                        return (
-                          <span key={partIndex} className="text-blue-400">
-                            {part}
-                          </span>
-                        );
-                      } else if (part.trim().match(/^-\w(?:\s+<[\w_]+>)?$/)) {
-                        return (
-                          <span key={partIndex} className="text-blue-400">
-                            {part}
-                          </span>
-                        );
-                      } else {
-                        return <span key={partIndex}>{part}</span>;
-                      }
-                    })}
-                </div>
-              ))}
+            <pre className="text-sm whitespace-pre-wrap">
+              {commandOutput.split('\n').map((line, index) => {
+                // Remove ANSI escape codes
+                line = line.replace(/\x1B\[[0-9;]*[JKmsu]/g, '');
+
+                // Handle different types of output
+                if (line.startsWith('$') || line.startsWith('>')) {
+                  return <span key={index} className="text-green-400">{line}</span>;
+                } else if (line.includes('Error:')) {
+                  return <span key={index} className="text-red-500">{line}</span>;
+                } else if (line.includes('Warning:')) {
+                  return <span key={index} className="text-yellow-500">{line}</span>;
+                } else if (line.match(/^\s*\[.*\]\s*$/)) {
+                  return <span key={index} className="text-blue-400">{line}</span>;
+                } else {
+                  return <span key={index}>{line}</span>;
+                }
+              })}
             </pre>
             <ScrollBar />
           </ScrollArea>
@@ -196,6 +237,17 @@ export default function CommandAssist({
     }
     return null;
   };
+
+  const renderNetworkToggle = () => (
+    <div className="flex items-center space-x-2 mt-4">
+      <Switch
+        id="network-toggle"
+        checked={includeNetwork}
+        onCheckedChange={setIncludeNetwork}
+      />
+      <Label htmlFor="network-toggle">Include --network ({networkPreference})</Label>
+    </div>
+  );
 
   const buttonText = `Assist ${selectedCommand}`;
 
@@ -234,14 +286,30 @@ export default function CommandAssist({
             !isMethodNameEntered ? (
               <form onSubmit={handleMethodNameSubmit}>
                 <Label htmlFor="methodName">Method Name</Label>
-                <div className="flex items-center space-x-2 mt-2">
+                <div className="flex flex-col space-y-2 mt-2">
+                  <Select onValueChange={handleSelectChange} value={selectedMethod}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableMethods.map((method) => (
+                        <SelectItem key={method} value={method}>
+                          {method}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Input
                     id="methodName"
                     value={methodName}
-                    onChange={(e) => setMethodName(e.target.value)}
-                    placeholder="Enter method name"
+                    onChange={handleMethodNameChange}
+                    placeholder="Or enter method name"
+                    className="w-full"
                   />
-                  <Button type="submit">Start</Button>
+                  <div className="space-y-2">
+                  {renderNetworkToggle()}
+                  </div>
+                  <Button type="submit" className="w-full mt-4">Start</Button>
                 </div>
               </form>
             ) : (
@@ -261,6 +329,7 @@ export default function CommandAssist({
                     </div>
                   </form>
                 )}
+                {renderNetworkToggle()}
               </>
             )}
           </div>
