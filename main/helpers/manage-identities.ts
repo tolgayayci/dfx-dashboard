@@ -1,22 +1,11 @@
-export function handleIdentities(store, action, identity, newIdentity?) {
+export function handleIdentities(store, action, identity?, newIdentity?) {
   let identities = store.get("identities", []);
 
   switch (action) {
     case "add":
-      // Ensure identity has a name and does not already exist.
       if (!identity.name || identities.some((i) => i.name === identity.name)) {
         throw new Error("Identity already exists or name is missing");
       }
-
-      // For adding an internetIdentity, ensure the structure is correct.
-      if (
-        identity.isInternetIdentity &&
-        (!identity.internetIdentity ||
-          typeof identity.internetIdentity !== "string")
-      ) {
-        throw new Error("Invalid internetIdentity object");
-      }
-
       identities.push(identity);
       break;
 
@@ -50,8 +39,31 @@ export function handleIdentities(store, action, identity, newIdentity?) {
       return identities;
 
     case "list":
-      // Return all identities
       return identities;
+
+    case "select":
+      if (!identity.name) {
+        throw new Error("Identity name is required for selection");
+      }
+      identities = identities.map((i) => ({
+        ...i,
+        isActive: i.name === identity.name,
+      }));
+      break;
+
+    case "update":
+      if (!identity.name) {
+        throw new Error("Identity name is required for update");
+      }
+      const updateIndex = identities.findIndex((i) => i.name === identity.name);
+      if (updateIndex === -1) {
+        throw new Error("Identity to update not found");
+      }
+      identities[updateIndex] = {
+        ...identities[updateIndex],
+        ...newIdentity,
+      };
+      break;
 
     default:
       throw new Error("Invalid action");

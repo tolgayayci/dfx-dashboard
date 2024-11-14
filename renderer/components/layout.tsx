@@ -11,6 +11,8 @@ import { Toaster } from "@components/ui/toaster";
 import { cn } from "@lib/utils";
 import { TooltipProvider } from "@components/ui/tooltip";
 import { Separator } from "@components/ui/separator";
+import CheckDfxStatus from "@components/dfx/check-dfx-status";
+import NetworkIndicator from "@components/network-indicator";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -18,12 +20,18 @@ import {
 } from "@components/ui/resizable";
 
 import {
-  HomeIcon,
-  DatabaseIcon,
   NetworkIcon,
-  CircuitBoardIcon,
   SettingsIcon,
+  RecycleIcon,
+  FolderIcon,
+  BoxIcon,
+  UserIcon,
+  ScrollTextIcon,
+  InfoIcon,
+  BookOpenIcon,
 } from "lucide-react";
+
+import { Button } from "@components/ui/button"; // Add this import if not already present
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -61,8 +69,17 @@ export default function Layout({ children }: LayoutProps) {
             height={20}
             alt="icp_logo"
           />
-          <div className="flex flex-row space-x-2">
+          <div className="flex flex-row space-x-2 items-center">
+            <NetworkIndicator />
             <IdentitySwitcher />
+            <Button
+              variant="outline"
+              onClick={() => window.awesomeApi.openExternalLink("https://dfx-dashboard-docs.netlify.app/getting-started/quick-start")}
+              className="h-10"
+            >
+              <BookOpenIcon className="h-4 w-4 mr-2" />
+              Docs
+            </Button>
             <ReloadToggle />
             <ModeToggle />
           </div>
@@ -98,7 +115,7 @@ export default function Layout({ children }: LayoutProps) {
                         title: "Projects",
                         label: "",
                         href: "/projects",
-                        icon: DatabaseIcon,
+                        icon: FolderIcon,
                         variant: router.pathname.startsWith("/projects")
                           ? "default"
                           : "ghost",
@@ -107,7 +124,7 @@ export default function Layout({ children }: LayoutProps) {
                         title: "Canisters",
                         label: "",
                         href: "/canisters",
-                        icon: HomeIcon,
+                        icon: BoxIcon,
                         variant: router.pathname.startsWith("/canisters")
                           ? "default"
                           : "ghost",
@@ -116,8 +133,17 @@ export default function Layout({ children }: LayoutProps) {
                         title: "Identities",
                         label: "",
                         href: "/identities",
-                        icon: CircuitBoardIcon,
+                        icon: UserIcon,
                         variant: router.pathname.startsWith("/identities")
+                          ? "default"
+                          : "ghost",
+                      },
+                      {
+                        title: "Cycles",
+                        label: "",
+                        href: "/cycles",
+                        icon: RecycleIcon,
+                        variant: router.pathname.startsWith("/cycles")
                           ? "default"
                           : "ghost",
                       },
@@ -127,6 +153,24 @@ export default function Layout({ children }: LayoutProps) {
                         href: "/network",
                         icon: NetworkIcon,
                         variant: router.pathname.startsWith("/network")
+                          ? "default"
+                          : "ghost",
+                      },
+                      {
+                        title: "Logs",
+                        label: "",
+                        href: "/logs",
+                        icon: ScrollTextIcon,
+                        variant: router.pathname.startsWith("/logs")
+                          ? "default"
+                          : "ghost",
+                      },
+                      {
+                        title: "About",
+                        label: "",
+                        href: "/about",
+                        icon: InfoIcon,
+                        variant: router.pathname.startsWith("/about")
                           ? "default"
                           : "ghost",
                       },
@@ -144,14 +188,9 @@ export default function Layout({ children }: LayoutProps) {
                   <Separator />
                 </div>
 
-                {/* <div
-                  className={cn(
-                    "flex h-[52px] items-center justify-center mb-2",
-                    isCollapsed ? "h-[52px]" : "px-2"
-                  )}
-                >
-                  <ProjectSwitcher />
-                </div> */}
+                <div className="">
+                  <CheckDfxStatus />
+                </div>
               </div>
             </ResizablePanel>
             <ResizableHandle />

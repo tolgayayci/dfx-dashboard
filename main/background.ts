@@ -1,26 +1,49 @@
 const fixPath = require("fix-path");
 fixPath();
 
-import { app, ipcMain, dialog, protocol } from "electron";
+import { app, ipcMain, dialog } from "electron";
 import serve from "electron-serve";
+const { readFile } = require("fs").promises;
+import * as pty from "node-pty";
+
+// Analytics
+import { initialize, trackEvent } from "@aptabase/electron/main";
 
 // Helpers
 import { createWindow } from "./helpers";
-import { executeDfxCommand } from "./helpers/dfx-helper";
+import {
+  executeDfxCommand,
+  executeBundledDfxCommand,
+} from "./helpers/dfx-helper";
 import { handleIdentities } from "./helpers/manage-identities";
 import { handleProjects } from "./helpers/manage-projects";
 import {
   updateProfileWithEnvVars,
   readEnvVarsFromProfiles,
 } from "./helpers/env-variables";
+import { checkEditors } from "./helpers/check-editors";
+import { openProjectInEditor } from "./helpers/open-project-in-editor";
+import runCommand from "./helpers/run-command";
 
 const path = require("node:path");
 const fs = require("fs");
 const { shell } = require("electron");
+const { spawn } = require("child_process");
+const log = require("electron-log/main");
+const { autoUpdater } = require("electron-updater");
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
 const Store = require("electron-store");
+
+// Set up logging
+const commandLog = log.create("command");
+commandLog.transports.file.format = "[{y}-{m}-{d} {h}:{i}:{s}.{ms}]  {text}";
+commandLog.transports.file.fileName = "dfx-commands.log";
+commandLog.transports.file.file = path.join(
+  app.getPath("userData"),
+  "dfx-commands.log"
+);
 
 const schema = {
   projects: {
@@ -47,6 +70,7 @@ const schema = {
         internetIdentity: {
           type: "string",
         },
+        isActive: { type: "boolean" },
       },
     },
   },
@@ -59,11 +83,41 @@ const schema = {
     },
     additionalProperties: true,
   },
+  useBundledDfx: {
+    type: "boolean",
+    default: true,
+  },
+  trackingAllowed: {
+    type: "boolean",
+    default: true,
+  },
+  networkPreference: {
+    type: "string",
+    default: "local",
+  },
+  networks: {
+    type: "object",
+    default: {
+      local: { type: "local" },
+      ic: { type: "ic" },
+    },
+  },
 };
 
 const store = new Store({ schema });
 
+autoUpdater.setFeedURL({
+  provider: "github",
+  owner: "tolgayayci",
+  repo: "dfx-dashboard",
+  releaseType: "release",
+});
+
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+
 let mainWindow;
+let bundledDfxPath: string;
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -77,35 +131,96 @@ if (process.defaultApp) {
 
 const gotTheLock = app.requestSingleInstanceLock();
 
+function getBundledDfxPath(): string {
+  const isProduction = app.isPackaged;
+  let basePath: string;
+  let resourcePath: string;
+
+  if (isProduction) {
+    basePath = path.dirname(app.getPath("exe"));
+    resourcePath = path.join(basePath, "..", "Resources");
+  } else {
+    basePath = app.getAppPath();
+    resourcePath = path.join(basePath, "resources");
+  }
+
+  const platformFolder = process.platform === "darwin" ? "mac" : "linux";
+  const dfxPath = path.join(
+    resourcePath,
+    platformFolder,
+    "dfx-extracted",
+    "dfx"
+  );
+
+  console.log("Bundled DFX Path:", dfxPath);
+
+  return dfxPath;
+}
+
+async function isSystemDfxAvailable() {
+  try {
+    await executeDfxCommand("--version");
+    return true;
+  } catch (error) {
+    console.log("System DFX not available:", error);
+    return false;
+  }
+}
+
 if (!gotTheLock) {
   app.quit();
 } else {
-  app.on("second-instance", (event, commandLine, workingDirectory) => {
-    console.log("second-instance", commandLine);
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-
-    dialog.showErrorBox(
-      "Welcome Back",
-      `You arrived from: ${commandLine.pop().slice(0, -1)}`
-    );
-  });
-
   app.on("open-url", function (event, url) {
     event.preventDefault();
     console.log("open-url event: " + url);
   });
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
+    let useBundledDfx = store.get("useBundledDfx");
+
+    // Handle tracking preference
+    let trackingAllowed = store.get("trackingAllowed");
+
+    if (typeof trackingAllowed === "undefined") {
+      trackingAllowed = true; // Default to true if not set
+      store.set("trackingAllowed", trackingAllowed);
+    }
+
+    // Initialize Aptabase Analytics if tracking is allowed
+    if (trackingAllowed) {
+      initialize("A-EU-1521640385");
+      console.log("Analytics initialized");
+    } else {
+      console.log("Analytics disabled");
+    }
+
+    // If it's not set, determine the default value
+    if (typeof useBundledDfx === "undefined") {
+      const systemDfxAvailable = await isSystemDfxAvailable();
+      useBundledDfx = !systemDfxAvailable; // Use bundled only if system is not available
+      store.set("useBundledDfx", useBundledDfx);
+    }
+
+    console.log("Use Bundled Dfx:", useBundledDfx);
+
     mainWindow = createWindow("main", {
       width: 1500,
       height: 700,
+      minWidth: 1250,
+      minHeight: 650,
       webPreferences: {
         preload: path.join(__dirname, "../main/preload.js"),
       },
     });
+
+    autoUpdater.checkForUpdatesAndNotify();
+
+    // Track app_started event if tracking is allowed
+    if (trackingAllowed) {
+      trackEvent("app_started");
+    }
+
+    bundledDfxPath = getBundledDfxPath();
   });
 
   app.on("open-url", (event, url) => {
@@ -150,6 +265,78 @@ if (isProd) {
     }
   });
 
+  let ptyProcess: pty.IPty | null = null;
+
+  ipcMain.handle(
+    "run-assisted-command",
+    async (event, command, canisterName, customPath, methodName) => {
+      const shell = process.platform === "win32" ? "powershell.exe" : "bash";
+      ptyProcess = pty.spawn(shell, [], {
+        name: "xterm-color",
+        cols: 80,
+        rows: 30,
+        cwd: customPath,
+        env: process.env,
+      });
+
+      return new Promise<string>((resolve) => {
+        let output = "";
+        ptyProcess.onData((data) => {
+          output += data;
+          event.sender.send("assisted-command-output", {
+            type: "stdout",
+            content: data,
+          });
+
+          if (
+            data.includes("?") ||
+            data.toLowerCase().includes("enter") ||
+            data.includes("Do you want to send this message?")
+          ) {
+            event.sender.send("assisted-command-input-required", {
+              prompt: data,
+            });
+          }
+        });
+
+        ptyProcess.onExit(() => {
+          ptyProcess = null;
+          resolve(output);
+        });
+
+        const dfxCommand = ["dfx", "canister", command];
+        if (command === "call" || command === "sign") {
+          dfxCommand.push(canisterName, methodName);
+        } else {
+          dfxCommand.push(canisterName);
+        }
+        dfxCommand.push("--always-assist");
+
+        ptyProcess.write(`${dfxCommand.join(" ")}\r`);
+      });
+    }
+  );
+
+  ipcMain.handle("assisted-command-input", (event, input: string) => {
+    if (ptyProcess) {
+      ptyProcess.write(`${input}\r`);
+      return { success: true };
+    } else {
+      return { success: false, error: "No active assisted command process" };
+    }
+  });
+
+  ipcMain.handle("terminate-assisted-command", () => {
+    if (ptyProcess) {
+      ptyProcess.kill();
+      ptyProcess = null;
+      return { success: true };
+    } else {
+      return { success: false, error: "No active assisted command process" };
+    }
+  });
+
+  // The rest of your code (ipcMain.handle for "send-assisted-command-input") remains the same
   // Set a key-value pair
   ipcMain.handle("store:set", (event, key, value) => {
     try {
@@ -183,30 +370,199 @@ if (isProd) {
     }
   });
 
-  ipcMain.handle(
-    "dfx-command",
-    async (event, command, subcommand, args?, flags?, path?) => {
-      try {
-        const result = await executeDfxCommand(
-          command,
-          subcommand,
-          args,
-          flags,
-          path
-        );
-        return result;
-      } catch (error) {
-        console.error(`Error while executing DFX command: ${error}`);
-        throw error;
+  ipcMain.handle("store:get-tracking", async (event, key) => {
+    return store.get(key);
+  });
+
+  ipcMain.handle("store:set-tracking", async (event, key, value) => {
+    store.set(key, value);
+    return { success: true };
+  });
+
+  ipcMain.handle("check-editors", async () => {
+    return await checkEditors();
+  });
+
+  ipcMain.handle("open-editor", async (event, projectPath, editor) => {
+    return await openProjectInEditor(projectPath, editor);
+  });
+
+  ipcMain.handle("get-app-version", async () => {
+    const packagePath = path.join(app.getAppPath(), "package.json");
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+    return packageJson.version;
+  });
+
+  ipcMain.handle("runCommand", async (event, command: string) => {
+    return await runCommand(command);
+  });
+
+  ipcMain.handle("get-dfx-version", async (event) => {
+    console.log("Getting DFX and DFXVM versions");
+
+    const extractVersionNumber = (versionString: string): string => {
+      const match = versionString.match(/\d+\.\d+\.\d+/);
+      return match ? match[0] : "Unknown";
+    };
+
+    const getDfxVersion = async () => {
+      const useBundledDfx = store.get("useBundledDfx");
+      console.log(`Fetching DFX version. Using bundled DFX: ${useBundledDfx}`);
+
+      async function executeDfxVersionCommand(
+        useBundled: boolean
+      ): Promise<string> {
+        try {
+          if (useBundled) {
+            console.log("Attempting to use bundled DFX for version check");
+            return await executeBundledDfxCommand(bundledDfxPath, "--version");
+          } else {
+            console.log("Attempting to use system DFX for version check");
+            return await executeDfxCommand("--version");
+          }
+        } catch (error) {
+          console.error(
+            `Error executing ${
+              useBundled ? "bundled" : "system"
+            } DFX for version check:`,
+            error
+          );
+          throw error;
+        }
       }
+
+      try {
+        const versionOutput = await executeDfxVersionCommand(useBundledDfx);
+        const version = extractVersionNumber(versionOutput);
+        console.log(`DFX version retrieved: ${version}`);
+        return {
+          version,
+          type: useBundledDfx ? "bundled" : "system",
+          error: null,
+        };
+      } catch (error) {
+        console.error("Error fetching DFX version:", error);
+
+        if (useBundledDfx) {
+          console.log("Attempting fallback to system DFX for version check...");
+          try {
+            const systemDfxAvailable = await isSystemDfxAvailable();
+            if (systemDfxAvailable) {
+              const versionOutput = await executeDfxVersionCommand(false);
+              const version = extractVersionNumber(versionOutput);
+              console.log(`DFX version retrieved (fallback): ${version}`);
+              store.set("useBundledDfx", false);
+              return { version, type: "system", error: null };
+            } else {
+              console.error("System DFX not available for fallback");
+              return {
+                version: null,
+                type: "unknown",
+                error:
+                  "Failed to fetch DFX version and system DFX is not available for fallback",
+              };
+            }
+          } catch (fallbackError) {
+            console.error("Error with fallback to system DFX:", fallbackError);
+            return {
+              version: null,
+              type: "unknown",
+              error:
+                "Failed to fetch DFX version with both bundled and system DFX",
+            };
+          }
+        } else {
+          return {
+            version: null,
+            type: "unknown",
+            error:
+              error instanceof Error
+                ? error.message
+                : "Failed to fetch DFX version",
+          };
+        }
+      }
+    };
+
+    const getDfxvmVersion = async () => {
+      console.log("Fetching DFXVM version");
+      try {
+        const versionOutput = await runCommand("dfxvm --version");
+        const version = extractVersionNumber(versionOutput);
+        console.log(`DFXVM version retrieved: ${version}`);
+        return { version, error: null };
+      } catch (error) {
+        console.error("Error fetching DFXVM version:", error);
+        return {
+          version: null,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch DFXVM version",
+        };
+      }
+    };
+
+    try {
+      const [dfxResult, dfxvmResult] = await Promise.all([
+        getDfxVersion(),
+        getDfxvmVersion(),
+      ]);
+
+      const result = {
+        dfx: dfxResult.version || "Not installed",
+        dfxType: dfxResult.type,
+        dfxError: dfxResult.error,
+        dfxvm: dfxvmResult.version || "Not installed",
+        dfxvmError: dfxvmResult.error,
+      };
+
+      console.log("DFX and DFXVM version check complete:", result);
+      trackEvent("version-check-complete", {
+        dfxVersion: result.dfx,
+        dfxType: result.dfxType,
+        dfxvmVersion: result.dfxvm,
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Unexpected error in get-dfx-version handler:", error);
+      trackEvent("version-check-failed", { error: error.message });
+      return {
+        dfx: "Error",
+        dfxType: "unknown",
+        dfxError: "Unexpected error occurred",
+        dfxvm: "Error",
+        dfxvmError: "Unexpected error occurred",
+      };
     }
-  );
+  });
+
+  ipcMain.handle("fetch-command-logs", async () => {
+    try {
+      const commandLogFilePath = commandLog.transports.file.getFile().path;
+      const data = await readFile(commandLogFilePath, "utf-8");
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  ipcMain.handle("check-file-exists", async (event, filePath) => {
+    return fs.existsSync(filePath);
+  });
 
   ipcMain.handle("dialog:openDirectory", handleFileOpen);
 
   // Store: Projects Handler
   ipcMain.handle("store:manageProjects", async (event, action, project) => {
     try {
+      trackEvent("project_action", { action, project });
+      log.info(
+        "Project Interaction. Action:",
+        action,
+        project ? "Project: " + project : ""
+      );
       const result = await handleProjects(store, action, project);
       return result;
     } catch (error) {
@@ -219,6 +575,13 @@ if (isProd) {
     "store:manageIdentities",
     async (event, action, identity, newIdentity?) => {
       try {
+        trackEvent("identity_action", { action, identity, newIdentity });
+        log.info(
+          "Identity Interaction.",
+          action ? "Action: " + action : "",
+          identity ? "Identity: " + identity : "",
+          newIdentity ? "New Identity: " + newIdentity : ""
+        );
         const result = await handleIdentities(
           store,
           action,
@@ -247,10 +610,16 @@ if (isProd) {
     try {
       if (mainWindow) {
         const result = await executeDfxCommand("--version");
-        const isDfxInstalled = result.trim().startsWith("dfx");
-        return isDfxInstalled;
+        if (typeof result === "string") {
+          const isDfxInstalled = result.trim().startsWith("dfx");
+          return isDfxInstalled;
+        } else {
+          console.error("Unexpected result type from executeDfxCommand");
+          return false;
+        }
       } else {
         console.error("Main window not found");
+        return false;
       }
     } catch (error) {
       console.error(`Error while checking for Dfinity installation: ${error}`);
@@ -311,35 +680,109 @@ if (isProd) {
     }
   );
 
-  async function retrieveAndStoreIdentities() {
-    try {
-      const result = await executeDfxCommand("identity", "list");
+  ipcMain.handle(
+    "dfx-command",
+    async (event, command, subcommand, args?, flags?, path?) => {
+      const useBundledDfx = store.get("useBundledDfx");
+      console.log(`Executing DFX command. Using bundled DFX: ${useBundledDfx}`);
+      console.log(
+        `Command: ${command}, Subcommand: ${subcommand}, Args: ${args}, Flags: ${flags}, Path: ${path}`
+      );
 
-      // Split the result string into an array of identities
-      const identityNames = result
-        .split("\n")
-        .filter(
-          (identity) => identity.trim() !== "" && identity.trim() !== "*"
-        );
-
-      for (const name of identityNames) {
-        // Create an identity object
-        const identity = {
-          name: name,
-          isInternetIdentity: false,
-        };
-
-        // Add each identity to the store
+      async function executeDfxCommandWithFallback(
+        useBundled: boolean
+      ): Promise<string> {
         try {
-          await handleIdentities(store, "add", identity);
+          if (useBundled) {
+            console.log("Attempting to use bundled DFX");
+            return await executeBundledDfxCommand(
+              bundledDfxPath,
+              command,
+              subcommand,
+              args,
+              flags,
+              path
+            );
+          } else {
+            console.log("Attempting to use system DFX");
+            return await executeDfxCommand(
+              command,
+              subcommand,
+              args,
+              flags,
+              path
+            );
+          }
         } catch (error) {
-          console.error(`Error adding identity '${name}':`, error);
+          console.error(
+            `Error executing ${useBundled ? "bundled" : "system"} DFX:`,
+            error
+          );
+          throw error;
         }
       }
-    } catch (error) {
-      console.error("Error retrieving identities:", error);
+
+      try {
+        let result = await executeDfxCommandWithFallback(useBundledDfx);
+
+        trackEvent("dfx-command-executed", {
+          command,
+          subcommand,
+          usedBundledDfx: useBundledDfx,
+        });
+
+        if (command === "canister") {
+          const formattedResult = result
+            ? `Result: ${JSON.stringify(result)}`
+            : "";
+          commandLog.info(
+            "dfx",
+            command,
+            subcommand || "",
+            args ? args.join(" ") : "",
+            flags ? flags.join(" ") : "",
+            path || "",
+            formattedResult
+          );
+        }
+
+        console.log("DFX command executed successfully");
+        return result;
+      } catch (error) {
+        console.error(`Error while executing DFX command:`, error);
+
+        if (useBundledDfx) {
+          console.log("Attempting fallback to system DFX...");
+          try {
+            const systemDfxAvailable = await isSystemDfxAvailable();
+            if (systemDfxAvailable) {
+              const result = await executeDfxCommandWithFallback(false);
+              console.log(
+                "Fallback to system DFX successful. Updating preference."
+              );
+              store.set("useBundledDfx", false);
+              return result;
+            } else {
+              console.error("System DFX not available for fallback");
+
+              throw new Error(
+                "Failed to execute DFX command and system DFX is not available for fallback"
+              );
+            }
+          } catch (fallbackError) {
+            console.error("Error with fallback to system DFX:", fallbackError);
+
+            throw new Error(
+              "Failed to execute DFX command with both bundled and system DFX"
+            );
+          }
+        } else {
+          console.error("Error with system DFX and no fallback available");
+          throw error;
+        }
+      }
     }
-  }
+  );
 
   ipcMain.handle("env:update-script", async (event, path, key, value) => {
     try {
@@ -363,6 +806,179 @@ if (isProd) {
     }
   });
 
+  ipcMain.handle("get-networks", () => {
+    try { 
+      return store.get("networks");
+    } catch (error) {
+      console.error("Error getting networks:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("get-network-preference", () => {
+    try {
+      const preference = store.get("networkPreference", "local");
+      console.log("Getting network preference:", preference);
+      return preference;
+    } catch (error) {
+      console.error("Error getting network preference:", error);
+      return "local";
+    }
+  });
+
+  ipcMain.handle("set-network-preference", (event, preference: string) => {
+    try { 
+      console.log("Setting network preference to:", preference);
+      store.set("networkPreference", preference);
+      return store.get("networkPreference");
+    } catch (error) {
+      console.error("Error setting network preference:", error);
+      return "local";
+    }
+  });
+
+  ipcMain.handle('read-methods-from-file', async (event, filePath) => {
+    try {
+      const content = await fs.promises.readFile(filePath, 'utf8');
+      const methods = parseCandidFile(content);
+      console.log(`Detected methods for ${filePath}:`, methods);
+      return methods;
+    } catch (error) {
+      console.error('Error reading methods from file:', error);
+      return [];
+    }
+  });
+
+  function parseCandidFile(content: string): string[] {
+    const serviceRegex = /service\s*:.*?{([\s\S]*?)}/;
+    const methodRegex = /^\s*(\w+)\s*:/gm;
+    const methods = [];
+
+    const serviceMatch = serviceRegex.exec(content);
+    if (serviceMatch && serviceMatch[1]) {
+      const serviceContent = serviceMatch[1];
+      let match;
+      while ((match = methodRegex.exec(serviceContent)) !== null) {
+        methods.push(match[1]);
+      }
+    }
+
+    return methods;
+  }
+
+  async function retrieveAndStoreIdentities() {
+    const useBundledDfx = store.get("useBundledDfx");
+    console.log(`Retrieving identities. Using bundled DFX: ${useBundledDfx}`);
+
+    async function executeIdentityListCommand(
+      useBundled: boolean
+    ): Promise<string> {
+      console.log(
+        `Executing identity list command. Using bundled DFX: ${useBundled}`
+      );
+      try {
+        if (useBundled) {
+          console.log("Attempting to use bundled DFX for identity list");
+          return await executeBundledDfxCommand(
+            bundledDfxPath,
+            "identity",
+            "list"
+          );
+        } else {
+          console.log("Attempting to use system DFX for identity list");
+          return await executeDfxCommand("identity", "list");
+        }
+      } catch (error) {
+        console.error(
+          `Error executing ${
+            useBundled ? "bundled" : "system"
+          } DFX for identity list:`,
+          error
+        );
+        throw error;
+      }
+    }
+
+    try {
+      const result = await executeIdentityListCommand(useBundledDfx);
+      if (typeof result !== "string") {
+        throw new Error("Unexpected result type from DFX command");
+      }
+
+      const identityNames = result
+        .split("\n")
+        .map((name) => name.trim())
+        .filter((name) => name !== "" && name !== "*");
+
+      const newIdentities = identityNames.map((name) => ({
+        name: name,
+        isInternetIdentity: false,
+      }));
+
+      store.set("identities", newIdentities);
+      console.log("Identities updated successfully:", newIdentities);
+      trackEvent("identities-retrieved", {
+        count: newIdentities.length,
+        usedBundledDfx: useBundledDfx,
+      });
+      return newIdentities;
+    } catch (error) {
+      console.error("Error retrieving identities:", error);
+
+      if (useBundledDfx) {
+        console.log("Attempting fallback to system DFX for identity list...");
+        try {
+          const systemDfxAvailable = await isSystemDfxAvailable();
+          if (systemDfxAvailable) {
+            const result = await executeIdentityListCommand(false);
+            console.log(
+              "Fallback to system DFX successful. Updating preference."
+            );
+            store.set("useBundledDfx", false);
+
+            const identityNames = result
+              .split("\n")
+              .map((name) => name.trim())
+              .filter((name) => name !== "" && name !== "*");
+
+            const newIdentities = identityNames.map((name) => ({
+              name: name,
+              isInternetIdentity: false,
+            }));
+
+            store.set("identities", newIdentities);
+            console.log(
+              "Identities updated successfully using system DFX:",
+              newIdentities
+            );
+
+            return newIdentities;
+          } else {
+            console.error("System DFX not available for fallback");
+            trackEvent("identities-retrieval-failed", {
+              reason: "system-dfx-unavailable",
+            });
+            throw new Error(
+              "Failed to retrieve identities and system DFX is not available for fallback"
+            );
+          }
+        } catch (fallbackError) {
+          console.error("Error with fallback to system DFX:", fallbackError);
+          trackEvent("identities-retrieval-failed", {
+            reason: "execution-error",
+          });
+          throw new Error(
+            "Failed to retrieve identities with both bundled and system DFX"
+          );
+        }
+      } else {
+        console.error("Error with system DFX and no fallback available");
+        trackEvent("identities-retrieval-failed", { usedBundledDfx: false });
+        throw error;
+      }
+    }
+  }
+
   ipcMain.handle("identity:refresh", async (event) => {
     try {
       const envVars = retrieveAndStoreIdentities();
@@ -374,6 +990,85 @@ if (isProd) {
   });
 
   await retrieveAndStoreIdentities();
+
+  ipcMain.handle("get-dfx-preference", () => {
+    const preference = store.get("useBundledDfx");
+    console.log("Getting DFX preference:", preference);
+    return preference;
+  });
+
+  ipcMain.handle("set-dfx-preference", async (event, useBundled: boolean) => {
+    console.log("Setting DFX preference to:", useBundled);
+
+    if (!useBundled) {
+      // Check if system DFX is available before allowing to switch
+      const systemDfxAvailable = await isSystemDfxAvailable();
+      if (!systemDfxAvailable) {
+        console.log("Cannot switch to system DFX as it's not available");
+        return store.get("useBundledDfx"); // Return current value without changing
+      }
+    }
+
+    store.set("useBundledDfx", useBundled);
+    return store.get("useBundledDfx"); // Return the new value to confirm it's set
+  });
+
+  ipcMain.handle("get-dfx-versions", async () => {
+    let systemVersion = "Not installed";
+    let bundledVersion = "Not available";
+    const useBundledDfx = store.get("useBundledDfx", false);
+
+    try {
+      if (useBundledDfx) {
+        bundledVersion = await executeBundledDfxCommand(
+          bundledDfxPath,
+          "--version"
+        );
+
+        systemVersion = await executeDfxCommand("--version");
+      } else {
+        systemVersion = await executeDfxCommand("--version");
+      }
+    } catch (error) {
+      console.error(
+        `Error getting ${useBundledDfx ? "bundled" : "system"} DFX version:`,
+        error
+      );
+    }
+
+    return {
+      system: systemVersion,
+      bundled: bundledVersion,
+    };
+  });
+
+  ipcMain.handle("run-install-command", async (event, version) => {
+    const shell = process.platform === "win32" ? "powershell.exe" : "bash";
+    const ptyProcess = pty.spawn(shell, [], {
+      name: "xterm-color",
+      cols: 80,
+      rows: 30,
+      cwd: process.cwd(),
+      env: process.env,
+    });
+
+    ptyProcess.onData((data) => {
+      event.sender.send("install-output", { content: data });
+    });
+
+    const command = `dfxvm install ${version}`;
+    ptyProcess.write(`${command}\r`);
+
+    return new Promise<void>((resolve, reject) => {
+      ptyProcess.onExit(({ exitCode }) => {
+        if (exitCode === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Installation failed with exit code ${exitCode}`));
+        }
+      });
+    });
+  });
 
   if (isProd) {
     await mainWindow.loadURL("app://./projects");

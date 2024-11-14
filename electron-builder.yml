@@ -1,6 +1,6 @@
-appId: com.example.nextron
-productName: dfinity-dfx
-copyright: Copyright © 2023 Tolga Yaycı
+appId: com.electron.dfinity-dfx-gui
+productName: dfinity-dfx-gui
+copyright: Copyright © 2024 Tolga Yaycı
 directories:
   output: dist
   buildResources: resources
@@ -10,4 +10,20 @@ files:
       - package.json
       - app
       - main/preload.js
-publish: null
+afterSign: "scripts/notarize.js"
+mac:
+  notarize: { teamId: "FPJS89TYWV" }
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: "scripts/entitlements.mac.plist"
+  entitlementsInherit: "scripts/entitlements.mac.plist"
+  publish:
+    - provider: github
+      protocol: https
+  x64ArchFiles: "*"
+dmg:
+  sign: false
+extraResources:
+  - from: "resources"
+    to: "resources"
+    filter: ["**/*"]

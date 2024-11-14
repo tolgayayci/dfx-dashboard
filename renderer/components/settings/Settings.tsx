@@ -1,28 +1,27 @@
 import EnvironmentVariables from "@components/settings/env-variables";
-import Adapters from "@components/settings/adapters";
+import VersionManager from "@components/settings/version-manager";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
-import { Separator } from "@components/ui/separator";
 
 export default function SettingsComponent() {
   return (
-    <Tabs defaultValue="env" className="w-full">
+    <Tabs defaultValue="version-manager" className="w-full">
       <div className="flex items-center justify-between w-full">
-        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-        {/* <TabsList>
-          <TabsTrigger value="env">Environment Variables</TabsTrigger>
-          <TabsTrigger value="adapters" disabled>
-            Adapters
+        <TabsList className="w-full">
+          <TabsTrigger value="version-manager" className="flex-1">
+            Version Manager
           </TabsTrigger>
-        </TabsList> */}
+          <TabsTrigger value="env" className="flex-1">
+            Environment Variables
+          </TabsTrigger>
+        </TabsList>
       </div>
-      <Separator className="mt-4" />
+      <TabsContent value="version-manager">
+        <VersionManager />
+      </TabsContent>
       <TabsContent value="env">
         <EnvironmentVariables />
       </TabsContent>
-      {/* <TabsContent value="adapters">
-        <Adapters />
-      </TabsContent> */}
     </Tabs>
   );
 }

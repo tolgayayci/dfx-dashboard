@@ -1,0 +1,1025 @@
+dfx canister call --help
+Calls a method on a deployed canister
+
+Usage: dfx canister call [OPTIONS] <CANISTER_NAME> <METHOD_NAME> [ARGUMENT]
+
+Arguments:
+  <CANISTER_NAME>  Specifies the name/id of the canister to call. You must specify either a canister or the
+                   --all option
+  <METHOD_NAME>    Specifies the method name to call on the canister
+  [ARGUMENT]       Specifies the argument to pass to the method
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+      --type <TYPE>
+          Specifies the data type for the argument when making the call using an argument [possible values:
+          idl, raw]
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --argument-file <ARGUMENT_FILE>
+          Specifies the file from which to read the argument to pass to the method
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --async
+          Specifies not to wait for the result of the call to be returned by polling the replica. Instead
+          return a response ID
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --query
+          Sends a query request to a canister instead of an update request
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --update
+          Sends an update request to a canister. This is the default if the method is not a query method
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+      --random <RANDOM>
+          Specifies the config for generating random argument
+      --output <OUTPUT>
+          Specifies the format for displaying the method's return result [possible values: idl, raw, pp,
+          json]
+      --with-cycles <WITH_CYCLES>
+          Specifies the amount of cycles to send on the call. Deducted from the wallet. Requires --wallet as
+          a flag to `dfx canister`
+      --candid <CANDID>
+          Provide the .did file with which to decode the response.  Overrides value from dfx.json for
+          project canisters
+      --always-assist
+          Always use Candid assist when the argument types are all optional
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister create --help
+Creates an empty canister and associates the assigned Canister ID to the canister name
+
+Usage: dfx canister create [OPTIONS] [CANISTER_NAME]
+
+Arguments:
+  [CANISTER_NAME]
+          Specifies the canister name. Either this or the --all flag are required
+
+Options:
+      --all
+          Creates all canisters configured in dfx.json
+
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+
+      --with-cycles <WITH_CYCLES>
+          Specifies the initial cycle balance to deposit into the newly created canister. The specified
+          amount needs to take the canister create fee into account. This amount is deducted from the
+          wallet's cycle balance
+
+      --ic
+          Shorthand for --network=ic
+
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both
+
+          [default: stderr]
+          [possible values: stderr, tee, file]
+
+      --specified-id <PRINCIPAL>
+          Attempts to create the canister with this Canister ID.
+
+          This option only works with non-mainnet replica. This option implies the --no-wallet flag. This
+          option takes precedence over the specified_id field in dfx.json.
+
+      --controller <CONTROLLER>
+          Specifies the identity name or the principal of the new controller
+
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+
+  -c, --compute-allocation <COMPUTE_ALLOCATION>
+          Specifies the canister's compute allocation. This should be a percent in the range [0..100]
+
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet
+
+          [env: DFX_IDENTITY=]
+
+      --memory-allocation <MEMORY_ALLOCATION>
+          Specifies how much memory the canister is allowed to use in total. This should be a value in the
+          range [0..12 GiB]. Can include units, e.g. "4KiB". A setting of 0 means the canister will have
+          access to memory on a “best-effort” basis: It will only be charged for the memory it uses, but at
+          any point in time may stop running if it tries to allocate more memory when there isn’t space
+          available on the subnet
+
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+
+      --log-visibility <LOG_VISIBILITY>
+          Specifies who is allowed to read the canister's logs. Can be either "controllers" or "public"
+
+      --no-wallet
+          Performs the call with the user Identity as the Sender of messages. Bypasses the Wallet canister
+
+      --created-at-time <CREATED_AT_TIME>
+          Transaction timestamp, in nanoseconds, for use in controlling transaction deduplication, default
+          is system time.
+          https://internetcomputer.org/docs/current/developer-docs/integrations/icrc-1/#transaction-deduplication-
+
+      --from-subaccount <FROM_SUBACCOUNT>
+          Subaccount of the selected identity to spend cycles from
+
+      --subnet-type <SUBNET_TYPE>
+          Specify the optional subnet type to create canisters on. If no subnet type is provided, the
+          canister will be created on a random default application subnet
+
+      --subnet <SUBNET>
+          Specify a specific subnet on which to create canisters on
+
+      --next-to <NEXT_TO>
+          Create canisters on the same subnet as this canister
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister delete --help
+Deletes a currently stopped canister
+
+Usage: dfx canister delete [OPTIONS] [CANISTER]
+
+Arguments:
+  [CANISTER]  Specifies the name of the canister to delete. You must specify either a canister name/id or
+              the --all flag
+
+Options:
+      --all
+          Deletes all of the canisters configured in the dfx.json file
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --no-withdrawal
+          Do not withdrawal cycles, just delete the canister
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --withdraw-cycles-to-canister <WITHDRAW_CYCLES_TO_CANISTER>
+          Withdraw cycles from canister(s) to the specified canister/wallet before deleting
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --withdraw-cycles-to-dank
+          Withdraw cycles to dank with the current principal
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --withdraw-cycles-to-dank-principal <WITHDRAW_CYCLES_TO_DANK_PRINCIPAL>
+          Withdraw cycles to dank with the given principal
+      --initial-margin <INITIAL_MARGIN>
+          Leave this many cycles in the canister when withdrawing cycles
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -y, --yes
+          Auto-confirm deletion for a non-stopped canister
+      --to-subaccount <TO_SUBACCOUNT>
+          Subaccount of the selected identity to deposit cycles to
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister deposit-cycles --help
+Deposit cycles into the specified canister
+
+Usage: dfx canister deposit-cycles [OPTIONS] <CYCLES> [CANISTER]
+
+Arguments:
+  <CYCLES>    Specifies the amount of cycles to send on the call. Deducted from the wallet
+  [CANISTER]  Specifies the name or id of the canister to receive the cycles deposit. You must specify
+              either a canister name/id or the --all option
+
+Options:
+      --all
+          Deposit cycles to all of the canisters configured in the dfx.json file
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --from-subaccount <FROM_SUBACCOUNT>
+          Use cycles from this subaccount
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --created-at-time <CREATED_AT_TIME>
+          Transaction timestamp, in nanoseconds, for use in controlling transaction deduplication, default
+          is system time.
+          https://internetcomputer.org/docs/current/developer-docs/integrations/icrc-1/#transaction-deduplication-
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister id --help
+Prints the identifier of a canister
+
+Usage: dfx canister id [OPTIONS] <CANISTER>
+
+Arguments:
+  <CANISTER>  Specifies the name of the canister
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister info --help
+Get the hash of a canister’s Wasm module and its current controllers
+
+Usage: dfx canister info [OPTIONS] <CANISTER>
+
+Arguments:
+  <CANISTER>  Specifies the name or id of the canister to get its canister information
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister install --help
+Installs compiled code in a canister
+
+Usage: dfx canister install [OPTIONS] [CANISTER] [OUTPUT_ENV_FILE]
+
+Arguments:
+  [CANISTER]         Specifies the canister to deploy. You must specify either canister name/id or the --all
+                     option
+  [OUTPUT_ENV_FILE]  Output environment variables to a file in dotenv format (without overwriting any
+                     user-defined variables, if the file already exists)
+
+Options:
+      --all
+          Deploys all canisters configured in the project dfx.json files
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --async-call
+          Specifies not to wait for the result of the call to be returned by polling the replica. Instead
+          return a response ID
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+  -m, --mode <MODE>
+          Specifies the type of deployment. You can set the canister deployment modes to install, reinstall,
+          or upgrade. If auto is selected, either install or upgrade will be used depending on if the
+          canister has already been installed [default: install] [possible values: install, reinstall,
+          upgrade, auto]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --upgrade-unchanged
+          Upgrade the canister even if the .wasm did not change
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --argument <ARGUMENT>
+          Specifies the argument to pass to the method
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --argument-type <ARGUMENT_TYPE>
+          Specifies the data type for the argument when making the call using an argument [possible values:
+          idl, raw]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+      --argument-file <ARGUMENT_FILE>
+          Specifies the file from which to read the argument to pass to the method
+      --wasm <WASM>
+          Specifies a particular Wasm file to install, bypassing the dfx.json project settings
+  -y, --yes
+          Skips yes/no checks by answering 'yes'. Such checks usually result in data loss, so this is not
+          recommended outside of CI
+      --no-asset-upgrade
+          Skips upgrading the asset canister, to only install the assets themselves
+      --always-assist
+          Always use Candid assist when the argument types are all optional
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister metadata --help
+Displays metadata in a canister
+
+Usage: dfx canister metadata [OPTIONS] <CANISTER_NAME> <METADATA_NAME>
+
+Arguments:
+  <CANISTER_NAME>  Specifies the name of the canister to call
+  <METADATA_NAME>  Specifies the name of the metadata to retrieve
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister request-status --help
+Requests the status of a call from a canister
+
+Usage: dfx canister request-status [OPTIONS] <REQUEST_ID> <CANISTER>
+
+Arguments:
+  <REQUEST_ID>  Specifies the request identifier. The request identifier is an hexadecimal string starting
+                with 0x
+  <CANISTER>    Specifies the name or id of the canister onto which the request was made. If the request was
+                made to the Management canister, specify the id of the canister it is updating/querying. If
+                the call was proxied by the wallet, i.e. a `dfx canister call --async --wallet=<ID>` flag,
+                specify the wallet canister id
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+      --output <OUTPUT>
+          Specifies the format for displaying the method's return result [possible values: idl, raw, pp]
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister send --help
+Send a previously-signed message
+
+Usage: dfx canister send [OPTIONS] <FILE_NAME>
+
+Arguments:
+  <FILE_NAME>  Specifies the file name of the message
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+      --status
+          Send the signed request-status call in the message
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister sign --help
+Sign a canister call and generate message file
+
+Usage: dfx canister sign [OPTIONS] <CANISTER_NAME> <METHOD_NAME> [ARGUMENT]
+
+Arguments:
+  <CANISTER_NAME>  Specifies the name/id of the canister to call
+  <METHOD_NAME>    Specifies the method name to call on the canister
+  [ARGUMENT]       Specifies the argument to pass to the method
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+      --type <TYPE>
+          Specifies the data type for the argument when making the call using an argument [possible values:
+          idl, raw]
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --argument-file <ARGUMENT_FILE>
+          Specifies the file from which to read the argument to pass to the method
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --query
+          Sends a query request to a canister
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --update
+          Sends an update request to a canister. This is the default if the method is not a query method
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --random <RANDOM>
+          Specifies the config for generating random argument
+      --expire-after <EXPIRE_AFTER>
+          Specifies how long the message will be valid in seconds, default to be 300s (5 minutes) [default:
+          5m]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+      --file <FILE>
+          Specifies the output file name [default: message.json]
+      --always-assist
+          Always use Candid assist when the argument types are all optional
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister start --help
+Starts a stopped canister
+
+Usage: dfx canister start [OPTIONS] [CANISTER]
+
+Arguments:
+  [CANISTER]  Specifies the name or id of the canister to start. You must specify either a canister name/id
+              or the --all flag
+
+Options:
+      --all
+          Starts all of the canisters configured in the dfx.json file
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister status --help
+Returns the current status of a canister: Running, Stopping, or Stopped. Also carries information like
+balance, current settings, memory used and everything returned by 'info'
+
+Usage: dfx canister status [OPTIONS] [CANISTER]
+
+Arguments:
+  [CANISTER]  Specifies the name of the canister to return information for. You must specify either a
+              canister name or the --all flag
+
+Options:
+      --all
+          Returns status information for all of the canisters configured in the dfx.json file
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister stop --help
+Stops a currently running canister
+
+Usage: dfx canister stop [OPTIONS] [CANISTER]
+
+Arguments:
+  [CANISTER]  Specifies the name or id of the canister to stop. You must specify either a canister name/id
+              or the --all option
+
+Options:
+      --all
+          Stops all of the canisters configured in the dfx.json file
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister uninstall-code --help
+Uninstalls a canister, removing its code and state. Does not delete the canister
+
+Usage: dfx canister uninstall-code [OPTIONS] [CANISTER]
+
+Arguments:
+  [CANISTER]  Specifies the name or id of the canister to uinstall. You must specify either a canister
+              name/id or the --all option
+
+Options:
+      --all
+          Uninstalls all of the canisters configured in the dfx.json file
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister update-settings --help
+Update one or more of a canister's settings (i.e its controller, compute allocation, or memory allocation.)
+
+Usage: dfx canister update-settings [OPTIONS] [CANISTER]
+
+Arguments:
+  [CANISTER]
+          Specifies the canister name or id to update. You must specify either canister name/id or the --all
+          option
+
+Options:
+      --all
+          Updates the settings of all canisters configured in the project dfx.json files
+
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+
+      --set-controller <SET_CONTROLLER>
+          Specifies the identity name or the principal of the new controller. Can be specified more than
+          once, indicating the canister will have multiple controllers. If any controllers are set with this
+          parameter, any other controllers will be removed
+
+      --add-controller <ADD_CONTROLLER>
+          Add a principal to the list of controllers of the canister
+
+      --ic
+          Shorthand for --network=ic
+
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both
+
+          [default: stderr]
+          [possible values: stderr, tee, file]
+
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+
+      --remove-controller <REMOVE_CONTROLLER>
+          Removes a principal from the list of controllers of the canister
+
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+
+  -c, --compute-allocation <COMPUTE_ALLOCATION>
+          Specifies the canister's compute allocation. This should be a percent in the range [0..100]
+
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet
+
+          [env: DFX_IDENTITY=]
+
+      --memory-allocation <MEMORY_ALLOCATION>
+          Specifies how much memory the canister is allowed to use in total. This should be a value in the
+          range [0..12 GiB]. Can include units, e.g. "4KiB". A setting of 0 means the canister will have
+          access to memory on a “best-effort” basis: It will only be charged for the memory it uses, but at
+          any point in time may stop running if it tries to allocate more memory when there isn’t space
+          available on the subnet
+
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+
+      --freezing-threshold <FREEZING_THRESHOLD>
+          Sets the freezing_threshold in SECONDS. A canister is considered frozen whenever the IC estimates
+          that the canister would be depleted of cycles before freezing_threshold seconds pass, given the
+          canister's current size and the IC's current cost for storage. A frozen canister rejects any calls
+          made to it
+
+      --reserved-cycles-limit <RESERVED_CYCLES_LIMIT>
+          Sets the upper limit of the canister's reserved cycles balance.
+
+          Reserved cycles are cycles that the system sets aside for future use by the canister. If a
+          subnet's storage exceeds 450 GiB, then every time a canister allocates new storage bytes, the
+          system sets aside some amount of cycles from the main balance of the canister. These reserved
+          cycles will be used to cover future payments for the newly allocated bytes. The reserved cycles
+          are not transferable and the amount of reserved cycles depends on how full the subnet is.
+
+          A setting of 0 means that the canister will trap if it tries to allocate new storage while the
+          subnet's memory usage exceeds 450 GiB.
+
+      --wasm-memory-limit <WASM_MEMORY_LIMIT>
+          Sets a soft limit on the Wasm memory usage of the canister.
+
+          Update calls, timers, heartbeats, installs, and post-upgrades fail if the Wasm memory usage
+          exceeds this limit. The main purpose of this setting is to protect against the case when the
+          canister reaches the hard 4GiB limit.
+
+          Must be a number between 0 B and 256 TiB, inclusive. Can include units, e.g. "4KiB".
+
+      --log-visibility <LOG_VISIBILITY>
+          Specifies who is allowed to read the canister's logs. Can be either "controllers" or "public"
+
+      --confirm-very-long-freezing-threshold
+          Freezing thresholds above ~1.5 years require this flag as confirmation
+
+  -y, --yes
+          Skips yes/no checks by answering 'yes'. Such checks can result in loss of control, so this is not
+          recommended outside of CI
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister logs --help
+Get the canister logs
+
+Usage: dfx canister logs [OPTIONS] <CANISTER>
+
+Arguments:
+  <CANISTER>  Specifies the name or id of the canister to get its canister information
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help
+
+------------------------------------------------------------------------------------------------------------------------
+
+dfx canister url --help
+Prints the url of a canister
+
+Usage: dfx canister url [OPTIONS] <CANISTER>
+
+Arguments:
+  <CANISTER>  Specifies the name or id of the canister
+
+Options:
+      --network <NETWORK>
+          Override the compute network to connect to. By default, the local network is used. A valid URL
+          (starting with `http:` or `https:`) can be used here, and a special ephemeral network will be
+          created specifically for this request. E.g. "http://localhost:12345/" is a valid network name
+  -v, --verbose...
+          Displays detailed information about operations. -vv will generate a very large number of messages
+          and can affect performance
+      --playground
+          Shorthand for --network=playground. Borrows short-lived canisters on the real IC network instead
+          of creating normal canisters
+  -q, --quiet...
+          Suppresses informational messages. -qq limits to errors only; -qqqq disables them all
+      --ic
+          Shorthand for --network=ic
+      --log <LOGMODE>
+          The logging mode to use. You can log to stderr, a file, or both [default: stderr] [possible
+          values: stderr, tee, file]
+      --logfile <LOGFILE>
+          The file to log to, if logging to a file (see --logmode)
+      --wallet <WALLET>
+          Specify a wallet canister id to perform the call. If none specified, defaults to use the selected
+          Identity's wallet canister
+      --identity <IDENTITY>
+          The user identity to run this command as. It contains your principal as well as some things DFX
+          associates with it like the wallet [env: DFX_IDENTITY=]
+      --provisional-create-canister-effective-canister-id <PRINCIPAL>
+          The effective canister id for provisional canister creation must be a canister id in the canister
+          ranges of the subnet on which new canisters should be created
+  -h, --help
+          Print help

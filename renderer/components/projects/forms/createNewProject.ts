@@ -13,8 +13,16 @@ export const createNewProjectFormSchema = z.object({
       message: "You must select a path",
     })
     .max(255),
-  frontend_status: z.boolean().optional(),
+  frontend: z
+    .enum(["sveltekit", "vanilla", "vue", "react", "simple-assets", "none"])
+    .optional(),
+  type: z.enum(["motoko", "rust", "azle", "kybra"]).optional(),
   dry_run: z.boolean().optional(),
+  verbose: z.boolean().optional(),
+  quiet: z.boolean().optional(),
+  extras: z
+    .array(z.enum(["internet-identity", "bitcoin", "frontend-tests"]))
+    .default([]),
 });
 
 export async function onCreateNewProjectForm(
@@ -26,10 +34,12 @@ export async function onCreateNewProjectForm(
     const args = [data.project_name];
     const flags = [
       data.dry_run ? `--dry-run` : null,
-      data.frontend_status ? `--frontend` : null,
+      data.frontend ? `--frontend ${data.frontend}` : null,
+      data.type ? `--type ${data.type}` : null,
+      data.verbose ? `-v` : null,
+      data.quiet ? `-q` : null,
+      ...(data.extras ? data.extras.map((extra) => `--extras ${extra}`) : []),
     ].filter(Boolean); // This will remove any null values from the array
-
-    console.log(command, subcommand, args, flags);
 
     const result = await window.awesomeApi
       .runDfxCommand(command, subcommand, args, flags, data.path)

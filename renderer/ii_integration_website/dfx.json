@@ -1,0 +1,21 @@
+{
+  "canisters": {
+    "internet-identity": {
+      "type": "pull",
+      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
+    "whoami": {
+      "type": "pull",
+      "id": "ivcos-eqaaa-aaaab-qablq-cai",
+      "declarations": {
+        "node_compatibility": true
+      }
+    },
+    "ii_integration": {
+      "type": "assets",
+      "source": ["src/ii_integration/assets", "src/ii_integration/dist"]
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

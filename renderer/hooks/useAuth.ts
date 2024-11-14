@@ -125,7 +125,7 @@ export function useAuth() {
       return;
     }
     const derKey = toHex(baseKey.getPublicKey().toDer());
-    const url = new URL("https://v73c4-7qaaa-aaaak-qdbvq-cai.icp0.io/");
+    const url = new URL("http://localhost:5173");
 
     url.searchParams.set("pubkey", derKey);
 

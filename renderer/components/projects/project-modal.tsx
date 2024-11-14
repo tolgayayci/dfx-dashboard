@@ -22,6 +22,14 @@ import {
   DialogTitle,
 } from "@components/ui/dialog";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@components/ui/select";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -31,6 +39,7 @@ import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
+import { Checkbox } from "@components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 
 import {
@@ -67,8 +76,14 @@ export default function ProjectModal({
   >({
     resolver: zodResolver(createNewProjectFormSchema),
     defaultValues: {
-      frontend_status: true,
+      project_name: "",
+      path: "",
+      frontend: "react",
+      type: "motoko",
       dry_run: false,
+      verbose: false,
+      quiet: false,
+      extras: [],
     },
   });
 
@@ -166,16 +181,16 @@ export default function ProjectModal({
                   handleNewProjectFormSubmit
                 )}
               >
-                <DialogHeader>
+                <DialogHeader className="mx-1">
                   <DialogTitle>Create Project</DialogTitle>
                   <DialogDescription>
                     Create a new project for the Internet Computer
                   </DialogDescription>
                 </DialogHeader>
-                <ScrollArea className="max-h-[350px] overflow-y-auto">
+                <ScrollArea className="max-h-[360px] overflow-y-auto pr-2">
                   <div>
                     <div className="space-y-4 py-4 pb-4">
-                      <div>
+                      <div className="mx-1">
                         <FormField
                           control={createNewProjectform.control}
                           name="project_name"
@@ -196,7 +211,7 @@ export default function ProjectModal({
                           )}
                         />
                       </div>
-                      <div>
+                      <div className="mx-1">
                         <FormField
                           control={createNewProjectform.control}
                           name="path"
@@ -231,20 +246,79 @@ export default function ProjectModal({
                           )}
                         />
                       </div>
-                      <div className="space-y-4">
-                        <FormLabel className="text-small"> Options</FormLabel>
+                      <div className="mx-1">
                         <FormField
                           control={createNewProjectform.control}
-                          name="frontend_status"
+                          name="frontend"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <FormItem>
+                              <FormLabel>Frontend Type</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select frontend type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="sveltekit">
+                                    SvelteKit
+                                  </SelectItem>
+                                  <SelectItem value="vanilla">
+                                    Vanilla
+                                  </SelectItem>
+                                  <SelectItem value="vue">Vue</SelectItem>
+                                  <SelectItem value="react">React</SelectItem>
+                                  <SelectItem value="simple-assets">
+                                    Simple Assets
+                                  </SelectItem>
+                                  <SelectItem value="none">None</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="mx-1">
+                        <FormField
+                          control={createNewProjectform.control}
+                          name="type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Canister Type</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select canister type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="motoko">Motoko</SelectItem>
+                                  <SelectItem value="rust">Rust</SelectItem>
+                                  <SelectItem value="azle">Azle</SelectItem>
+                                  <SelectItem value="kybra">Kybra</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <FormLabel className="text-small mx-1">Options</FormLabel>
+                        <FormField
+                          control={createNewProjectform.control}
+                          name="dry_run"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mx-1">
                               <div className="space-y-0.5">
                                 <FormLabel className="text-base">
-                                  Activate Frontend
+                                  Dry Run
                                 </FormLabel>
-                                <FormDescription className="mr-4">
-                                  Installs the template frontend code for the
-                                  default project canister.
+                                <FormDescription>
+                                  Preview directories and files without creating
+                                  them.
                                 </FormDescription>
                               </div>
                               <FormControl>
@@ -256,19 +330,17 @@ export default function ProjectModal({
                             </FormItem>
                           )}
                         />
-                        {/* <FormField
+                        <FormField
                           control={createNewProjectform.control}
-                          name="dry_run"
+                          name="verbose"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mx-1">
                               <div className="space-y-0.5">
                                 <FormLabel className="text-base">
-                                  Dry Run
+                                  Verbose
                                 </FormLabel>
-                                <FormDescription className="mr-4">
-                                  Generates a preview the directories and files
-                                  to be created for a new project without adding
-                                  them to the file system.
+                                <FormDescription>
+                                  Display detailed information about operations.
                                 </FormDescription>
                               </div>
                               <FormControl>
@@ -279,13 +351,89 @@ export default function ProjectModal({
                               </FormControl>
                             </FormItem>
                           )}
-                        /> */}
+                        />
+                        <FormField
+                          control={createNewProjectform.control}
+                          name="quiet"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mx-1">
+                              <div className="space-y-0.5">
+                                <FormLabel className="text-base">
+                                  Quiet
+                                </FormLabel>
+                                <FormDescription>
+                                  Suppress informational messages.
+                                </FormDescription>
+                              </div>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div>
+                        <FormField
+                          control={createNewProjectform.control}
+                          name="extras"
+                          render={({ field }) => (
+                            <FormItem className="mx-1">
+                              <div className="mb-4">
+                                <FormLabel className="text-base">
+                                  Extras
+                                </FormLabel>
+                                <FormDescription>
+                                  Select additional features for your project.
+                                </FormDescription>
+                              </div>
+                              {(
+                                [
+                                  "internet-identity",
+                                  "bitcoin",
+                                  "frontend-tests",
+                                ] as const
+                              ).map((item) => (
+                                <FormItem
+                                  key={item}
+                                  className="flex flex-row items-start space-x-3 space-y-0"
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value.includes(item)}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          field.onChange([
+                                            ...field.value,
+                                            item,
+                                          ]);
+                                        } else {
+                                          field.onChange(
+                                            field.value.filter(
+                                              (value) => value !== item
+                                            )
+                                          );
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                    {item}
+                                  </FormLabel>
+                                </FormItem>
+                              ))}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     </div>
                   </div>
-                  <ScrollBar />
+                  <ScrollBar className="w-4"/>
                 </ScrollArea>
-                <DialogFooter>
+                <DialogFooter className="mr-3">
                   <Button
                     variant="outline"
                     type="button"
@@ -297,7 +445,6 @@ export default function ProjectModal({
                   </Button>
                   {isSubmittingNewProject ? (
                     <Button type="button" disabled>
-                      {" "}
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating...
                     </Button>
@@ -318,7 +465,7 @@ export default function ProjectModal({
                 <DialogHeader>
                   <DialogTitle>Import Existing Project</DialogTitle>
                   <DialogDescription>
-                    Create a new project for the Internet Computer
+                    Import an existing project for the Internet Computer
                   </DialogDescription>
                 </DialogHeader>
                 <div>
@@ -394,7 +541,6 @@ export default function ProjectModal({
                   </Button>
                   {isSubmittingExistingProject ? (
                     <Button disabled>
-                      {" "}
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Adding...
                     </Button>

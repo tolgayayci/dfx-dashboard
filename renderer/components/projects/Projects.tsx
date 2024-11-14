@@ -33,17 +33,16 @@ import { Avatar, AvatarImage } from "@components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { FolderCheck } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { CodeIcon } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import ProjectModal from "@components/projects/project-modal";
-import NoProjects from "@components/projects/no-project";
+import EditorModal from "@components/projects/editor-modal";
 
 import {
   removeProjectFormSchema,
@@ -52,6 +51,8 @@ import {
 
 import { useToast } from "@components/ui/use-toast";
 import { projectRemoveSuccess, projectRemoveError } from "@lib/notifications";
+
+import { FolderOpen, Search } from "lucide-react";
 
 const ProjectCard = ({
   project,
@@ -65,6 +66,7 @@ const ProjectCard = ({
   onProjectChange: () => void;
 }) => {
   const [showRemoveProjectDialog, setShowRemoveProjectDialog] = useState(false);
+  const [showEditorDialog, setShowEditorDialog] = useState(false);
   const [isSubmittingRemoveProject, setIsSubmittingRemoveProject] =
     useState(false);
 
@@ -106,25 +108,35 @@ const ProjectCard = ({
           </Avatar>
           <div className="flex flex-col space-y-1 overflow-hidden">
             <CardTitle className="text-medium">{project.name}</CardTitle>
-            <CardDescription className="truncate inline-flex items-center">
-              <FolderCheck className="w-4 h-4 mr-1" />
-              {project.path.split("/").slice(-2)[0] +
-                "/" +
-                project.path.split("/").slice(-2)[1]}
+            <CardDescription className="flex items-center">
+              <FolderCheck className="w-4 h-4 min-w-[16px] mr-2" />
+              <span className="truncate max-w-[115px]">
+                {project.path.split("/").slice(-2)[0] +
+                  "/" +
+                  project.path.split("/").slice(-2)[1]}
+              </span>
             </CardDescription>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="hover:text-red-500 ml-auto"
+            onClick={() => setShowRemoveProjectDialog(true)}
+          >
+            <Trash2 className="h-5 w-5" />
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-4">
         <Button
           variant="outline"
           className="w-full"
-          onClick={() => setShowRemoveProjectDialog(true)}
+          onClick={() => setShowEditorDialog(true)}
         >
-          Remove
+          Open With
         </Button>
         <Link href={`/projects/${encodeURIComponent(project.path)}`}>
-          <Button>Manage</Button>
+          <Button className="w-full">Manage</Button>
         </Link>
         <Dialog
           open={showRemoveProjectDialog}
@@ -216,6 +228,14 @@ const ProjectCard = ({
             </Form>
           </DialogContent>
         </Dialog>
+        {showEditorDialog && (
+          <EditorModal
+            showEditorDialog={showEditorDialog}
+            setShowEditorDialog={setShowEditorDialog}
+            projectName={project.name}
+            projectPath={project.path}
+          />
+        )}
       </CardContent>
     </Card>
   );
@@ -223,7 +243,7 @@ const ProjectCard = ({
 
 export default function ProjectsComponent() {
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
-  const [projects, setProjects] = useState<any>();
+  const [projects, setProjects] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   async function checkProjects() {
@@ -245,17 +265,22 @@ export default function ProjectsComponent() {
     setSearchQuery(e.target.value);
   };
 
-  // Call checkIdentities when the component mounts
+  // Call checkProjects when the component mounts
   useEffect(() => {
     checkProjects();
   }, []);
+
+  // Add this new constant for filtered projects
+  const filteredProjects = projects.filter((project) =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-106px)]">
       <div className="flex items-center justify-between">
         <Alert className="flex items-center justify-between py-6">
           <div className="flex items-center">
-            <CodeIcon className="h-5 w-5 mr-4" />
+            <FolderOpen className="h-5 w-5 mr-4" />
             <div>
               <AlertTitle>
                 You have {projects?.length ? projects?.length : "0"} projects
@@ -280,30 +305,52 @@ export default function ProjectsComponent() {
           <div className="my-6">
             <Input
               type="search"
-              placeholder={`Search for an identity between ${projects.length} projects`}
+              placeholder={`Search for a project among ${projects.length} projects`}
               onChange={handleSearchChange}
               value={searchQuery}
             />
           </div>
           <ScrollArea className="h-[calc(100vh-300px)] overflow-y-auto">
-            <div className="grid grid-cols-3 gap-8">
-              {projects
-                .filter((project) =>
-                  project.name.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-                .map((project) => (
+            {filteredProjects.length > 0 ? (
+              <div className="grid grid-cols-3 gap-8">
+                {filteredProjects.map((project) => (
                   <ProjectCard
                     key={project.path}
                     project={project}
                     onProjectChange={refreshProjects}
                   />
                 ))}
-            </div>
+              </div>
+            ) : (
+              <div className="h-[calc(100vh-300px)] w-full rounded-md border flex flex-col items-center justify-center space-y-4">
+                <Search className="h-12 w-12" />
+                <p className="text-lg">No Projects Found</p>
+                <p className="text-sm text-gray-600 text-center max-w-md leading-relaxed">
+                  No projects match your search query "{searchQuery}".
+                  <br />
+                  Try adjusting your search or create a new project.
+                </p>
+                
+                <Button onClick={() => setShowCreateProjectDialog(true)}>
+                  Create New Project
+                </Button>
+              </div>
+            )}
             <ScrollBar />
           </ScrollArea>
         </div>
       ) : (
-        <NoProjects />
+        <div className="h-[calc(100vh-10px)] w-full rounded-md border p-4 flex flex-col items-center justify-center space-y-4 mt-3">
+          <FolderOpen className="h-12 w-12" />
+          <p className="text-lg">No Projects Found</p>
+          <p className="text-sm text-gray-600 text-center max-w-md leading-relaxed">
+            You haven't created any projects yet.                   <br />
+            Start by creating a new project to begin your development journey.
+          </p>
+          <Button onClick={() => setShowCreateProjectDialog(true)}>
+            Create New Project
+          </Button>
+        </div>
       )}
     </div>
   );
