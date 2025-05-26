@@ -25,7 +25,7 @@ The bundled DFX option allows you to use the Dashboard even if dfx is not instal
 :::
 
 :::info
-The current **system dfx** version is displayed next to the toggle (e.g., "vdfx 0.21.0").
+The current **system dfx** version is displayed next to the toggle (e.g., "vdfx 0.25.0").
 :::
 
 ## Environment Variables

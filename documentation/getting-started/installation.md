@@ -36,7 +36,7 @@ Before installing DFX Dashboard, ensure your system meets these requirements:
 - **Operating System:** 
   - macOS 10.15+
   - Ubuntu 20.04+
-- **dfx:** v0.21.0 or newer (installed in the previous step)
+- **dfx:** v0.25.0 or newer (installed in the previous step)
 - **Node.js:** v14.0.0 or newer
 
 ## Installing DFX Dashboard
