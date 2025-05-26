@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "DFX Dashboard"
   text: "Streamline Your Internet Computer Development"
-  tagline: Manage projects, canisters, and cycles with ease using our intuitive GUI
+  tagline: Manage projects, canisters, cycles, and NNS interactions with our professional GUI for dfx 0.25.0
   image:
     src: /features/canisters/canister-actions.png
     alt: DFX Dashboard Interface
@@ -19,22 +19,28 @@ hero:
 features:
   - icon: 🏗️
     title: Unified Project Management
-    details: Create, import, and manage all your Internet Computer projects from a single intuitive interface.
+    details: Create, import, and manage all your Internet Computer projects from a single intuitive interface with dfx 0.25.0 support.
   - icon: 🚀
-    title: Effortless Canister Control
-    details: Deploy, monitor, and interact with your canisters using a user-friendly GUI, no command line required.
+    title: Advanced Canister Control
+    details: Deploy, monitor, and interact with both user and NNS canisters using our professional GUI with advanced filtering and metadata display.
+  - icon: 🌐
+    title: NNS Integration
+    details: Query and interact with Network Nervous System canisters directly from the dashboard with dedicated method calling interfaces.
   - icon: 🔑
     title: Simplified Identity Management
-    details: Easily create, import, and switch between multiple identities for secure and efficient development.
+    details: Easily create, import, and switch between multiple identities for secure and efficient development workflows.
   - icon: 💰
-    title: Integrated Cycle Management
-    details: Monitor cycle balances, convert ICP to cycles, and top up canisters directly from the dashboard.
+    title: Professional Cycle Management
+    details: Complete cycles workflow with balance checking, transfers, approvals, ICP conversion, and faucet operations in a modern tabbed interface.
+  - icon: ⚙️
+    title: Smart Shell Completion
+    details: Auto-configure dfx shell completion with one-click setup for bash, zsh, and fish shells, or use manual instructions.
   - icon: 🌐
     title: Visual Network Configuration
-    details: Configure and manage your dfx networks with a clear, visual interface for easy customization.
+    details: Configure and manage your dfx networks with a clear, visual interface for local, IC, and custom network management.
   - icon: 📊
     title: Comprehensive Logging
-    details: Track your development history with detailed logs of all dashboard operations for easy troubleshooting.
+    details: Track your development history with detailed logs of all dashboard operations for easy troubleshooting and debugging.
 ---
 
 <style>

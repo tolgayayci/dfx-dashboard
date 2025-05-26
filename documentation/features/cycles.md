@@ -1,17 +1,26 @@
 # Cycles
 
-The Cycles page is a crucial component of the DFX Dashboard, allowing you to manage and utilize cycles, the fuel for computation on the Internet Computer. Here you can view your cycle balance, convert ICP to cycles, transfer cycles, and top up canisters.
+The Cycles page is a comprehensive component of the DFX Dashboard, providing a professional interface for managing cycles on the Internet Computer. Built with dfx 0.25.0 compatibility, it offers all essential cycle operations in an organized, tabbed interface for optimal developer experience.
 
 ## Overview
 
-The Cycles page provides three main functions:
-- **Converting** ICP to cycles
-- **Transferring** cycles to other principals
-- **Topping up canisters** with cycles
+The redesigned Cycles page features a modern tabbed interface with three main sections:
+- **Balance & Approvals**: Check cycle balances and manage cycle approvals
+- **Transfers & Top-ups**: Transfer cycles between accounts and top up canisters
+- **Convert & Faucet**: Convert ICP to cycles and redeem faucet coupons
 
-## Cycles Balance
+## Interface Design
 
-At the top of the Cycles page, you'll see your current cycles balance:
+The page features:
+- **Fixed header** with current balance display and refresh functionality
+- **Tabbed navigation** with colored icons for easy identification
+- **Scrollable content areas** for each tab section
+- **Professional form layouts** with comprehensive error handling
+- **Toast notifications** for operation feedback
+
+## Balance & Approvals Tab
+
+### Checking Cycle Balance
 
 <div class="image-border">
 
@@ -19,39 +28,37 @@ At the top of the Cycles page, you'll see your current cycles balance:
 
 </div>
 
-- The balance is displayed in TC (trillion cycles).
-- Use the **Refresh** button to update your balance.
+The balance section allows you to:
+- **Check current balance** for any principal or subaccount
+- **Specify network** (local, IC, or custom networks)
+- **Use precise balance** option for exact cycle counts
+- **View balance in TC** (trillion cycles) format
+
+**Available Options:**
+- `--network`: Specify which network to query
+- `--precise`: Get exact cycle count instead of human-readable format
+
+### Managing Cycle Approvals
+
+The approval section enables you to:
+- **Approve cycle spending** for other principals
+- **Set spending limits** with specific amounts
+- **Add memos** for transaction tracking
+- **Set expiration dates** for approvals
+
+**Available Options:**
+- `--spender`: Principal authorized to spend cycles
+- `--amount`: Maximum cycles that can be spent
+- `--memo`: Optional memo for the approval
+- `--expires-at`: Expiration timestamp for the approval
 
 :::tip
-Regularly monitor your cycle balance to ensure you have sufficient cycles for your operations on the Internet Computer.
+Use cycle approvals to enable automated systems or other principals to spend cycles on your behalf within defined limits.
 :::
 
-## Converting ICP to Cycles
+## Transfers & Top-ups Tab
 
-To convert ICP to cycles:
-
-1. Click on the **Convert ICP** tab.
-2. Enter the amount of ICP you want to convert in the **Amount (ICP)** field.
-3. Click the **Convert to Cycles** button to process the conversion.
-
-<div class="image-border">
-
-![Convert ICP](/features/cycles/top-up-canister.png)
-
-</div>
-
-:::warning
-The conversion rate between ICP and cycles may vary. Always check the current rate before converting to ensure you're getting the expected amount of cycles.
-:::
-
-## Transferring Cycles
-
-To transfer cycles:
-
-1. Click on the **Transfer Cycles** tab.
-2. Enter the recipient's principal in the **To (Principal)** field.
-3. Specify the amount of cycles to transfer in the **Amount (Cycles)** field.
-4. Click the **Transfer Cycles** button to send the cycles.
+### Transferring Cycles
 
 <div class="image-border">
 
@@ -59,59 +66,145 @@ To transfer cycles:
 
 </div>
 
-:::warning
-Double-check the recipient's principal before transferring, as cycle transfers cannot be reversed. Sending cycles to an incorrect address will result in permanent loss.
-:::
+The transfer functionality allows you to:
+- **Transfer cycles** to any principal
+- **Specify source subaccount** for the transfer
+- **Set destination subaccount** if needed
+- **Add transaction memos** for record keeping
 
-## Topping Up Canisters
+**Available Options:**
+- `--to`: Destination principal for the cycles
+- `--amount`: Number of cycles to transfer
+- `--from-subaccount`: Source subaccount (optional)
+- `--to-subaccount`: Destination subaccount (optional)
+- `--memo`: Optional memo for the transfer
 
-To top up a canister:
-
-1. Click on the **Top Up Canister** tab.
-2. Choose how to select the canister:
-   - **Select from list**: Choose a canister from your projects
-   - **Enter custom ID**: Input a specific canister ID
-3. Enter the amount of cycles to send in the **Amount (Cycles)** field.
-4. Click the **Top Up Canister** button to complete the process.
+### Topping Up Canisters
 
 <div class="image-border">
 
-![Top Up Canister](/features/cycles/convert-icp.png)
+![Top Up Canister](/features/cycles/top-up-canister.png)
 
 </div>
 
-:::tip
-Regularly check and top up your canisters to ensure they have sufficient cycles to continue running. Set up alerts or reminders to avoid unexpected canister stoppages due to cycle depletion.
+The canister top-up feature enables you to:
+- **Top up any canister** with cycles
+- **Specify source subaccount** for funding
+- **Enter canister ID** manually or select from projects
+- **Set precise amounts** for top-ups
+
+**Available Options:**
+- `--canister`: Target canister ID for top-up
+- `--amount`: Number of cycles to add
+- `--from-subaccount`: Source subaccount for the cycles
+
+:::warning
+Double-check canister IDs before topping up, as cycle transfers cannot be reversed. Sending cycles to an incorrect canister will result in permanent loss.
 :::
+
+## Convert & Faucet Tab
+
+### Converting ICP to Cycles
+
+<div class="image-border">
+
+![Convert ICP](/features/cycles/convert-icp.png)
+
+</div>
+
+The ICP conversion feature allows you to:
+- **Convert ICP to cycles** at current exchange rates
+- **Specify source subaccount** for ICP
+- **Add transaction memos** for tracking
+- **Monitor conversion rates** before proceeding
+
+**Available Options:**
+- `--amount`: Amount of ICP to convert
+- `--from-subaccount`: Source subaccount containing ICP
+- `--memo`: Optional memo for the conversion
+
+### Redeeming Faucet Coupons
+
+The faucet redemption feature enables you to:
+- **Redeem faucet coupons** for free cycles
+- **Enter coupon codes** from official sources
+- **Receive cycles** directly to your account
+- **Track redemption history**
+
+**Available Options:**
+- `--coupon`: Faucet coupon code to redeem
+
+:::tip
+Faucet coupons are typically available for development and testing purposes. Check official DFINITY channels for available coupons.
+:::
+
+## Advanced Features
+
+### Network Selection
+All operations support network selection:
+- **Local**: Your local dfx development network
+- **IC**: Internet Computer mainnet
+- **Custom**: Any custom networks you've configured
+
+### Subaccount Support
+Most operations support subaccount specification:
+- **Source subaccounts**: Specify where cycles/ICP come from
+- **Destination subaccounts**: Specify where cycles should go
+- **Account isolation**: Keep different purposes separated
+
+### Error Handling
+Comprehensive error handling includes:
+- **Network connectivity** error detection
+- **Insufficient balance** warnings
+- **Invalid principal** validation
+- **Transaction failure** recovery guidance
 
 ## Best Practices
 
 :::tip
-Optimize your cycle management with these tips:
+Optimize your cycle management with these professional practices:
 
-- Monitor your balance: Regularly check your cycle balance to ensure you have enough for your operations.
-- Plan conversions: Convert ICP to cycles in advance to avoid running out during critical operations.
-- Estimate needs: Before topping up canisters, estimate their cycle consumption to avoid over or under-funding.
-- Keep records: Track your cycle transfers and conversions for better financial management.
+- **Monitor balances regularly**: Use the balance checker to track cycle consumption patterns
+- **Set up approvals strategically**: Use cycle approvals for automated systems with appropriate limits
+- **Plan conversions in advance**: Convert ICP to cycles before critical operations to avoid delays
+- **Use subaccounts for organization**: Separate cycles for different projects or purposes
+- **Keep transaction records**: Use memos to track the purpose of transfers and conversions
+- **Test on local networks**: Verify operations on local networks before using mainnet
+- **Monitor exchange rates**: Check ICP-to-cycles rates before large conversions
+- **Set up monitoring**: Track canister cycle consumption to predict top-up needs
 :::
 
 ## Troubleshooting
 
 :::warning
-Watch out for these common issues:
+Common issues and solutions:
 
-- If your balance isn't updating, try refreshing the page or restarting the DFX Dashboard.
-- For failed conversions, ensure you have sufficient ICP balance and that the network is operational.
-- If a transfer fails, double-check the recipient's principal and your available cycle balance.
-- For canister top-up issues, verify that the canister ID is correct and that you have sufficient cycles.
+- **Balance not updating**: Click the refresh button or check network connectivity
+- **Failed conversions**: Ensure sufficient ICP balance and verify network status
+- **Transfer failures**: Double-check recipient principals and available cycle balance
+- **Canister top-up issues**: Verify canister ID correctness and cycle availability
+- **Approval problems**: Check spender principal format and expiration settings
+- **Network errors**: Verify dfx network configuration and connectivity
+- **Subaccount issues**: Ensure subaccount format is correct (32-byte hex)
+- **Faucet redemption failures**: Verify coupon code validity and redemption limits
 :::
+
+## dfx 0.25.0 Compatibility
+
+This interface is fully compatible with dfx 0.25.0 and includes:
+- **Updated command syntax** for all cycle operations
+- **Enhanced error messages** with detailed feedback
+- **Improved network handling** for multiple network types
+- **Better subaccount support** across all operations
+- **Optimized performance** for faster operation execution
 
 ## Additional Resources
 
+- [DFX Cycles Commands Reference](https://internetcomputer.org/docs/current/references/cli-reference/dfx-cycles/)
 - [Understanding Cycles on the Internet Computer](https://internetcomputer.org/docs/current/concepts/tokens-cycles)
-- [ICP to Cycles Conversion](https://internetcomputer.org/docs/current/developer-docs/build/project-setup/cycles)
+- [ICP to Cycles Conversion Guide](https://internetcomputer.org/docs/current/developer-docs/build/project-setup/cycles)
 - [Cycle Wallet and Management](https://internetcomputer.org/docs/current/developer-docs/build/project-setup/manage-cycles)
-- [Cycles Economy on the Internet Computer](https://internetcomputer.org/whitepaper.pdf)
+- [Cycles Economy Whitepaper](https://internetcomputer.org/whitepaper.pdf)
 
 <style>
 .image-border img {
