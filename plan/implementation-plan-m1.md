@@ -23,10 +23,10 @@ Update existing pages with NNS canister support, filtering, and dfx 0.25.0 compa
 - `renderer/components/canisters/Canisters.tsx`
 
 **Tasks:**
-- [ ] Add filter dropdown: All, User Canisters, NNS Canisters
-- [ ] Add search input for canister names/IDs
-- [ ] Add network filter: Local, IC, Custom
-- [ ] Implement table sorting by name, type, network
+- [x] Add filter dropdown: All, User Canisters, NNS Canisters
+- [x] Add search input for canister names/IDs
+- [x] Add network filter: Local, IC, Custom
+- [x] Implement table sorting by name, type, network
 
 ## 2. Update Canister Detail Page
 

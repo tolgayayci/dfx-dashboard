@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import useProjects from "renderer/hooks/useProjects";
 
 import { createColumns } from "@components/canisters/columns";
@@ -11,7 +11,7 @@ export default function CanistersComponent() {
 
   const projects = useProjects();
 
-  async function checkCanisters(projectPath) {
+  const checkCanisters = useCallback(async (projectPath) => {
     try {
       const result = await window.awesomeApi.listCanisters(projectPath);
 
@@ -19,7 +19,8 @@ export default function CanistersComponent() {
       const canistersArray = Object.keys(result.canisters).map((key) => ({
         name: key,
         ...result.canisters[key],
-        type: result.canisters[key].type || 'user',
+        type: 'user', // Explicitly set as user canister
+        network: result.canisters[key].network || 'local', // Default to local for user canisters
         projectName: projects.find((p) => p.path === projectPath)?.name,
         path: projectPath,
       }));
@@ -39,9 +40,9 @@ export default function CanistersComponent() {
     } catch (error) {
       console.log("Error invoking remote method:", error);
     }
-  }
+  }, [projects]);
 
-  async function fetchNNSCanisters() {
+  const fetchNNSCanisters = useCallback(async () => {
     try {
       setIsLoading(true);
       // Fetch NNS canisters for both local and IC networks
@@ -53,15 +54,22 @@ export default function CanistersComponent() {
       const nnsCanisters = [];
       
       if (localResult.success) {
-        nnsCanisters.push(...localResult.data);
+        // Add local NNS canisters
+        const localCanisters = localResult.data.map(canister => ({
+          ...canister,
+          network: 'local',
+          projectName: 'Network Nervous System'
+        }));
+        nnsCanisters.push(...localCanisters);
       }
       
       if (icResult.success) {
-        // Add IC canisters with different network identifier
+        // Add IC NNS canisters with different network identifier
         const icCanisters = icResult.data.map(canister => ({
           ...canister,
           name: `${canister.name} (IC)`,
-          network: 'ic'
+          network: 'ic',
+          projectName: 'Network Nervous System'
         }));
         nnsCanisters.push(...icCanisters);
       }
@@ -77,7 +85,7 @@ export default function CanistersComponent() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     setAllCanisters([]);
@@ -89,9 +97,9 @@ export default function CanistersComponent() {
 
     // Fetch NNS canisters
     fetchNNSCanisters();
-  }, [projects]);
+  }, [projects, checkCanisters, fetchNNSCanisters]);
 
-  const columns = createColumns();
+  const columns = useMemo(() => createColumns(), []);
 
   return (
     <div className="flex flex-col h-[calc(100vh-106px)]">

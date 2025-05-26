@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@components/ui/button";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import Link from "next/link";
 
 // This type is used to define the shape of our data.
@@ -21,7 +22,24 @@ export const createColumns = (): ColumnDef<Canister>[] => {
   return [
     {
       accessorKey: "name",
-      header: "Canister Name",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="h-auto p-0 font-semibold"
+          >
+            Canister Name
+            {column.getIsSorted() === "asc" ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : column.getIsSorted() === "desc" ? (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            )}
+          </Button>
+        );
+      },
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <span>{row.original.name}</span>
@@ -35,7 +53,24 @@ export const createColumns = (): ColumnDef<Canister>[] => {
     },
     {
       accessorKey: "type",
-      header: "Type",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="h-auto p-0 font-semibold"
+          >
+            Type
+            {column.getIsSorted() === "asc" ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : column.getIsSorted() === "desc" ? (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            )}
+          </Button>
+        );
+      },
       cell: ({ row }) => (
         <div className="text-left">
           {row.original.type === 'nns' ? 'Network Nervous System' : row.original.type || 'User'}
@@ -44,7 +79,24 @@ export const createColumns = (): ColumnDef<Canister>[] => {
     },
     {
       accessorKey: "projectName",
-      header: "Project Name",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="h-auto p-0 font-semibold"
+          >
+            Project Name
+            {column.getIsSorted() === "asc" ? (
+              <ArrowUp className="ml-2 h-4 w-4" />
+            ) : column.getIsSorted() === "desc" ? (
+              <ArrowDown className="ml-2 h-4 w-4" />
+            ) : (
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            )}
+          </Button>
+        );
+      },
       cell: ({ row }) => (
         <div className="text-left">
           {row.original.path ? (
