@@ -9,7 +9,6 @@ import {
 } from "@components/ui/dialog";
 import { Button } from "@components/ui/button";
 import { FileBoxIcon, AlertCircle } from "lucide-react";
-import { useToast } from "@components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 
 interface OutputModalProps {
@@ -29,63 +28,9 @@ export default function OutputModal({
   commandOutput,
   commandError,
 }: OutputModalProps) {
-  const { toast, dismiss} = useToast();
   const [accordionValue, setAccordionValue] = useState<string>("status");
 
-  useEffect(() => {
-    if (commandOutput && !commandError) {
-      const { id } = toast({
-        title: "Command Executed Successfully",
-        description: (
-          <div>
-            <pre className="bg-gray-100 text-black p-1 px-2 rounded-md mt-1">
-              {runnedCommand}
-            </pre>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => {
-                onOpenChange(true);
-                dismiss(id);
-              }}
-              className="mt-2"
-            >
-              View Output
-            </Button>
-          </div>
-        ),
-        variant: "default",
-        className: "border-green-500",
-        duration: 2000,
-      });
-    } else if (commandError) {
-      const { id } =toast({
-        title: "Command Execution Failed",
-        description: (
-          <div>
-            <pre className="bg-gray-100 text-black p-1 px-2 rounded-md mt-1">
-              {runnedCommand}
-            </pre>
-            <Button
-              variant="default"
-              onClick={() => {
-                onOpenChange(true);
-                dismiss(id);
-              }}
-              className="mt-2"
-            >
-              View Output
-            </Button>
-          </div>
-        ),
-        variant: "default",
-        className: "border-red-500",
-        duration: 2000,
-
-      });
-    }
-  }, [commandOutput, commandError, runnedCommand, onOpenChange]);
-
+  // Handle output/error state for accordion
   useEffect(() => {
     if (commandOutput || commandError) {
       setAccordionValue("output");
@@ -93,6 +38,11 @@ export default function OutputModal({
       setAccordionValue("status");
     }
   }, [commandOutput, commandError]);
+
+  // Extract clean command for display
+  const cleanCommand = runnedCommand && runnedCommand.includes(' # Executed at ') 
+    ? runnedCommand.split(' # Executed at ')[0]
+    : runnedCommand;
 
   const renderOutput = () => {
     if (commandOutput) {
@@ -186,7 +136,7 @@ export default function OutputModal({
           <DialogTitle>Command Output</DialogTitle>
           <DialogDescription className="pt-2">
             <pre className="bg-white text-black shadow-lg border border-black p-2 pl-3 rounded-md">
-              {runnedCommand}
+              {cleanCommand}
             </pre>
           </DialogDescription>
         </DialogHeader>

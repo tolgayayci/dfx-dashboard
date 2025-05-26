@@ -9,19 +9,58 @@ export default function useCanister(projectPath, canisterName) {
   async function fetchCanisterData() {
     setIsLoading(true);
     try {
-      const result = await window.awesomeApi.listCanisters(projectPath);
-      const canisters = result.canisters || {};
+      // Check if this is an NNS canister
+      if (projectPath === 'nns') {
+        // Fetch NNS canisters
+        const [localResult, icResult] = await Promise.all([
+          window.awesomeApi.listNNSCanisters('local'),
+          window.awesomeApi.listNNSCanisters('ic')
+        ]);
 
-      // Find the specific canister by name
-      const foundCanister = Object.keys(canisters).find(
-        (key) => key === canisterName
-      );
+        let foundCanister = null;
 
-      if (foundCanister) {
-        setCanisterData({ name: foundCanister, ...canisters[foundCanister] });
+        // Search in local NNS canisters
+        if (localResult.success) {
+          foundCanister = localResult.data.find(canister => canister.name === canisterName);
+        }
+
+        // Search in IC NNS canisters if not found in local
+        if (!foundCanister && icResult.success) {
+          foundCanister = icResult.data.find(canister => 
+            canister.name === canisterName || canister.name === `${canisterName} (IC)`
+          );
+        }
+
+        if (foundCanister) {
+          setCanisterData({
+            ...foundCanister,
+            type: 'nns',
+            projectName: 'Network Nervous System'
+          });
+        } else {
+          setCanisterData(null);
+          setError(new Error("NNS Canister not found"));
+        }
       } else {
-        setCanisterData(null);
-        setError(new Error("Canister not found"));
+        // Handle regular user canisters
+        const result = await window.awesomeApi.listCanisters(projectPath);
+        const canisters = result.canisters || {};
+
+        // Find the specific canister by name
+        const foundCanister = Object.keys(canisters).find(
+          (key) => key === canisterName
+        );
+
+        if (foundCanister) {
+          setCanisterData({ 
+            name: foundCanister, 
+            ...canisters[foundCanister],
+            type: 'user'
+          });
+        } else {
+          setCanisterData(null);
+          setError(new Error("Canister not found"));
+        }
       }
     } catch (err) {
       setError(err);
