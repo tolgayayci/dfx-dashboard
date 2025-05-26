@@ -89,6 +89,23 @@ interface Versions {
 
   readMethodsFromFile: (filePath: string) => Promise<string[]>;
 
+  getCanisterMetadata: (
+    canisterName: string,
+    network: string,
+    projectPath?: string
+  ) => Promise<{
+    success: boolean;
+    data?: {
+      'candid:service'?: string;
+      'candid:args'?: string;
+      'dfx:wasm_url'?: string;
+      'dfx:deps'?: string;
+      'dfx:init'?: string;
+      'cdk:name'?: string;
+      'cdk:version'?: string;
+    };
+    error?: string;
+  }>;
 }
 
 interface Window {

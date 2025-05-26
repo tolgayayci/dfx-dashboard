@@ -731,6 +731,106 @@ if (isProd) {
     }
   );
 
+  // IPC handler for getting canister metadata
+  ipcMain.handle("canister:get-metadata", async (event, canisterName: string, network: string, projectPath?: string) => {
+    try {
+      console.log(`Getting metadata for canister: ${canisterName} on network: ${network}`);
+      
+      // Validate inputs
+      if (!canisterName) {
+        throw new Error('Canister name is required');
+      }
+      if (!network) {
+        throw new Error('Network is required');
+      }
+
+      const useBundledDfx = store.get("useBundledDfx");
+      
+      // Common metadata types to retrieve
+      const metadataTypes = [
+        'candid:service',
+        'candid:args', 
+        'dfx:wasm_url',
+        'dfx:deps',
+        'dfx:init',
+        'cdk:name',
+        'cdk:version'
+      ];
+
+      const metadata: Record<string, any> = {};
+      
+      // Function to execute metadata command with fallback
+      const executeMetadataCommand = async (useBundled: boolean, metadataType: string): Promise<string> => {
+        try {
+          if (useBundled) {
+            return await executeBundledDfxCommand(
+              bundledDfxPath,
+              "canister",
+              "metadata",
+              [canisterName, metadataType],
+              ["--network", network],
+              projectPath
+            );
+          } else {
+            return await executeDfxCommand(
+              "canister",
+              "metadata",
+              [canisterName, metadataType],
+              ["--network", network],
+              projectPath
+            );
+          }
+        } catch (error) {
+          console.error(`Error executing ${useBundled ? "bundled" : "system"} DFX for metadata ${metadataType}:`, error);
+          throw error;
+        }
+      };
+
+      // Retrieve each metadata type
+      for (const metadataType of metadataTypes) {
+        try {
+          let result = await executeMetadataCommand(useBundledDfx, metadataType);
+          
+          // Clean up the result - remove extra whitespace and quotes if present
+          result = result.trim();
+          if (result.startsWith('"') && result.endsWith('"')) {
+            result = result.slice(1, -1);
+          }
+          
+          metadata[metadataType] = result;
+          console.log(`Retrieved metadata ${metadataType}: ${result.substring(0, 100)}...`);
+        } catch (error) {
+          // If bundled dfx fails, try system dfx as fallback
+          if (useBundledDfx) {
+            try {
+              const systemDfxAvailable = await isSystemDfxAvailable();
+              if (systemDfxAvailable) {
+                const result = await executeMetadataCommand(false, metadataType);
+                metadata[metadataType] = result.trim();
+                console.log(`Retrieved metadata ${metadataType} with system dfx fallback`);
+              } else {
+                console.warn(`Metadata ${metadataType} not available and no system dfx fallback`);
+                metadata[metadataType] = null;
+              }
+            } catch (fallbackError) {
+              console.warn(`Failed to get metadata ${metadataType} with both bundled and system dfx:`, fallbackError);
+              metadata[metadataType] = null;
+            }
+          } else {
+            console.warn(`Failed to get metadata ${metadataType}:`, error);
+            metadata[metadataType] = null;
+          }
+        }
+      }
+
+      console.log(`Successfully retrieved metadata for canister: ${canisterName}`);
+      return { success: true, data: metadata };
+    } catch (error) {
+      console.error('Failed to get canister metadata:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
   ipcMain.handle(
     "dfx-command",
     async (event, command, subcommand, args?, flags?, path?) => {

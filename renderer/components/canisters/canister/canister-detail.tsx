@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import useCanister from "renderer/hooks/useCanister";
 import CliCommandSelector from "@components/canisters/canister/command-selector";
+import MetadataDisplay from "@components/canisters/canister/metadata-display";
 
 import { Separator } from "@components/ui/separator";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
@@ -139,17 +140,12 @@ export default function CanisterDetail() {
         </TabsContent>
         
         <TabsContent value="metadata" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Canister Metadata</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center text-gray-500 py-8">
-                <p>Metadata functionality coming soon...</p>
-                <p className="text-xs mt-2">Will show controllers, module hash, and canister settings</p>
-              </div>
-            </CardContent>
-          </Card>
+          <MetadataDisplay
+            canisterName={canisterName as string}
+            network={canisterData.network || 'local'}
+            projectPath={path as string}
+            isNNSCanister={isNNSCanister}
+          />
         </TabsContent>
       </Tabs>
     </div>

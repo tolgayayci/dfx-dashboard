@@ -65,7 +65,7 @@ export interface HttpResponse {
   'streaming_strategy' : [] | [StreamingStrategy],
   'status_code' : number,
 }
-export type InitArgs = {};
+export interface InitArgs { 'set_permissions' : [] | [SetPermissions] }
 export type Key = string;
 export interface ListPermitted { 'permission' : Permission }
 export type Permission = { 'Prepare' : null } |
@@ -140,6 +140,10 @@ export interface _SERVICE {
   'create_chunk' : ActorMethod<
     [{ 'content' : Uint8Array | number[], 'batch_id' : BatchId }],
     { 'chunk_id' : ChunkId }
+  >,
+  'create_chunks' : ActorMethod<
+    [{ 'content' : Array<Uint8Array | number[]>, 'batch_id' : BatchId }],
+    { 'chunk_ids' : Array<ChunkId> }
   >,
   'deauthorize' : ActorMethod<[Principal], undefined>,
   'delete_asset' : ActorMethod<[DeleteAssetArguments], undefined>,

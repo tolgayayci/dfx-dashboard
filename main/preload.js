@@ -165,4 +165,7 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   readMethodsFromFile: async (filePath) => {
     return ipcRenderer.invoke('read-methods-from-file', filePath);
   },
+  getCanisterMetadata: async (canisterName, network, projectPath) => {
+    return ipcRenderer.invoke("canister:get-metadata", canisterName, network, projectPath);
+  },
 });
