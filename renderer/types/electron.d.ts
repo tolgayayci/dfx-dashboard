@@ -158,6 +158,21 @@ interface Versions {
       network?: string;
     }
   ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Settings operations
+  settingsDetectShell: () => Promise<{
+    success: boolean;
+    data?: {
+      shell: string;
+      shellName: string;
+      supported: boolean;
+    };
+    error?: string;
+  }>;
+
+  settingsSetupCompletion: (
+    enable: boolean
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
 }
 
 interface Window {

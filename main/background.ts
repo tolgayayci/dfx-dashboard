@@ -1411,6 +1411,105 @@ if (isProd) {
     }
   });
 
+  // Settings IPC handlers
+  ipcMain.handle("settings:detect-shell", async () => {
+    try {
+      const shell = process.env.SHELL || "/bin/bash";
+      const shellName = path.basename(shell);
+      
+      return { 
+        success: true, 
+        data: {
+          shell: shell,
+          shellName: shellName,
+          supported: ["bash", "zsh", "fish", "elvish", "powershell"].includes(shellName)
+        }
+      };
+    } catch (error) {
+      console.error("Error detecting shell:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("settings:setup-completion", async (event, enable: boolean) => {
+    try {
+      const shell = process.env.SHELL || "/bin/bash";
+      const shellName = path.basename(shell);
+      const homeDir = require("os").homedir();
+      
+      if (!enable) {
+        return { 
+          success: true, 
+          data: "Completion setup disabled. Manual removal instructions provided." 
+        };
+      }
+
+      // Generate completion script
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let completionScript: string;
+      
+      if (useBundledDfx) {
+        completionScript = await executeBundledDfxCommand(bundledDfxPath, "completion", shellName);
+      } else {
+        completionScript = await executeDfxCommand("completion", shellName);
+      }
+
+      // Determine the appropriate shell config file
+      let configFile: string;
+      switch (shellName) {
+        case "zsh":
+          configFile = path.join(homeDir, ".zshrc");
+          break;
+        case "bash":
+          configFile = path.join(homeDir, ".bashrc");
+          // Also check for .bash_profile on macOS
+          if (process.platform === "darwin" && !fs.existsSync(configFile)) {
+            configFile = path.join(homeDir, ".bash_profile");
+          }
+          break;
+        case "fish":
+          const fishConfigDir = path.join(homeDir, ".config", "fish", "completions");
+          if (!fs.existsSync(fishConfigDir)) {
+            fs.mkdirSync(fishConfigDir, { recursive: true });
+          }
+          configFile = path.join(fishConfigDir, "dfx.fish");
+          break;
+        default:
+          throw new Error(`Unsupported shell: ${shellName}`);
+      }
+
+      // For fish, write the completion script directly
+      if (shellName === "fish") {
+        fs.writeFileSync(configFile, completionScript);
+      } else {
+        // For bash/zsh, append source command to config file
+        const sourceCommand = `\n# DFX completion (added by DFX Dashboard)\neval "$(dfx completion ${shellName})"\n`;
+        
+        // Check if completion is already set up
+        if (fs.existsSync(configFile)) {
+          const currentContent = fs.readFileSync(configFile, "utf8");
+          if (currentContent.includes("dfx completion")) {
+            return { 
+              success: true, 
+              data: "DFX completion is already configured in your shell." 
+            };
+          }
+        }
+        
+        // Append the source command
+        fs.appendFileSync(configFile, sourceCommand);
+      }
+
+      return { 
+        success: true, 
+        data: `DFX completion has been configured for ${shellName}. Please restart your terminal or run 'source ${configFile}' to enable it.` 
+      };
+    } catch (error) {
+      console.error("Error setting up completion:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
   if (isProd) {
     await mainWindow.loadURL("app://./projects");
   } else {

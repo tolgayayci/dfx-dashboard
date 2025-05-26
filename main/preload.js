@@ -188,4 +188,12 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   cyclesRedeemFaucetCoupon: async (coupon, options) => {
     return ipcRenderer.invoke("cycles:redeem-faucet-coupon", coupon, options);
   },
+
+  // Settings operations
+  settingsDetectShell: async () => {
+    return ipcRenderer.invoke("settings:detect-shell");
+  },
+  settingsSetupCompletion: async (enable) => {
+    return ipcRenderer.invoke("settings:setup-completion", enable);
+  },
 });
