@@ -106,6 +106,58 @@ interface Versions {
     };
     error?: string;
   }>;
+
+  // Cycles operations
+  cyclesBalance: (options?: {
+    network?: string;
+    precise?: boolean;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesApprove: (
+    spender: string,
+    amount: string,
+    options?: {
+      network?: string;
+      memo?: string;
+      expiresAt?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesTransfer: (
+    to: string,
+    amount: string,
+    options?: {
+      network?: string;
+      memo?: string;
+      fromSubaccount?: string;
+      toSubaccount?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesTopUp: (
+    canister: string,
+    amount: string,
+    options?: {
+      network?: string;
+      fromSubaccount?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesConvert: (
+    amount: string,
+    options?: {
+      network?: string;
+      toSubaccount?: string;
+      memo?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesRedeemFaucetCoupon: (
+    coupon: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
 }
 
 interface Window {

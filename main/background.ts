@@ -1221,6 +1221,196 @@ if (isProd) {
     });
   });
 
+  // Cycles IPC Handlers
+  ipcMain.handle("cycles:balance", async (event, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add precise option
+      if (options.precise) {
+        args.push("--precise");
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "balance", args);
+      } else {
+        result = await executeDfxCommand("cycles", "balance", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error getting cycles balance:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:approve", async (event, spender, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [spender, amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add memo option
+      if (options.memo) {
+        args.push("--memo", options.memo);
+      }
+      
+      // Add expires-at option
+      if (options.expiresAt) {
+        args.push("--expires-at", options.expiresAt);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "approve", args);
+      } else {
+        result = await executeDfxCommand("cycles", "approve", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error approving cycles:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:transfer", async (event, to, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [to, amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add memo option
+      if (options.memo) {
+        args.push("--memo", options.memo);
+      }
+      
+      // Add from-subaccount option
+      if (options.fromSubaccount) {
+        args.push("--from-subaccount", options.fromSubaccount);
+      }
+      
+      // Add to-subaccount option
+      if (options.toSubaccount) {
+        args.push("--to-subaccount", options.toSubaccount);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "transfer", args);
+      } else {
+        result = await executeDfxCommand("cycles", "transfer", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error transferring cycles:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:top-up", async (event, canister, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [canister, amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add from-subaccount option
+      if (options.fromSubaccount) {
+        args.push("--from-subaccount", options.fromSubaccount);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "top-up", args);
+      } else {
+        result = await executeDfxCommand("cycles", "top-up", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error topping up canister:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:convert", async (event, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add to-subaccount option
+      if (options.toSubaccount) {
+        args.push("--to-subaccount", options.toSubaccount);
+      }
+      
+      // Add memo option
+      if (options.memo) {
+        args.push("--memo", options.memo);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "convert", args);
+      } else {
+        result = await executeDfxCommand("cycles", "convert", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error converting ICP to cycles:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:redeem-faucet-coupon", async (event, coupon, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [coupon];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "redeem-faucet-coupon", args);
+      } else {
+        result = await executeDfxCommand("cycles", "redeem-faucet-coupon", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error redeeming faucet coupon:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
   if (isProd) {
     await mainWindow.loadURL("app://./projects");
   } else {

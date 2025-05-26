@@ -168,4 +168,24 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   getCanisterMetadata: async (canisterName, network, projectPath) => {
     return ipcRenderer.invoke("canister:get-metadata", canisterName, network, projectPath);
   },
+
+  // Cycles operations
+  cyclesBalance: async (options) => {
+    return ipcRenderer.invoke("cycles:balance", options);
+  },
+  cyclesApprove: async (spender, amount, options) => {
+    return ipcRenderer.invoke("cycles:approve", spender, amount, options);
+  },
+  cyclesTransfer: async (to, amount, options) => {
+    return ipcRenderer.invoke("cycles:transfer", to, amount, options);
+  },
+  cyclesTopUp: async (canister, amount, options) => {
+    return ipcRenderer.invoke("cycles:top-up", canister, amount, options);
+  },
+  cyclesConvert: async (amount, options) => {
+    return ipcRenderer.invoke("cycles:convert", amount, options);
+  },
+  cyclesRedeemFaucetCoupon: async (coupon, options) => {
+    return ipcRenderer.invoke("cycles:redeem-faucet-coupon", coupon, options);
+  },
 });
