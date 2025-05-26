@@ -651,6 +651,57 @@ if (isProd) {
     }
   });
 
+  // IPC handler for listing NNS canisters
+  ipcMain.handle("canister:list-nns", async (event, network: string) => {
+    try {
+      // Validate input
+      if (!['local', 'ic'].includes(network)) {
+        throw new Error('Invalid network. Must be "local" or "ic"');
+      }
+
+      // Well-known NNS canister IDs for different networks
+      const nnsCanisterIds = {
+        local: {
+          'nns-registry': 'rwlgt-iiaaa-aaaaa-aaaaa-cai',
+          'nns-governance': 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+          'nns-ledger': 'ryjl3-tyaaa-aaaaa-aaaba-cai',
+          'nns-root': 'r7inp-6aaaa-aaaaa-aaabq-cai',
+          'nns-cycles-minting': 'rkp4c-7iaaa-aaaaa-aaaca-cai',
+          'nns-lifeline': 'rno2w-sqaaa-aaaaa-aaacq-cai',
+          'nns-genesis-token': 'renrk-eyaaa-aaaaa-aaada-cai',
+          'nns-sns-wasm': 'qaa6y-5yaaa-aaaaa-aaafa-cai'
+        },
+        ic: {
+          'nns-registry': 'rwlgt-iiaaa-aaaaa-aaaaa-cai',
+          'nns-governance': 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+          'nns-ledger': 'ryjl3-tyaaa-aaaaa-aaaba-cai',
+          'nns-root': 'r7inp-6aaaa-aaaaa-aaabq-cai',
+          'nns-cycles-minting': 'rkp4c-7iaaa-aaaaa-aaaca-cai',
+          'nns-lifeline': 'rno2w-sqaaa-aaaaa-aaacq-cai',
+          'nns-genesis-token': 'renrk-eyaaa-aaaaa-aaada-cai',
+          'nns-sns-wasm': 'qaa6y-5yaaa-aaaaa-aaafa-cai'
+        }
+      };
+
+      const canisters = nnsCanisterIds[network];
+      const nnsCanisters = Object.entries(canisters).map(([name, canister_id]) => ({
+        name,
+        canister_id,
+        type: 'nns' as const,
+        network,
+        status: 'Running', // NNS canisters are always running
+        projectName: 'Network Nervous System',
+        path: null // NNS canisters don't belong to a project
+      }));
+
+      console.log(`Listed ${nnsCanisters.length} NNS canisters for network: ${network}`);
+      return { success: true, data: nnsCanisters };
+    } catch (error) {
+      console.error('Failed to list NNS canisters:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
   // IPC handler for reading the JSON file
   ipcMain.handle("json:read", async (event, filePath, directoryPath) => {
     try {

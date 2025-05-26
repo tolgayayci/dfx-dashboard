@@ -37,6 +37,9 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   listCanisters: async (directoryPath) => {
     return ipcRenderer.invoke("canister:list", directoryPath);
   },
+  listNNSCanisters: async (network) => {
+    return ipcRenderer.invoke("canister:list-nns", network);
+  },
   jsonRead: async (filePath, directoryPath) => {
     return ipcRenderer.invoke("json:read", filePath, directoryPath);
   },

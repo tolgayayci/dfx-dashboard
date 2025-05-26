@@ -17,6 +17,7 @@ interface Versions {
   isDfxProject: (projectPath) => Promise<boolean>;
   isDfxInstalled: () => Promise<boolean>;
   listCanisters: (directoryPath) => Promise<any>;
+  listNNSCanisters: (network: string) => Promise<any>;
   jsonRead: (filePath, directoryPath) => Promise<any>;
   jsonWrite: (filePath, directoryPath, data) => Promise<any>;
   reloadApplication: () => Promise<void>;
