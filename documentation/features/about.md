@@ -17,7 +17,7 @@ The About page provides version information for three key components:
    - This is the version of the DFX Dashboard application you're currently using.
 
 2. **dfx Version**:
-   - Current version: 0.21.0
+   - Current version: 0.25.0
    - This indicates the version of the DFINITY Canister SDK (DFX) that's currently active in your Dashboard.
 
 3. **dfxvm Version**:

@@ -10,10 +10,10 @@ DFX Dashboard is a cross platform, electron based application designed to stream
 
 To use this application, you must have dfx installed on your operating system. 
 
-> This application is compatible with latest dfx 0.21.0, please make sure you have installed this version or older of dfx!
+> This application is compatible with latest dfx 0.25.0, please make sure you have installed this version or newer of dfx!
 
-- To install dfx, you’ll first need to open up your computer terminal, then run:
-```DFX_VERSION=0.21.0 sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"```
+- To install dfx, you'll first need to open up your computer terminal, then run:
+```DFX_VERSION=0.25.0 sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"```
 
 - To verify that dfx properly installed, run:
 ```dfx --version```

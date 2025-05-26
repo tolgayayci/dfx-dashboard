@@ -60,7 +60,7 @@ type HttpResponse = record {
   streaming_strategy : opt StreamingStrategy;
   status_code : nat16;
 };
-type InitArgs = record {};
+type InitArgs = record { set_permissions : opt SetPermissions };
 type Key = text;
 type ListPermitted = record { permission : Permission };
 type Permission = variant { Prepare; ManagePermissions; Commit };
@@ -123,6 +123,9 @@ service : {
   create_batch : (record {}) -> (record { batch_id : BatchId });
   create_chunk : (record { content : blob; batch_id : BatchId }) -> (
       record { chunk_id : ChunkId },
+    );
+  create_chunks : (record { content : vec blob; batch_id : BatchId }) -> (
+      record { chunk_ids : vec ChunkId },
     );
   deauthorize : (principal) -> ();
   delete_asset : (DeleteAssetArguments) -> ();

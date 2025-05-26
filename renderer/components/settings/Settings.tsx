@@ -1,5 +1,6 @@
 import EnvironmentVariables from "@components/settings/env-variables";
 import VersionManager from "@components/settings/version-manager";
+import DfxCompletion from "@components/settings/dfx-completion";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 
@@ -14,6 +15,9 @@ export default function SettingsComponent() {
           <TabsTrigger value="env" className="flex-1">
             Environment Variables
           </TabsTrigger>
+          <TabsTrigger value="completion" className="flex-1">
+            Shell Completion
+          </TabsTrigger>
         </TabsList>
       </div>
       <TabsContent value="version-manager">
@@ -21,6 +25,9 @@ export default function SettingsComponent() {
       </TabsContent>
       <TabsContent value="env">
         <EnvironmentVariables />
+      </TabsContent>
+      <TabsContent value="completion">
+        <DfxCompletion />
       </TabsContent>
     </Tabs>
   );

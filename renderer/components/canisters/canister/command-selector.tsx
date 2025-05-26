@@ -9,11 +9,11 @@ import {
 } from "@components/ui/select";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { commands } from "@lib/canister-commands-v0.21.0";
+import { commands } from "@lib/canister-commands-v0.25.0";
 import { Checkbox } from "@components/ui/checkbox";
 import { Label } from "@components/ui/label";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
-import { Loader2 } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -28,6 +28,7 @@ import {
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import { SelectSeparator } from "@components/ui/select";
 import CommandAssist from "@components/canisters/canister/command-assist";
+import { useToast } from "@components/ui/use-toast";
 
 const CliCommandSelector = ({
   canisterName,
@@ -38,7 +39,10 @@ const CliCommandSelector = ({
   setCommandError,
   setLatestCommand,
   setRunnedCommand,
+  isNNSCanister = false,
+  onViewOutput,
 }) => {
+  const { toast } = useToast();
   const defaultCommand = commands.length > 0 ? commands[0].value : "";
 
   const [selectedCommand, setSelectedCommand] = useState(
@@ -164,15 +168,73 @@ const CliCommandSelector = ({
 
   const handleRunCommand = async () => {
     setIsRunningCommand(true);
-    setRunnedCommand(latestCommand);
+    const timestamp = Date.now();
+    const commandWithTimestamp = `${latestCommand} # Executed at ${new Date(timestamp).toLocaleTimeString()}`;
+    setRunnedCommand(commandWithTimestamp);
+    
     try {
-      await runCli(selectedCommand, Object.values(commandArgs)).then(() => {
-        console.log("Command executed successfully");
-        // Update the runnedCommand state with the executed command
-        setRunnedCommand(latestCommand);
+      await runCli(selectedCommand, Object.values(commandArgs));
+      console.log("Command executed successfully");
+      
+      // Show success toast immediately after command completes
+      toast({
+        title: "Command Executed Successfully",
+        description: (
+          <div>
+            <pre className="bg-gray-100 text-black p-1 px-2 rounded-md mt-1">
+              {latestCommand}
+            </pre>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                // Trigger the output modal to open
+                if (onViewOutput) {
+                  onViewOutput();
+                }
+              }}
+              className="mt-2"
+            >
+              View Output
+            </Button>
+          </div>
+        ),
+        variant: "default",
+        className: "border-green-500",
+        duration: 5000, // Longer duration so user has time to click button
       });
+      
     } catch (error) {
       console.error("Error executing command:", error);
+      
+      // Show error toast immediately after command fails
+      toast({
+        title: "Command Execution Failed",
+        description: (
+          <div>
+            <pre className="bg-gray-100 text-black p-1 px-2 rounded-md mt-1">
+              {latestCommand}
+            </pre>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                // Trigger the output modal to open
+                if (onViewOutput) {
+                  onViewOutput();
+                }
+              }}
+              className="mt-2"
+            >
+              View Output
+            </Button>
+          </div>
+        ),
+        variant: "default",
+        className: "border-red-500",
+        duration: 5000, // Longer duration so user has time to click button
+      });
+      
     } finally {
       setIsRunningCommand(false);
     }
@@ -180,7 +242,8 @@ const CliCommandSelector = ({
 
   const runCli = async (command, args) => {
     try {
-      if (path) {
+      // Handle both user canisters (with project path) and NNS canisters (path = "nns")
+      if (path && (path !== "nns" || isNNSCanister)) {
         const selectedCommandDetails = commands.find(
           (c) => c.value === command
         );
@@ -199,16 +262,43 @@ const CliCommandSelector = ({
           isNaN(arg) ? arg : parseInt(arg, 10)
         );
 
-        const result = await window.awesomeApi.runDfxCommand(
-          "canister",
-          command,
-          [...processedArgs],
-          flags,
-          path
-        );
+        // For NNS canisters, we need to handle commands differently
+        if (isNNSCanister && path === "nns") {
+          // For NNS canisters, we can't use project-specific commands
+          // Instead, we'll use the canister ID directly with network flags
+          const networkFlag = commandOptions["--network"] || networkPreference;
+          const nnsFlags = [...flags];
+          
+          // Ensure network flag is included for NNS operations
+          if (!nnsFlags.includes("--network")) {
+            nnsFlags.push("--network", networkFlag);
+          }
 
-        setCommandError("");
-        setCommandOutput(result);
+          const result = await window.awesomeApi.runDfxCommand(
+            "canister",
+            command,
+            [...processedArgs],
+            nnsFlags,
+            null // No project path for NNS canisters
+          );
+
+          setCommandError("");
+          setCommandOutput(result);
+        } else {
+          // Regular user canister commands
+          const result = await window.awesomeApi.runDfxCommand(
+            "canister",
+            command,
+            [...processedArgs],
+            flags,
+            path
+          );
+
+          setCommandError("");
+          setCommandOutput(result);
+        }
+      } else {
+        throw new Error("No valid project path or canister context available");
       }
     } catch (error) {
       setCommandError(`${error.message}`);
@@ -222,7 +312,7 @@ const CliCommandSelector = ({
   );
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
       <div className="bg-gray-200 dark:bg-white dark:text-black p-4 rounded-md mb-4 flex justify-between items-center">
         <code>{initialCommand || latestCommand}</code>
         {shouldShowModalButton && (
@@ -234,7 +324,7 @@ const CliCommandSelector = ({
           />
         )}
       </div>
-      <ScrollArea className="max-h-[calc(82vh-200px)] overflow-y-auto">
+      <ScrollArea className="max-h-[calc(100vh-300px)] overflow-y-auto">
         <div className="flex flex-col space-y-4 mx-1 mt-1">
           <Select
             value={selectedCommand}
@@ -412,19 +502,27 @@ const CliCommandSelector = ({
         </div>
         <ScrollBar />
       </ScrollArea>
-      {isRunningCommand ? (
-        <Button className="mt-4" disabled>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Command Running...
-        </Button>
-      ) : (
-        <Button
-          className={selectedCommand ? "mt-4" : ""}
-          onClick={handleRunCommand}
-        >
-          Run Command
-        </Button>
-      )}
+      
+      {/* Floating Action Button */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            onClick={handleRunCommand}
+            disabled={isRunningCommand}
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50"
+            size="icon"
+          >
+            {isRunningCommand ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <Play className="h-6 w-6" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="left">
+          <p>{isRunningCommand ? "Running command..." : "Run Command"}</p>
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 };

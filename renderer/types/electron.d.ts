@@ -17,6 +17,7 @@ interface Versions {
   isDfxProject: (projectPath) => Promise<boolean>;
   isDfxInstalled: () => Promise<boolean>;
   listCanisters: (directoryPath) => Promise<any>;
+  listNNSCanisters: (network: string) => Promise<any>;
   jsonRead: (filePath, directoryPath) => Promise<any>;
   jsonWrite: (filePath, directoryPath, data) => Promise<any>;
   reloadApplication: () => Promise<void>;
@@ -88,6 +89,90 @@ interface Versions {
 
   readMethodsFromFile: (filePath: string) => Promise<string[]>;
 
+  getCanisterMetadata: (
+    canisterName: string,
+    network: string,
+    projectPath?: string
+  ) => Promise<{
+    success: boolean;
+    data?: {
+      'candid:service'?: string;
+      'candid:args'?: string;
+      'dfx:wasm_url'?: string;
+      'dfx:deps'?: string;
+      'dfx:init'?: string;
+      'cdk:name'?: string;
+      'cdk:version'?: string;
+    };
+    error?: string;
+  }>;
+
+  // Cycles operations
+  cyclesBalance: (options?: {
+    network?: string;
+    precise?: boolean;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesApprove: (
+    spender: string,
+    amount: string,
+    options?: {
+      network?: string;
+      memo?: string;
+      expiresAt?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesTransfer: (
+    to: string,
+    amount: string,
+    options?: {
+      network?: string;
+      memo?: string;
+      fromSubaccount?: string;
+      toSubaccount?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesTopUp: (
+    canister: string,
+    amount: string,
+    options?: {
+      network?: string;
+      fromSubaccount?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesConvert: (
+    amount: string,
+    options?: {
+      network?: string;
+      toSubaccount?: string;
+      memo?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cyclesRedeemFaucetCoupon: (
+    coupon: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Settings operations
+  settingsDetectShell: () => Promise<{
+    success: boolean;
+    data?: {
+      shell: string;
+      shellName: string;
+      supported: boolean;
+    };
+    error?: string;
+  }>;
+
+  settingsSetupCompletion: (
+    enable: boolean
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
 }
 
 interface Window {

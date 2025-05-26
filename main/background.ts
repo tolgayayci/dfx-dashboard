@@ -651,6 +651,57 @@ if (isProd) {
     }
   });
 
+  // IPC handler for listing NNS canisters
+  ipcMain.handle("canister:list-nns", async (event, network: string) => {
+    try {
+      // Validate input
+      if (!['local', 'ic'].includes(network)) {
+        throw new Error('Invalid network. Must be "local" or "ic"');
+      }
+
+      // Well-known NNS canister IDs for different networks
+      const nnsCanisterIds = {
+        local: {
+          'nns-registry': 'rwlgt-iiaaa-aaaaa-aaaaa-cai',
+          'nns-governance': 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+          'nns-ledger': 'ryjl3-tyaaa-aaaaa-aaaba-cai',
+          'nns-root': 'r7inp-6aaaa-aaaaa-aaabq-cai',
+          'nns-cycles-minting': 'rkp4c-7iaaa-aaaaa-aaaca-cai',
+          'nns-lifeline': 'rno2w-sqaaa-aaaaa-aaacq-cai',
+          'nns-genesis-token': 'renrk-eyaaa-aaaaa-aaada-cai',
+          'nns-sns-wasm': 'qaa6y-5yaaa-aaaaa-aaafa-cai'
+        },
+        ic: {
+          'nns-registry': 'rwlgt-iiaaa-aaaaa-aaaaa-cai',
+          'nns-governance': 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+          'nns-ledger': 'ryjl3-tyaaa-aaaaa-aaaba-cai',
+          'nns-root': 'r7inp-6aaaa-aaaaa-aaabq-cai',
+          'nns-cycles-minting': 'rkp4c-7iaaa-aaaaa-aaaca-cai',
+          'nns-lifeline': 'rno2w-sqaaa-aaaaa-aaacq-cai',
+          'nns-genesis-token': 'renrk-eyaaa-aaaaa-aaada-cai',
+          'nns-sns-wasm': 'qaa6y-5yaaa-aaaaa-aaafa-cai'
+        }
+      };
+
+      const canisters = nnsCanisterIds[network];
+      const nnsCanisters = Object.entries(canisters).map(([name, canister_id]) => ({
+        name,
+        canister_id,
+        type: 'nns' as const,
+        network,
+        status: 'Running', // NNS canisters are always running
+        projectName: 'Network Nervous System',
+        path: null // NNS canisters don't belong to a project
+      }));
+
+      console.log(`Listed ${nnsCanisters.length} NNS canisters for network: ${network}`);
+      return { success: true, data: nnsCanisters };
+    } catch (error) {
+      console.error('Failed to list NNS canisters:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
   // IPC handler for reading the JSON file
   ipcMain.handle("json:read", async (event, filePath, directoryPath) => {
     try {
@@ -679,6 +730,106 @@ if (isProd) {
       }
     }
   );
+
+  // IPC handler for getting canister metadata
+  ipcMain.handle("canister:get-metadata", async (event, canisterName: string, network: string, projectPath?: string) => {
+    try {
+      console.log(`Getting metadata for canister: ${canisterName} on network: ${network}`);
+      
+      // Validate inputs
+      if (!canisterName) {
+        throw new Error('Canister name is required');
+      }
+      if (!network) {
+        throw new Error('Network is required');
+      }
+
+      const useBundledDfx = store.get("useBundledDfx");
+      
+      // Common metadata types to retrieve
+      const metadataTypes = [
+        'candid:service',
+        'candid:args', 
+        'dfx:wasm_url',
+        'dfx:deps',
+        'dfx:init',
+        'cdk:name',
+        'cdk:version'
+      ];
+
+      const metadata: Record<string, any> = {};
+      
+      // Function to execute metadata command with fallback
+      const executeMetadataCommand = async (useBundled: boolean, metadataType: string): Promise<string> => {
+        try {
+          if (useBundled) {
+            return await executeBundledDfxCommand(
+              bundledDfxPath,
+              "canister",
+              "metadata",
+              [canisterName, metadataType],
+              ["--network", network],
+              projectPath
+            );
+          } else {
+            return await executeDfxCommand(
+              "canister",
+              "metadata",
+              [canisterName, metadataType],
+              ["--network", network],
+              projectPath
+            );
+          }
+        } catch (error) {
+          console.error(`Error executing ${useBundled ? "bundled" : "system"} DFX for metadata ${metadataType}:`, error);
+          throw error;
+        }
+      };
+
+      // Retrieve each metadata type
+      for (const metadataType of metadataTypes) {
+        try {
+          let result = await executeMetadataCommand(useBundledDfx, metadataType);
+          
+          // Clean up the result - remove extra whitespace and quotes if present
+          result = result.trim();
+          if (result.startsWith('"') && result.endsWith('"')) {
+            result = result.slice(1, -1);
+          }
+          
+          metadata[metadataType] = result;
+          console.log(`Retrieved metadata ${metadataType}: ${result.substring(0, 100)}...`);
+        } catch (error) {
+          // If bundled dfx fails, try system dfx as fallback
+          if (useBundledDfx) {
+            try {
+              const systemDfxAvailable = await isSystemDfxAvailable();
+              if (systemDfxAvailable) {
+                const result = await executeMetadataCommand(false, metadataType);
+                metadata[metadataType] = result.trim();
+                console.log(`Retrieved metadata ${metadataType} with system dfx fallback`);
+              } else {
+                console.warn(`Metadata ${metadataType} not available and no system dfx fallback`);
+                metadata[metadataType] = null;
+              }
+            } catch (fallbackError) {
+              console.warn(`Failed to get metadata ${metadataType} with both bundled and system dfx:`, fallbackError);
+              metadata[metadataType] = null;
+            }
+          } else {
+            console.warn(`Failed to get metadata ${metadataType}:`, error);
+            metadata[metadataType] = null;
+          }
+        }
+      }
+
+      console.log(`Successfully retrieved metadata for canister: ${canisterName}`);
+      return { success: true, data: metadata };
+    } catch (error) {
+      console.error('Failed to get canister metadata:', error);
+      return { success: false, error: error.message };
+    }
+  });
 
   ipcMain.handle(
     "dfx-command",
@@ -1068,6 +1219,295 @@ if (isProd) {
         }
       });
     });
+  });
+
+  // Cycles IPC Handlers
+  ipcMain.handle("cycles:balance", async (event, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add precise option
+      if (options.precise) {
+        args.push("--precise");
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "balance", args);
+      } else {
+        result = await executeDfxCommand("cycles", "balance", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error getting cycles balance:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:approve", async (event, spender, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [spender, amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add memo option
+      if (options.memo) {
+        args.push("--memo", options.memo);
+      }
+      
+      // Add expires-at option
+      if (options.expiresAt) {
+        args.push("--expires-at", options.expiresAt);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "approve", args);
+      } else {
+        result = await executeDfxCommand("cycles", "approve", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error approving cycles:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:transfer", async (event, to, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [to, amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add memo option
+      if (options.memo) {
+        args.push("--memo", options.memo);
+      }
+      
+      // Add from-subaccount option
+      if (options.fromSubaccount) {
+        args.push("--from-subaccount", options.fromSubaccount);
+      }
+      
+      // Add to-subaccount option
+      if (options.toSubaccount) {
+        args.push("--to-subaccount", options.toSubaccount);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "transfer", args);
+      } else {
+        result = await executeDfxCommand("cycles", "transfer", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error transferring cycles:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:top-up", async (event, canister, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [canister, amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add from-subaccount option
+      if (options.fromSubaccount) {
+        args.push("--from-subaccount", options.fromSubaccount);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "top-up", args);
+      } else {
+        result = await executeDfxCommand("cycles", "top-up", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error topping up canister:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:convert", async (event, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add to-subaccount option
+      if (options.toSubaccount) {
+        args.push("--to-subaccount", options.toSubaccount);
+      }
+      
+      // Add memo option
+      if (options.memo) {
+        args.push("--memo", options.memo);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "convert", args);
+      } else {
+        result = await executeDfxCommand("cycles", "convert", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error converting ICP to cycles:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cycles:redeem-faucet-coupon", async (event, coupon, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [coupon];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cycles", "redeem-faucet-coupon", args);
+      } else {
+        result = await executeDfxCommand("cycles", "redeem-faucet-coupon", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error redeeming faucet coupon:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Settings IPC handlers
+  ipcMain.handle("settings:detect-shell", async () => {
+    try {
+      const shell = process.env.SHELL || "/bin/bash";
+      const shellName = path.basename(shell);
+      
+      return { 
+        success: true, 
+        data: {
+          shell: shell,
+          shellName: shellName,
+          supported: ["bash", "zsh", "fish", "elvish", "powershell"].includes(shellName)
+        }
+      };
+    } catch (error) {
+      console.error("Error detecting shell:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("settings:setup-completion", async (event, enable: boolean) => {
+    try {
+      const shell = process.env.SHELL || "/bin/bash";
+      const shellName = path.basename(shell);
+      const homeDir = require("os").homedir();
+      
+      if (!enable) {
+        return { 
+          success: true, 
+          data: "Completion setup disabled. Manual removal instructions provided." 
+        };
+      }
+
+      // Generate completion script
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let completionScript: string;
+      
+      if (useBundledDfx) {
+        completionScript = await executeBundledDfxCommand(bundledDfxPath, "completion", shellName);
+      } else {
+        completionScript = await executeDfxCommand("completion", shellName);
+      }
+
+      // Determine the appropriate shell config file
+      let configFile: string;
+      switch (shellName) {
+        case "zsh":
+          configFile = path.join(homeDir, ".zshrc");
+          break;
+        case "bash":
+          configFile = path.join(homeDir, ".bashrc");
+          // Also check for .bash_profile on macOS
+          if (process.platform === "darwin" && !fs.existsSync(configFile)) {
+            configFile = path.join(homeDir, ".bash_profile");
+          }
+          break;
+        case "fish":
+          const fishConfigDir = path.join(homeDir, ".config", "fish", "completions");
+          if (!fs.existsSync(fishConfigDir)) {
+            fs.mkdirSync(fishConfigDir, { recursive: true });
+          }
+          configFile = path.join(fishConfigDir, "dfx.fish");
+          break;
+        default:
+          throw new Error(`Unsupported shell: ${shellName}`);
+      }
+
+      // For fish, write the completion script directly
+      if (shellName === "fish") {
+        fs.writeFileSync(configFile, completionScript);
+      } else {
+        // For bash/zsh, append source command to config file
+        const sourceCommand = `\n# DFX completion (added by DFX Dashboard)\neval "$(dfx completion ${shellName})"\n`;
+        
+        // Check if completion is already set up
+        if (fs.existsSync(configFile)) {
+          const currentContent = fs.readFileSync(configFile, "utf8");
+          if (currentContent.includes("dfx completion")) {
+            return { 
+              success: true, 
+              data: "DFX completion is already configured in your shell." 
+            };
+          }
+        }
+        
+        // Append the source command
+        fs.appendFileSync(configFile, sourceCommand);
+      }
+
+      return { 
+        success: true, 
+        data: `DFX completion has been configured for ${shellName}. Please restart your terminal or run 'source ${configFile}' to enable it.` 
+      };
+    } catch (error) {
+      console.error("Error setting up completion:", error);
+      return { success: false, error: error.message };
+    }
   });
 
   if (isProd) {

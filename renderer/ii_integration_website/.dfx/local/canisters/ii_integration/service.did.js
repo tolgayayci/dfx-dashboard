@@ -7,7 +7,7 @@ export const idlFactory = ({ IDL }) => {
   const UpgradeArgs = IDL.Record({
     'set_permissions' : IDL.Opt(SetPermissions),
   });
-  const InitArgs = IDL.Record({});
+  const InitArgs = IDL.Record({ 'set_permissions' : IDL.Opt(SetPermissions) });
   const AssetCanisterArgs = IDL.Variant({
     'Upgrade' : UpgradeArgs,
     'Init' : InitArgs,
@@ -156,6 +156,16 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Record({ 'chunk_id' : ChunkId })],
         [],
       ),
+    'create_chunks' : IDL.Func(
+        [
+          IDL.Record({
+            'content' : IDL.Vec(IDL.Vec(IDL.Nat8)),
+            'batch_id' : BatchId,
+          }),
+        ],
+        [IDL.Record({ 'chunk_ids' : IDL.Vec(ChunkId) })],
+        [],
+      ),
     'deauthorize' : IDL.Func([IDL.Principal], [], []),
     'delete_asset' : IDL.Func([DeleteAssetArguments], [], []),
     'delete_batch' : IDL.Func([DeleteBatchArguments], [], []),
@@ -277,7 +287,7 @@ export const init = ({ IDL }) => {
   const UpgradeArgs = IDL.Record({
     'set_permissions' : IDL.Opt(SetPermissions),
   });
-  const InitArgs = IDL.Record({});
+  const InitArgs = IDL.Record({ 'set_permissions' : IDL.Opt(SetPermissions) });
   const AssetCanisterArgs = IDL.Variant({
     'Upgrade' : UpgradeArgs,
     'Init' : InitArgs,

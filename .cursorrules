@@ -1,0 +1,360 @@
+# DFX Dashboard Cursor Rules
+
+## Project Overview
+This is an Electron-based desktop application providing a GUI for DFINITY's Internet Computer dfx CLI. The app uses Next.js for the frontend and Electron for the desktop wrapper.
+
+## CLI-First Development Rule
+**IMPORTANT**: This app is a GUI that simplifies CLI interactions. Before implementing any GUI feature:
+1. **Always run the actual CLI commands** in the terminal to verify they work
+2. **Check CLI help documentation** using `--help` flags for up-to-date usage
+3. **Test command outputs** to understand the exact data structure returned
+4. **Ensure CLI functionality works** before building the GUI wrapper
+5. **Use real dfx commands** to validate implementation approach
+
+## Commit Strategy
+- Commit main features upon user approval (not every small task)
+- User will say "I approve commit" to trigger commits
+- Use descriptive commit messages that reference the milestone task
+
+## Architecture & Technology Stack
+
+### Core Technologies
+- **Frontend**: Next.js 12+ with React 18+ and TypeScript
+- **Desktop**: Electron 26+ with IPC communication
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **State**: Electron Store for persistence, React state for UI
+- **Build**: Nextron (Next.js + Electron integration)
+
+### DFX Integration
+- **Minimum dfx version**: 0.25.0 (REQUIRED)
+- **Bundled dfx**: Include dfx 0.25.0 binary in resources/
+- **Command execution**: Use dfx-helper.ts for all dfx interactions
+- **Fallback**: Support both system and bundled dfx
+- **NNS Extension**: Use `dfx extension install nns` for NNS functionality
+
+## File Structure & Conventions
+
+### Directory Structure
+```
+├── main/                    # Electron main process
+│   ├── background.ts        # Main app logic & IPC handlers
+│   ├── preload.js          # IPC bridge (secure context)
+│   └── helpers/            # Core functionality modules
+├── renderer/               # Next.js frontend
+│   ├── pages/              # Next.js pages (file-based routing)
+│   ├── components/         # React components
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/                # Utility functions
+│   └── types/              # TypeScript type definitions
+└── resources/              # Static assets & bundled binaries
+```
+
+### Component Organization
+- **Feature-based**: Group components by feature (e.g., `components/canisters/`)
+- **Shared UI**: Common components in `components/ui/`
+- **Page components**: Main feature components (e.g., `Canisters.tsx`)
+- **Sub-components**: Feature-specific components in subdirectories
+
+## Coding Standards
+
+### TypeScript
+- **Strict mode**: Always use strict TypeScript
+- **Interfaces**: Prefer interfaces over types for object shapes
+- **Enums**: Use const assertions or union types instead of enums
+- **Null safety**: Handle null/undefined explicitly
+
+```typescript
+// Good
+interface CanisterData {
+  name: string;
+  canister_id: string;
+  type: 'user' | 'nns';
+  network: 'local' | 'ic' | 'custom';
+  status?: string;
+}
+
+// Avoid
+type CanisterData = {
+  name: string;
+  // ... rest
+}
+```
+
+### React Components
+- **Functional components**: Use function declarations, not arrow functions
+- **Hooks**: Follow React hooks rules, use custom hooks for complex logic
+- **Props**: Always type props with interfaces
+- **State**: Use React state for UI, Electron Store for persistence
+
+```typescript
+// Good
+interface ProjectCardProps {
+  project: ProjectData;
+  onProjectChange: () => void;
+}
+
+export default function ProjectCard({ project, onProjectChange }: ProjectCardProps) {
+  // Component logic
+}
+```
+
+### Styling
+- **Tailwind CSS**: Use utility classes, avoid custom CSS when possible
+- **shadcn/ui**: Use shadcn/ui components as base, extend with Tailwind
+- **Responsive**: Mobile-first approach with responsive utilities
+- **Dark mode**: Support both light and dark themes
+
+```tsx
+// Good
+<Button 
+  variant="outline" 
+  size="sm" 
+  className="hover:text-red-500 ml-auto"
+>
+  <Trash2 className="h-5 w-5" />
+</Button>
+```
+
+## IPC Communication Rules
+
+### Main Process (background.ts)
+- **Handler naming**: Use descriptive, namespaced names (`canister:list`, `wallet:transfer`)
+- **Error handling**: Always wrap in try-catch, return structured errors
+- **Logging**: Use electron-log for all operations
+- **Security**: Validate all inputs from renderer
+
+```typescript
+// Good
+ipcMain.handle("canister:list-nns", async (event, network: string) => {
+  try {
+    // Validate input
+    if (!['local', 'ic'].includes(network)) {
+      throw new Error('Invalid network');
+    }
+    
+    // Execute operation
+    const result = await fetchNNSCanisters(network);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('Failed to list NNS canisters:', error);
+    return { success: false, error: error.message };
+  }
+});
+```
+
+### Renderer Process (preload.js)
+- **API exposure**: Only expose necessary functions via contextBridge
+- **Type safety**: Ensure TypeScript types match IPC signatures
+- **Async handling**: All IPC calls should return Promises
+
+```javascript
+// preload.js
+contextBridge.exposeInMainWorld("awesomeApi", {
+  listNNSCanisters: (network) => ipcRenderer.invoke("canister:list-nns", network),
+  // ... other APIs
+});
+```
+
+## DFX Integration Rules
+
+### Command Execution
+- **Use helpers**: Always use `dfx-helper.ts` functions
+- **Version compatibility**: Ensure commands work with dfx 0.25.0+
+- **Error handling**: Parse dfx errors and provide user-friendly messages
+- **Working directory**: Always specify working path for project-specific commands
+
+```typescript
+// Good
+const result = await executeDfxCommand(
+  "canister", 
+  "status", 
+  [canisterId], 
+  ["--network", network],
+  projectPath
+);
+```
+
+### New dfx 0.25.0 Features
+- **Use new flags**: Leverage new command options and flags
+- **Backward compatibility**: Maintain support for older dfx versions where possible
+- **Feature detection**: Check dfx version before using new features
+
+## Component Development Rules
+
+### New Feature Components
+- **Progressive enhancement**: Build features that degrade gracefully
+- **Loading states**: Always show loading indicators for async operations
+- **Error boundaries**: Implement error handling at component level
+- **Accessibility**: Use semantic HTML and ARIA attributes
+
+### UI Components
+- **shadcn/ui base**: Start with shadcn/ui components (built on Radix UI primitives)
+- **Consistent spacing**: Use Tailwind spacing scale
+- **Icon usage**: Use Lucide React icons consistently
+- **Form handling**: Use react-hook-form with zod validation
+
+```tsx
+// Good component structure
+export default function CanisterCard({ canister }: CanisterCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleAction = async () => {
+    setIsLoading(true);
+    try {
+      await window.awesomeApi.performCanisterAction(canister.id);
+      toast({ title: "Success", description: "Action completed" });
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      {/* Component content */}
+    </Card>
+  );
+}
+```
+
+## Data Management
+
+### State Management
+- **Local state**: Use React state for UI-only data
+- **Persistent state**: Use Electron Store for app settings and data
+- **Async state**: Use custom hooks for data fetching
+- **Form state**: Use react-hook-form for all forms
+
+### Data Fetching
+- **Error handling**: Always handle network and dfx errors
+- **Loading states**: Show appropriate loading indicators
+- **Caching**: Cache expensive operations when appropriate
+- **Refresh**: Provide manual refresh capabilities
+
+## Security Guidelines
+
+### IPC Security
+- **Input validation**: Validate all data from renderer process
+- **Sanitization**: Sanitize file paths and command arguments
+- **Principle of least privilege**: Only expose necessary APIs
+- **Context isolation**: Use contextBridge, never disable context isolation
+
+### File System Access
+- **Path validation**: Validate all file paths
+- **Permission checks**: Check file permissions before operations
+- **Sandboxing**: Limit file system access to necessary directories
+
+## Testing Requirements
+
+### Unit Tests
+- **Component testing**: Test React components with React Testing Library
+- **IPC testing**: Mock IPC calls in component tests
+- **Helper testing**: Test dfx-helper functions with mocked commands
+- **Error scenarios**: Test error handling paths
+
+### Integration Tests
+- **User workflows**: Test complete user journeys
+- **dfx integration**: Test with real dfx commands (in CI)
+- **Cross-platform**: Test on macOS, Linux, and Windows (WSL)
+
+## Performance Guidelines
+
+### Electron Performance
+- **Memory management**: Avoid memory leaks in long-running processes
+- **Process separation**: Keep heavy operations in main process
+- **Lazy loading**: Load components and data on demand
+- **Debouncing**: Debounce user inputs and API calls
+
+### React Performance
+- **Memoization**: Use React.memo for expensive components
+- **Virtualization**: Use virtual scrolling for large lists
+- **Code splitting**: Split code at route level
+- **Bundle optimization**: Minimize bundle size
+
+## Error Handling
+
+### User-Facing Errors
+- **Toast notifications**: Use toast system for user feedback
+- **Error boundaries**: Catch and display React errors gracefully
+- **Retry mechanisms**: Provide retry options for failed operations
+- **Help text**: Include helpful error messages and solutions
+
+### Development Errors
+- **Logging**: Use electron-log for debugging
+- **Error reporting**: Log errors with context information
+- **Debugging**: Include source maps in development builds
+
+## Deployment & Building
+
+### Build Process
+- **Cross-platform**: Build for macOS, Linux, and Windows
+- **Code signing**: Sign macOS builds for security
+- **Auto-updates**: Use electron-updater for automatic updates
+- **Resource bundling**: Include dfx 0.25.0 binary in builds
+
+### Release Process
+- **Version bumping**: Follow semantic versioning
+- **Changelog**: Maintain detailed changelog
+- **Testing**: Test builds on all target platforms
+- **Documentation**: Update documentation with new features
+
+## Migration Guidelines
+
+### Existing Code
+- **Non-breaking changes**: Maintain backward compatibility
+- **Gradual migration**: Migrate features incrementally
+- **Feature flags**: Use feature flags for new functionality
+- **Testing**: Thoroughly test existing functionality
+
+### dfx Version Updates
+- **Compatibility testing**: Test with multiple dfx versions
+- **Fallback mechanisms**: Provide fallbacks for unsupported features
+- **User communication**: Clearly communicate version requirements
+
+## Documentation Requirements
+
+### Code Documentation
+- **JSDoc comments**: Document complex functions and components
+- **Type annotations**: Use descriptive TypeScript types
+- **README updates**: Keep README current with new features
+- **API documentation**: Document all IPC APIs
+
+### User Documentation
+- **Feature guides**: Create guides for new features
+- **Troubleshooting**: Maintain troubleshooting documentation
+- **Installation**: Keep installation instructions current
+- **Screenshots**: Include current screenshots in documentation
+
+## Specific Implementation Rules
+
+### Milestone 1 Features
+- **NNS Integration**: Use official NNS canister IDs and interfaces
+- **Filtering**: Implement client-side filtering with search
+- **dfx 0.25.0**: Use new command flags and options
+- **Metadata**: Display comprehensive canister metadata
+
+### Milestone 2 Features
+- **Wallet Page**: Follow existing page structure patterns
+- **Cache Management**: Use dfxvm-style interface patterns
+- **Ledger Integration**: Use official ledger canister interfaces
+- **Address Book**: Store addresses securely in Electron Store
+
+## Code Review Checklist
+
+### Before Submitting
+- [ ] TypeScript strict mode compliance
+- [ ] All IPC handlers have error handling
+- [ ] Components have loading and error states
+- [ ] New features have corresponding tests
+- [ ] Documentation is updated
+- [ ] dfx 0.25.0 compatibility verified
+- [ ] No breaking changes to existing APIs
+- [ ] Performance impact assessed
+- [ ] Security implications reviewed
+- [ ] Cross-platform compatibility checked 

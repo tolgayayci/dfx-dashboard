@@ -37,6 +37,9 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   listCanisters: async (directoryPath) => {
     return ipcRenderer.invoke("canister:list", directoryPath);
   },
+  listNNSCanisters: async (network) => {
+    return ipcRenderer.invoke("canister:list-nns", network);
+  },
   jsonRead: async (filePath, directoryPath) => {
     return ipcRenderer.invoke("json:read", filePath, directoryPath);
   },
@@ -161,5 +164,36 @@ contextBridge.exposeInMainWorld("awesomeApi", {
 
   readMethodsFromFile: async (filePath) => {
     return ipcRenderer.invoke('read-methods-from-file', filePath);
+  },
+  getCanisterMetadata: async (canisterName, network, projectPath) => {
+    return ipcRenderer.invoke("canister:get-metadata", canisterName, network, projectPath);
+  },
+
+  // Cycles operations
+  cyclesBalance: async (options) => {
+    return ipcRenderer.invoke("cycles:balance", options);
+  },
+  cyclesApprove: async (spender, amount, options) => {
+    return ipcRenderer.invoke("cycles:approve", spender, amount, options);
+  },
+  cyclesTransfer: async (to, amount, options) => {
+    return ipcRenderer.invoke("cycles:transfer", to, amount, options);
+  },
+  cyclesTopUp: async (canister, amount, options) => {
+    return ipcRenderer.invoke("cycles:top-up", canister, amount, options);
+  },
+  cyclesConvert: async (amount, options) => {
+    return ipcRenderer.invoke("cycles:convert", amount, options);
+  },
+  cyclesRedeemFaucetCoupon: async (coupon, options) => {
+    return ipcRenderer.invoke("cycles:redeem-faucet-coupon", coupon, options);
+  },
+
+  // Settings operations
+  settingsDetectShell: async () => {
+    return ipcRenderer.invoke("settings:detect-shell");
+  },
+  settingsSetupCompletion: async (enable) => {
+    return ipcRenderer.invoke("settings:setup-completion", enable);
   },
 });
