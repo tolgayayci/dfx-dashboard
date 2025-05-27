@@ -1,8 +1,7 @@
 {
-  "private": true,
   "name": "dfinity-dfx-gui",
   "description": "DFX Dashboard is a cross platform, electron based application designed to streamline the use of the DFINITY's Internet Computer `dfx` CLI.",
-  "version": "0.2.2-beta",
+  "version": "0.3.0-beta",
   "author": "Tolga Yaycı <tolgayayci@protonmail.com>",
   "main": "app/background.js",
   "repository": {

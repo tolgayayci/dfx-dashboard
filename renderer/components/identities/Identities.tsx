@@ -55,6 +55,8 @@ import { protectedIdentityRemoveError } from "@lib/notifications";
 import { UserIcon, Trash2, Search } from "lucide-react";
 import IdentityModal from "@components/identities/identity-modal";
 import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
+import LedgerTab from "@components/identities/ledger-tab";
 
 const ReactJson = dynamic(() => import("react-json-view"), {
   ssr: false,
@@ -458,91 +460,106 @@ export default function IdentitiesComponent() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-106px)]">
-      <div className="flex items-center justify-between">
-        <Alert className="flex items-center justify-between py-6">
-          <div className="flex items-center">
-            <UserIcon className="h-5 w-5 mr-4" />
-            <div>
-              <AlertTitle>
-                You have {identities?.length ? identities?.length : "0"}{" "}
-                identities
-              </AlertTitle>
-              <AlertDescription>
-                You can add, remove, or edit your identities on this page.
-              </AlertDescription>
-            </div>
-          </div>
-          <Button onClick={() => setShowCreateIdentityDialog(true)}>
-            Create New Identity
-          </Button>
-        </Alert>
-        <IdentityModal
-          showCreateIdentityDialog={showCreateIdentityDialog}
-          setShowCreateIdentityDialog={setShowCreateIdentityDialog}
-        />
-      </div>
-
-      {identities ? (
-        <div className="flex-grow">
-          <div className="my-6">
-            <Input
-              type="search"
-              placeholder={`Search for an identity between ${identities.length} identities`}
-              onChange={handleSearchChange}
-              value={searchQuery}
+      <Tabs defaultValue="identities" className="w-full h-full flex flex-col">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="identities">Identities</TabsTrigger>
+          <TabsTrigger value="ledger">Ledger</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="identities" className="flex-grow flex flex-col">
+          <div className="flex items-center justify-between">
+            <Alert className="flex items-center justify-between py-6">
+              <div className="flex items-center">
+                <UserIcon className="h-5 w-5 mr-4" />
+                <div>
+                  <AlertTitle>
+                    You have {identities?.length ? identities?.length : "0"}{" "}
+                    identities
+                  </AlertTitle>
+                  <AlertDescription>
+                    You can add, remove, or edit your identities on this page.
+                  </AlertDescription>
+                </div>
+              </div>
+              <Button onClick={() => setShowCreateIdentityDialog(true)}>
+                Create New Identity
+              </Button>
+            </Alert>
+            <IdentityModal
+              showCreateIdentityDialog={showCreateIdentityDialog}
+              setShowCreateIdentityDialog={setShowCreateIdentityDialog}
             />
           </div>
-          <ScrollArea className="h-[calc(100vh-300px)] overflow-y-auto">
-            {identities.filter((identity) =>
-              identity.name.toLowerCase().includes(searchQuery.toLowerCase())
-            ).length > 0 ? (
-              <div className="grid grid-cols-3 gap-8">
-                {identities
-                  .filter((identity) =>
-                    identity.name
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase())
-                  )
-                  .map((identity) => (
-                    <IdentityCard
-                      key={identity.name}
-                      identity={identity}
-                      activeIdentityName={activeIdentityName}
-                      onIdentitySelect={handleIdentitySelect}
-                    />
-                  ))}
+
+          {identities ? (
+            <div className="flex-grow">
+              <div className="my-6">
+                <Input
+                  type="search"
+                  placeholder={`Search for an identity between ${identities.length} identities`}
+                  onChange={handleSearchChange}
+                  value={searchQuery}
+                />
               </div>
-            ) : (
-              <div className="h-[calc(100vh-300px)] w-full rounded-md border flex flex-col items-center justify-center space-y-4">
-                <Search className="h-12 w-12" />
-                <p className="text-lg">No Identities Found</p>
-                <p className="text-sm text-gray-600 text-center max-w-md leading-relaxed">
-                  No identities match your search query "{searchQuery}".
-                  <br />
-                  Try adjusting your search or create a new identity.
-                </p>
-                <Button onClick={() => setShowCreateIdentityDialog(true)}>
-                  Create New Identity
-                </Button>
-              </div>
-            )}
-            <ScrollBar />
-          </ScrollArea>
-        </div>
-      ) : (
-        <div className="h-[calc(100vh-10px)] w-full rounded-md border p-4 flex flex-col items-center justify-center space-y-4 mt-3">
-          <UserIcon className="h-12 w-12" />
-          <p className="text-lg">No Identities Found</p>
-          <p className="text-sm text-gray-600 text-center max-w-md leading-relaxed">
-            You haven't created any identities yet.
-            <br />
-            Start by creating a new identity to begin using the DFX.
-          </p>
-          <Button onClick={() => setShowCreateIdentityDialog(true)}>
-            Create New Identity
-          </Button>
-        </div>
-      )}
+              <ScrollArea className="h-[calc(100vh-350px)] overflow-y-auto">
+                {identities.filter((identity) =>
+                  identity.name.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length > 0 ? (
+                  <div className="grid grid-cols-3 gap-8">
+                    {identities
+                      .filter((identity) =>
+                        identity.name
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase())
+                      )
+                      .map((identity) => (
+                        <IdentityCard
+                          key={identity.name}
+                          identity={identity}
+                          activeIdentityName={activeIdentityName}
+                          onIdentitySelect={handleIdentitySelect}
+                        />
+                      ))}
+                  </div>
+                ) : (
+                  <div className="h-[calc(100vh-350px)] w-full rounded-md border flex flex-col items-center justify-center space-y-4">
+                    <Search className="h-12 w-12" />
+                    <p className="text-lg">No Identities Found</p>
+                    <p className="text-sm text-gray-600 text-center max-w-md leading-relaxed">
+                      No identities match your search query "{searchQuery}".
+                      <br />
+                      Try adjusting your search or create a new identity.
+                    </p>
+                    <Button onClick={() => setShowCreateIdentityDialog(true)}>
+                      Create New Identity
+                    </Button>
+                  </div>
+                )}
+                <ScrollBar />
+              </ScrollArea>
+            </div>
+          ) : (
+            <div className="h-[calc(100vh-60px)] w-full rounded-md border p-4 flex flex-col items-center justify-center space-y-4 mt-3">
+              <UserIcon className="h-12 w-12" />
+              <p className="text-lg">No Identities Found</p>
+              <p className="text-sm text-gray-600 text-center max-w-md leading-relaxed">
+                You haven't created any identities yet.
+                <br />
+                Start by creating a new identity to begin using the DFX.
+              </p>
+              <Button onClick={() => setShowCreateIdentityDialog(true)}>
+                Create New Identity
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="ledger" className="flex-grow flex flex-col h-full">
+          <div className="flex-1 min-h-0">
+            <LedgerTab activeIdentityName={activeIdentityName} />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

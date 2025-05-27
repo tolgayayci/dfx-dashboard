@@ -29,6 +29,7 @@ import {
   ScrollTextIcon,
   InfoIcon,
   BookOpenIcon,
+  WalletIcon,
 } from "lucide-react";
 
 import { Button } from "@components/ui/button"; // Add this import if not already present
@@ -144,6 +145,15 @@ export default function Layout({ children }: LayoutProps) {
                         href: "/cycles",
                         icon: RecycleIcon,
                         variant: router.pathname.startsWith("/cycles")
+                          ? "default"
+                          : "ghost",
+                      },
+                      {
+                        title: "Wallet",
+                        label: "",
+                        href: "/wallet",
+                        icon: WalletIcon,
+                        variant: router.pathname.startsWith("/wallet")
                           ? "default"
                           : "ghost",
                       },

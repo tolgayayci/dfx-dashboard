@@ -173,6 +173,193 @@ interface Versions {
   settingsSetupCompletion: (
     enable: boolean
   ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Cache operations
+  cacheListVersions: () => Promise<{
+    success: boolean;
+    data?: Array<{
+      version: string;
+      isActive: boolean;
+      path: string;
+      size: string;
+    }>;
+    error?: string;
+  }>;
+
+  cacheGetPath: () => Promise<{
+    success: boolean;
+    data?: {
+      currentPath: string;
+      cacheDir: string;
+      totalSize: string;
+    };
+    error?: string;
+  }>;
+
+  cacheDeleteVersion: (
+    version: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cacheInstallVersion: (
+    version?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cacheClearAll: () => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Wallet operations
+  walletGetBalance: (options?: {
+    network?: string;
+    precise?: boolean;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletSendCycles: (
+    destination: string,
+    amount: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletListControllers: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletAddController: (
+    controllerId: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletRemoveController: (
+    controllerId: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletListCustodians: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletAuthorizeCustodian: (
+    custodianId: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletDeauthorizeCustodian: (
+    custodianId: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletGetDfxAddresses: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletGetName: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletSetName: (
+    name: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletUpgrade: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletSaveAddress: (
+    address: string,
+    label: string,
+    type?: 'principal' | 'account'
+  ) => Promise<{ success: boolean; data?: any; error?: string }>;
+
+  walletGetAddresses: () => Promise<{ success: boolean; data?: any[]; error?: string }>;
+
+  walletDeleteAddress: (
+    addressId: string
+  ) => Promise<{ success: boolean; data?: any[]; error?: string }>;
+
+  walletRedeemFaucetCoupon: (
+    coupon: string,
+    options?: {
+      network?: string;
+      faucet?: string;
+      yes?: boolean;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Ledger operations
+  ledgerGetAccountId: (
+    identity?: string,
+    type?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerGetBalance: (
+    accountId?: string,
+    network?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerTransferICP: (
+    to: string,
+    amount: string,
+    memo: string,
+    network?: string,
+    identity?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerCreateCanister: (
+    controller: string,
+    amount: string,
+    network?: string,
+    identity?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerTopUpCanister: (
+    canisterId: string,
+    amount: string,
+    network?: string,
+    identity?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerFabricateCycles: (
+    canisterId?: string,
+    amount?: string,
+    amountType?: string,
+    all?: boolean
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerGetTransactions: (
+    identity: string
+  ) => Promise<{ 
+    success: boolean; 
+    data?: Array<{
+      blockHeight: number;
+      timestamp: string;
+      operation: string;
+      amount: string;
+      from: string;
+      to: string;
+      memo: string;
+      status: "completed" | "pending" | "failed";
+    }>; 
+    error?: string 
+  }>;
+
+  ledgerSetupNotifications: (
+    enabled: boolean
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Store operations
+  storeGet: (key: string) => Promise<{ success: boolean; value?: any; error?: string }>;
+  storeSet: (key: string, value: any) => Promise<{ success: boolean; error?: string }>;
 }
 
 interface Window {

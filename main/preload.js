@@ -196,4 +196,101 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   settingsSetupCompletion: async (enable) => {
     return ipcRenderer.invoke("settings:setup-completion", enable);
   },
+
+  // Cache operations
+  cacheListVersions: async () => {
+    return ipcRenderer.invoke("cache:list-versions");
+  },
+  cacheGetPath: async () => {
+    return ipcRenderer.invoke("cache:get-cache-path");
+  },
+  cacheDeleteVersion: async (version) => {
+    return ipcRenderer.invoke("cache:delete-version", version);
+  },
+  cacheInstallVersion: async (version) => {
+    return ipcRenderer.invoke("cache:install-version", version);
+  },
+  cacheClearAll: async () => {
+    return ipcRenderer.invoke("cache:clear-all");
+  },
+
+  // Wallet operations
+  walletGetBalance: async (options) => {
+    return ipcRenderer.invoke("wallet:get-balance", options);
+  },
+  walletSendCycles: async (destination, amount, options) => {
+    return ipcRenderer.invoke("wallet:send-cycles", destination, amount, options);
+  },
+  walletListControllers: async (options) => {
+    return ipcRenderer.invoke("wallet:list-controllers", options);
+  },
+  walletAddController: async (controllerId, options) => {
+    return ipcRenderer.invoke("wallet:add-controller", controllerId, options);
+  },
+  walletRemoveController: async (controllerId, options) => {
+    return ipcRenderer.invoke("wallet:remove-controller", controllerId, options);
+  },
+  walletListCustodians: async (options) => {
+    return ipcRenderer.invoke("wallet:list-custodians", options);
+  },
+  walletAuthorizeCustodian: async (custodianId, options) => {
+    return ipcRenderer.invoke("wallet:authorize-custodian", custodianId, options);
+  },
+  walletDeauthorizeCustodian: async (custodianId, options) => {
+    return ipcRenderer.invoke("wallet:deauthorize-custodian", custodianId, options);
+  },
+  walletGetDfxAddresses: async (options) => {
+    return ipcRenderer.invoke("wallet:get-dfx-addresses", options);
+  },
+  walletGetName: async (options) => {
+    return ipcRenderer.invoke("wallet:get-name", options);
+  },
+  walletSetName: async (name, options) => {
+    return ipcRenderer.invoke("wallet:set-name", name, options);
+  },
+  walletUpgrade: async (options) => {
+    return ipcRenderer.invoke("wallet:upgrade-wallet", options);
+  },
+  walletSaveAddress: async (address, label, type) => {
+    return ipcRenderer.invoke("wallet:save-address", address, label, type);
+  },
+  walletGetAddresses: async () => {
+    return ipcRenderer.invoke("wallet:get-addresses");
+  },
+  walletDeleteAddress: async (addressId) => {
+    return ipcRenderer.invoke("wallet:delete-address", addressId);
+  },
+  walletRedeemFaucetCoupon: async (coupon, options) => {
+    return ipcRenderer.invoke("wallet:redeem-faucet-coupon", coupon, options);
+  },
+
+  // Ledger operations
+  ledgerGetAccountId: async (identity, type) => {
+    return ipcRenderer.invoke("ledger:get-account-id", identity, type);
+  },
+  ledgerGetBalance: async (accountId, network) => {
+    return ipcRenderer.invoke("ledger:get-balance", accountId, network);
+  },
+  ledgerTransferICP: async (to, amount, memo, network, identity) => {
+    return ipcRenderer.invoke("ledger:transfer-icp", to, amount, memo, network, identity);
+  },
+  ledgerCreateCanister: async (controller, amount, network, identity) => {
+    return ipcRenderer.invoke("ledger:create-canister", controller, amount, network, identity);
+  },
+  ledgerTopUpCanister: async (canisterId, amount, network, identity) => {
+    return ipcRenderer.invoke("ledger:top-up-canister", canisterId, amount, network, identity);
+  },
+  ledgerFabricateCycles: async (canisterId, amount, amountType, all) => {
+    return ipcRenderer.invoke("ledger:fabricate-cycles", canisterId, amount, amountType, all);
+  },
+  ledgerGetTransactions: async (identity) => {
+    return ipcRenderer.invoke("ledger:get-transactions", identity);
+  },
+  ledgerSetupNotifications: async (enabled) => {
+    return ipcRenderer.invoke("ledger:setup-notifications", enabled);
+  },
+
+  // Store operations
+  storeGet: (key) => ipcRenderer.invoke("store:get", key),
+  storeSet: (key, value) => ipcRenderer.invoke("store:set", key, value),
 });
