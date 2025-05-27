@@ -196,4 +196,58 @@ contextBridge.exposeInMainWorld("awesomeApi", {
   settingsSetupCompletion: async (enable) => {
     return ipcRenderer.invoke("settings:setup-completion", enable);
   },
+
+  // Wallet operations
+  walletGetBalance: async (options) => {
+    return ipcRenderer.invoke("wallet:get-balance", options);
+  },
+  walletSendCycles: async (destination, amount, options) => {
+    return ipcRenderer.invoke("wallet:send-cycles", destination, amount, options);
+  },
+  walletListControllers: async (options) => {
+    return ipcRenderer.invoke("wallet:list-controllers", options);
+  },
+  walletAddController: async (controllerId, options) => {
+    return ipcRenderer.invoke("wallet:add-controller", controllerId, options);
+  },
+  walletRemoveController: async (controllerId, options) => {
+    return ipcRenderer.invoke("wallet:remove-controller", controllerId, options);
+  },
+  walletListCustodians: async (options) => {
+    return ipcRenderer.invoke("wallet:list-custodians", options);
+  },
+  walletAuthorizeCustodian: async (custodianId, options) => {
+    return ipcRenderer.invoke("wallet:authorize-custodian", custodianId, options);
+  },
+  walletDeauthorizeCustodian: async (custodianId, options) => {
+    return ipcRenderer.invoke("wallet:deauthorize-custodian", custodianId, options);
+  },
+  walletGetDfxAddresses: async (options) => {
+    return ipcRenderer.invoke("wallet:get-dfx-addresses", options);
+  },
+  walletGetName: async (options) => {
+    return ipcRenderer.invoke("wallet:get-name", options);
+  },
+  walletSetName: async (name, options) => {
+    return ipcRenderer.invoke("wallet:set-name", name, options);
+  },
+  walletUpgrade: async (options) => {
+    return ipcRenderer.invoke("wallet:upgrade-wallet", options);
+  },
+  walletSaveAddress: async (address, label, type) => {
+    return ipcRenderer.invoke("wallet:save-address", address, label, type);
+  },
+  walletGetAddresses: async () => {
+    return ipcRenderer.invoke("wallet:get-addresses");
+  },
+  walletDeleteAddress: async (addressId) => {
+    return ipcRenderer.invoke("wallet:delete-address", addressId);
+  },
+  walletRedeemFaucetCoupon: async (coupon, options) => {
+    return ipcRenderer.invoke("wallet:redeem-faucet-coupon", coupon, options);
+  },
+
+  // Store operations
+  storeGet: (key) => ipcRenderer.invoke("store:get", key),
+  storeSet: (key, value) => ipcRenderer.invoke("store:set", key, value),
 });

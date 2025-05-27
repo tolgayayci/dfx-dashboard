@@ -173,6 +173,100 @@ interface Versions {
   settingsSetupCompletion: (
     enable: boolean
   ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Wallet operations
+  walletGetBalance: (options?: {
+    network?: string;
+    precise?: boolean;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletSendCycles: (
+    destination: string,
+    amount: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletListControllers: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletAddController: (
+    controllerId: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletRemoveController: (
+    controllerId: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletListCustodians: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletAuthorizeCustodian: (
+    custodianId: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletDeauthorizeCustodian: (
+    custodianId: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletGetDfxAddresses: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletGetName: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletSetName: (
+    name: string,
+    options?: {
+      network?: string;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletUpgrade: (options?: {
+    network?: string;
+  }) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  walletSaveAddress: (
+    address: string,
+    label: string,
+    type?: 'principal' | 'account'
+  ) => Promise<{ success: boolean; data?: any; error?: string }>;
+
+  walletGetAddresses: () => Promise<{ success: boolean; data?: any[]; error?: string }>;
+
+  walletDeleteAddress: (
+    addressId: string
+  ) => Promise<{ success: boolean; data?: any[]; error?: string }>;
+
+  walletRedeemFaucetCoupon: (
+    coupon: string,
+    options?: {
+      network?: string;
+      faucet?: string;
+      yes?: boolean;
+    }
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Store operations
+  storeGet: (key: string) => Promise<{ success: boolean; value?: any; error?: string }>;
+  storeSet: (key: string, value: any) => Promise<{ success: boolean; error?: string }>;
 }
 
 interface Window {

@@ -336,30 +336,27 @@ if (isProd) {
     }
   });
 
-  // The rest of your code (ipcMain.handle for "send-assisted-command-input") remains the same
-  // Set a key-value pair
-  ipcMain.handle("store:set", (event, key, value) => {
-    try {
-      store.set(key, value);
-      return { success: true, message: `Successfully set ${key}` };
-    } catch (error) {
-      console.error("Error setting value:", error);
-      return { success: false, message: error.toString() };
-    }
-  });
-
-  // Get a value by key
-  ipcMain.handle("store:get", (event, key) => {
+  // Store operations
+  ipcMain.handle("store:get", async (event, key: string) => {
     try {
       const value = store.get(key);
-      return { success: true, value: value };
+      return { success: true, value };
     } catch (error) {
-      console.error("Error getting value:", error);
-      return { success: false, message: error.toString() };
+      console.error("Failed to get store value:", error);
+      return { success: false, error: error.message };
     }
   });
 
-  // Delete a key-value pair
+  ipcMain.handle("store:set", async (event, key: string, value: any) => {
+    try {
+      store.set(key, value);
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to set store value:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
   ipcMain.handle("store:delete", (event, key) => {
     try {
       store.delete(key);
@@ -1407,6 +1404,383 @@ if (isProd) {
       return { success: true, data: result };
     } catch (error) {
       console.error("Error redeeming faucet coupon:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Wallet IPC Handlers
+  ipcMain.handle("wallet:get-balance", async (event, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add precise option if available
+      if (options.precise) {
+        args.push("--precise");
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "balance", args);
+      } else {
+        result = await executeDfxCommand("wallet", "balance", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error getting wallet balance:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:send-cycles", async (event, destination, amount, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [destination, amount];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "send", args);
+      } else {
+        result = await executeDfxCommand("wallet", "send", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error sending cycles:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:list-controllers", async (event, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "controllers", args);
+      } else {
+        result = await executeDfxCommand("wallet", "controllers", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error listing wallet controllers:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:add-controller", async (event, controllerId, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [controllerId];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "add-controller", args);
+      } else {
+        result = await executeDfxCommand("wallet", "add-controller", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error adding wallet controller:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:remove-controller", async (event, controllerId, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [controllerId];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "remove-controller", args);
+      } else {
+        result = await executeDfxCommand("wallet", "remove-controller", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error removing wallet controller:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:list-custodians", async (event, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      console.log(`Executing dfx wallet custodians with args:`, args);
+      
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "custodians", args);
+      } else {
+        result = await executeDfxCommand("wallet", "custodians", args);
+      }
+
+      console.log(`dfx wallet custodians result:`, result);
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error listing wallet custodians:", error);
+      console.error("Error details:", error.message);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:authorize-custodian", async (event, custodianId, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [custodianId];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "authorize", args);
+      } else {
+        result = await executeDfxCommand("wallet", "authorize", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error authorizing wallet custodian:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:deauthorize-custodian", async (event, custodianId, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [custodianId];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "deauthorize", args);
+      } else {
+        result = await executeDfxCommand("wallet", "deauthorize", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error deauthorizing wallet custodian:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:get-dfx-addresses", async (event, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "addresses", args);
+      } else {
+        result = await executeDfxCommand("wallet", "addresses", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error getting wallet addresses:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:get-name", async (event, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "name", args);
+      } else {
+        result = await executeDfxCommand("wallet", "name", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error getting wallet name:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:set-name", async (event, name, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [name];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "set-name", args);
+      } else {
+        result = await executeDfxCommand("wallet", "set-name", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error setting wallet name:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:upgrade-wallet", async (event, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "upgrade", args);
+      } else {
+        result = await executeDfxCommand("wallet", "upgrade", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error upgrading wallet:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:redeem-faucet-coupon", async (event, coupon, options = {}) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      const args: string[] = [coupon];
+      
+      // Add network option
+      if (options.network) {
+        args.push("--network", options.network);
+      }
+      
+      // Add faucet option if provided
+      if (options.faucet) {
+        args.push("--faucet", options.faucet);
+      }
+      
+      // Add yes flag for non-interactive mode
+      if (options.yes) {
+        args.push("--yes");
+      }
+
+      let result: string;
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "wallet", "redeem-faucet-coupon", args);
+      } else {
+        result = await executeDfxCommand("wallet", "redeem-faucet-coupon", args);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error redeeming faucet coupon:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Local address book management (stored in Electron Store)
+  ipcMain.handle("wallet:save-address", async (event, address, label, type = 'principal') => {
+    try {
+      const addresses = store.get("wallet.addresses", []);
+      const newAddress = {
+        id: Date.now().toString(),
+        address,
+        label,
+        type,
+        createdAt: new Date().toISOString()
+      };
+      
+      addresses.push(newAddress);
+      store.set("wallet.addresses", addresses);
+      
+      return { success: true, data: newAddress };
+    } catch (error) {
+      console.error("Error saving address:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:get-addresses", async () => {
+    try {
+      const addresses = store.get("wallet.addresses", []);
+      return { success: true, data: addresses };
+    } catch (error) {
+      console.error("Error getting addresses:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("wallet:delete-address", async (event, addressId) => {
+    try {
+      const addresses = store.get("wallet.addresses", []);
+      const filteredAddresses = addresses.filter(addr => addr.id !== addressId);
+      store.set("wallet.addresses", filteredAddresses);
+      
+      return { success: true, data: filteredAddresses };
+    } catch (error) {
+      console.error("Error deleting address:", error);
       return { success: false, error: error.message };
     }
   });
