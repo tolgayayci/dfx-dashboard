@@ -296,6 +296,67 @@ interface Versions {
     }
   ) => Promise<{ success: boolean; data?: string; error?: string }>;
 
+  // Ledger operations
+  ledgerGetAccountId: (
+    identity?: string,
+    type?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerGetBalance: (
+    accountId?: string,
+    network?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerTransferICP: (
+    to: string,
+    amount: string,
+    memo: string,
+    network?: string,
+    identity?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerCreateCanister: (
+    controller: string,
+    amount: string,
+    network?: string,
+    identity?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerTopUpCanister: (
+    canisterId: string,
+    amount: string,
+    network?: string,
+    identity?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerFabricateCycles: (
+    canisterId?: string,
+    amount?: string,
+    amountType?: string,
+    all?: boolean
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  ledgerGetTransactions: (
+    identity: string
+  ) => Promise<{ 
+    success: boolean; 
+    data?: Array<{
+      blockHeight: number;
+      timestamp: string;
+      operation: string;
+      amount: string;
+      from: string;
+      to: string;
+      memo: string;
+      status: "completed" | "pending" | "failed";
+    }>; 
+    error?: string 
+  }>;
+
+  ledgerSetupNotifications: (
+    enabled: boolean
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
   // Store operations
   storeGet: (key: string) => Promise<{ success: boolean; value?: any; error?: string }>;
   storeSet: (key: string, value: any) => Promise<{ success: boolean; error?: string }>;

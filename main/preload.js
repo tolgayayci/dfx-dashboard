@@ -264,6 +264,32 @@ contextBridge.exposeInMainWorld("awesomeApi", {
     return ipcRenderer.invoke("wallet:redeem-faucet-coupon", coupon, options);
   },
 
+  // Ledger operations
+  ledgerGetAccountId: async (identity, type) => {
+    return ipcRenderer.invoke("ledger:get-account-id", identity, type);
+  },
+  ledgerGetBalance: async (accountId, network) => {
+    return ipcRenderer.invoke("ledger:get-balance", accountId, network);
+  },
+  ledgerTransferICP: async (to, amount, memo, network, identity) => {
+    return ipcRenderer.invoke("ledger:transfer-icp", to, amount, memo, network, identity);
+  },
+  ledgerCreateCanister: async (controller, amount, network, identity) => {
+    return ipcRenderer.invoke("ledger:create-canister", controller, amount, network, identity);
+  },
+  ledgerTopUpCanister: async (canisterId, amount, network, identity) => {
+    return ipcRenderer.invoke("ledger:top-up-canister", canisterId, amount, network, identity);
+  },
+  ledgerFabricateCycles: async (canisterId, amount, amountType, all) => {
+    return ipcRenderer.invoke("ledger:fabricate-cycles", canisterId, amount, amountType, all);
+  },
+  ledgerGetTransactions: async (identity) => {
+    return ipcRenderer.invoke("ledger:get-transactions", identity);
+  },
+  ledgerSetupNotifications: async (enabled) => {
+    return ipcRenderer.invoke("ledger:setup-notifications", enabled);
+  },
+
   // Store operations
   storeGet: (key) => ipcRenderer.invoke("store:get", key),
   storeSet: (key, value) => ipcRenderer.invoke("store:set", key, value),

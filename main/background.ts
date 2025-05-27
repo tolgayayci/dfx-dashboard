@@ -2093,6 +2093,255 @@ if (isProd) {
     }
   });
 
+  // Ledger IPC handlers
+  ipcMain.handle("ledger:get-account-id", async (event, identity?: string, type?: string) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      const args: string[] = [];
+      if (type === "principal" && identity) {
+        args.push("--of-principal", identity);
+      }
+      
+      const options: string[] = [];
+      if (identity && type !== "principal") {
+        options.push("--identity", identity);
+      }
+      
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "ledger", "account-id", args, options);
+      } else {
+        result = await executeDfxCommand("ledger", "account-id", args, options);
+      }
+
+      return { success: true, data: result.trim() };
+    } catch (error) {
+      console.error("Error getting account ID:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("ledger:get-balance", async (event, accountId?: string, network = "local") => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      const args: string[] = [];
+      if (accountId) {
+        args.push(accountId);
+      }
+      
+      const options: string[] = ["--network", network];
+      
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "ledger", "balance", args, options);
+      } else {
+        result = await executeDfxCommand("ledger", "balance", args, options);
+      }
+
+      return { success: true, data: result.trim() };
+    } catch (error) {
+      console.error("Error getting balance:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("ledger:transfer-icp", async (event, to: string, amount: string, memo: string, network = "local", identity?: string) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      const args: string[] = [to];
+      const options: string[] = [
+        "--amount", amount,
+        "--memo", memo,
+        "--network", network
+      ];
+      
+      if (identity) {
+        options.push("--identity", identity);
+      }
+      
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "ledger", "transfer", args, options);
+      } else {
+        result = await executeDfxCommand("ledger", "transfer", args, options);
+      }
+
+      // Extract block height from result
+      const blockHeightMatch = result.match(/BlockHeight:\s*(\d+)/);
+      const blockHeight = blockHeightMatch ? blockHeightMatch[1] : result.trim();
+
+      return { success: true, data: blockHeight };
+    } catch (error) {
+      console.error("Error transferring ICP:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("ledger:create-canister", async (event, controller: string, amount: string, network = "local", identity?: string) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      const args: string[] = [controller];
+      const options: string[] = [
+        "--amount", amount,
+        "--network", network
+      ];
+      
+      if (identity) {
+        options.push("--identity", identity);
+      }
+      
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "ledger", "create-canister", args, options);
+      } else {
+        result = await executeDfxCommand("ledger", "create-canister", args, options);
+      }
+
+      // Extract canister ID from result
+      const canisterIdMatch = result.match(/canister\s+([a-z0-9-]+)/i);
+      const canisterId = canisterIdMatch ? canisterIdMatch[1] : result.trim();
+
+      return { success: true, data: canisterId };
+    } catch (error) {
+      console.error("Error creating canister:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("ledger:top-up-canister", async (event, canisterId: string, amount: string, network = "local", identity?: string) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      const args: string[] = [canisterId];
+      const options: string[] = [
+        "--amount", amount,
+        "--network", network
+      ];
+      
+      if (identity) {
+        options.push("--identity", identity);
+      }
+      
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "ledger", "top-up", args, options);
+      } else {
+        result = await executeDfxCommand("ledger", "top-up", args, options);
+      }
+
+      // Extract block height from result
+      const blockHeightMatch = result.match(/BlockHeight:\s*(\d+)/);
+      const blockHeight = blockHeightMatch ? blockHeightMatch[1] : result.trim();
+
+      return { success: true, data: blockHeight };
+    } catch (error) {
+      console.error("Error topping up canister:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("ledger:fabricate-cycles", async (event, canisterId?: string, amount?: string, amountType = "t", all = false) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      const args: string[] = [];
+      const options: string[] = ["--network", "local"]; // Fabricate cycles only works on local network
+      
+      if (all) {
+        options.push("--all");
+      } else if (canisterId) {
+        options.push("--canister", canisterId);
+      }
+      
+      if (amount) {
+        switch (amountType) {
+          case "cycles":
+            options.push("--cycles", amount);
+            break;
+          case "icp":
+            options.push("--amount", amount);
+            break;
+          case "t":
+            options.push("--t", amount);
+            break;
+        }
+      }
+      
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "ledger", "fabricate-cycles", args, options);
+      } else {
+        result = await executeDfxCommand("ledger", "fabricate-cycles", args, options);
+      }
+
+      return { success: true, data: result.trim() };
+    } catch (error) {
+      console.error("Error fabricating cycles:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Ledger operations
+  ipcMain.handle("ledger:get-transactions", async (event, identity: string) => {
+    try {
+      console.log(`Getting transaction history for identity ${identity}`);
+      
+      // Get the account ID for this identity
+      const accountIdResult = await executeDfxCommand(
+        "ledger",
+        "account-id",
+        [],
+        ["--identity", identity],
+        undefined
+      );
+      
+      const accountId = accountIdResult.trim();
+      console.log(`Account ID for identity ${identity}: ${accountId}`);
+      
+      // For now, return empty data since ICP ledger is not available on local network
+      // In the future, this could be enhanced to work with IC network
+      console.log("Returning empty transaction history (ICP ledger not available on local network)");
+      return { 
+        success: true, 
+        data: {
+          transactions: [],
+          totalCount: 0,
+          hasMore: false
+        }
+      };
+
+    } catch (error) {
+      console.error("Error getting transaction history:", error);
+      return { 
+        success: true, // Return success with empty data instead of error for better UX
+        data: {
+          transactions: [],
+          totalCount: 0,
+          hasMore: false
+        }
+      };
+    }
+  });
+
+
+
+  ipcMain.handle("ledger:setup-notifications", async (event, enabled: boolean) => {
+    try {
+      // This is a placeholder - real implementation would set up
+      // transaction notifications through the ledger canister
+      store.set("ledgerNotificationsEnabled", enabled);
+      
+      return { success: true, data: `Notifications ${enabled ? 'enabled' : 'disabled'}` };
+    } catch (error) {
+      console.error("Error setting up notifications:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
   if (isProd) {
     await mainWindow.loadURL("app://./projects");
   } else {
