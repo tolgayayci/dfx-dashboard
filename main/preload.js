@@ -197,6 +197,23 @@ contextBridge.exposeInMainWorld("awesomeApi", {
     return ipcRenderer.invoke("settings:setup-completion", enable);
   },
 
+  // Cache operations
+  cacheListVersions: async () => {
+    return ipcRenderer.invoke("cache:list-versions");
+  },
+  cacheGetPath: async () => {
+    return ipcRenderer.invoke("cache:get-cache-path");
+  },
+  cacheDeleteVersion: async (version) => {
+    return ipcRenderer.invoke("cache:delete-version", version);
+  },
+  cacheInstallVersion: async (version) => {
+    return ipcRenderer.invoke("cache:install-version", version);
+  },
+  cacheClearAll: async () => {
+    return ipcRenderer.invoke("cache:clear-all");
+  },
+
   // Wallet operations
   walletGetBalance: async (options) => {
     return ipcRenderer.invoke("wallet:get-balance", options);

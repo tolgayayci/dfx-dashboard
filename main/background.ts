@@ -1884,6 +1884,215 @@ if (isProd) {
     }
   });
 
+  // Cache management IPC handlers
+  ipcMain.handle("cache:list-versions", async () => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      
+      // First, get the active version using dfx cache show
+      let activeVersionPath: string;
+      if (useBundledDfx) {
+        activeVersionPath = await executeBundledDfxCommand(bundledDfxPath, "cache", "show");
+      } else {
+        activeVersionPath = await executeDfxCommand("cache", "show");
+      }
+      
+      const activeVersionPath_trimmed = activeVersionPath.trim();
+      const activeVersion = path.basename(activeVersionPath_trimmed);
+      const cacheDir = path.dirname(activeVersionPath_trimmed);
+      
+      // List all folders in the cache directory
+      const versions: any[] = [];
+      if (fs.existsSync(cacheDir)) {
+        const folders = fs.readdirSync(cacheDir, { withFileTypes: true })
+          .filter(dirent => dirent.isDirectory())
+          .map(dirent => dirent.name)
+          .sort(); // Sort versions
+        
+        for (const folder of folders) {
+          const folderPath = path.join(cacheDir, folder);
+          let size = "0 MB";
+          
+          try {
+            // Calculate folder size
+            const calculateDirSize = (dirPath: string): number => {
+              let totalSize = 0;
+              const files = fs.readdirSync(dirPath);
+              for (const file of files) {
+                const filePath = path.join(dirPath, file);
+                const stats = fs.statSync(filePath);
+                if (stats.isDirectory()) {
+                  totalSize += calculateDirSize(filePath);
+                } else {
+                  totalSize += stats.size;
+                }
+              }
+              return totalSize;
+            };
+            
+            const sizeInBytes = calculateDirSize(folderPath);
+            const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
+            size = `${sizeInMB} MB`;
+          } catch (sizeError) {
+            console.warn(`Could not calculate size for ${folder}:`, sizeError);
+          }
+          
+          versions.push({
+            version: folder,
+            isActive: folder === activeVersion,
+            path: folderPath,
+            size: size
+          });
+        }
+      }
+
+      return { success: true, data: versions };
+    } catch (error) {
+      console.error("Error listing cache versions:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cache:get-cache-path", async () => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cache", "show");
+      } else {
+        result = await executeDfxCommand("cache", "show");
+      }
+
+      const cachePath = result.trim();
+      
+      // Get cache directory (parent of the specific version path)
+      const cacheDir = path.dirname(cachePath);
+      
+      // Calculate total cache size
+      let totalSize = "0 MB";
+      try {
+        const calculateDirSize = (dirPath: string): number => {
+          let size = 0;
+          if (fs.existsSync(dirPath)) {
+            const files = fs.readdirSync(dirPath);
+            for (const file of files) {
+              const filePath = path.join(dirPath, file);
+              const stats = fs.statSync(filePath);
+              if (stats.isDirectory()) {
+                size += calculateDirSize(filePath);
+              } else {
+                size += stats.size;
+              }
+            }
+          }
+          return size;
+        };
+
+        const sizeInBytes = calculateDirSize(cacheDir);
+        const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
+        totalSize = `${sizeInMB} MB`;
+      } catch (sizeError) {
+        console.warn("Could not calculate cache size:", sizeError);
+      }
+
+      return { 
+        success: true, 
+        data: { 
+          currentPath: cachePath,
+          cacheDir: cacheDir,
+          totalSize: totalSize
+        } 
+      };
+    } catch (error) {
+      console.error("Error getting cache path:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cache:delete-version", async (event, version) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cache", "delete", [], ["--version", version]);
+      } else {
+        result = await executeDfxCommand("cache", "delete", [], ["--version", version]);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error deleting cache version:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cache:install-version", async (event, version) => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      let result: string;
+      
+      // Note: dfx cache install installs the current version, not a specific version
+      // For installing specific versions, we would need to use dfxvm or download manually
+      if (useBundledDfx) {
+        result = await executeBundledDfxCommand(bundledDfxPath, "cache", "install");
+      } else {
+        result = await executeDfxCommand("cache", "install");
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Error installing cache version:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle("cache:clear-all", async () => {
+    try {
+      const useBundledDfx = store.get("useBundledDfx", false);
+      
+      // Get cache directory from dfx cache show
+      let activeVersionPath: string;
+      if (useBundledDfx) {
+        activeVersionPath = await executeBundledDfxCommand(bundledDfxPath, "cache", "show");
+      } else {
+        activeVersionPath = await executeDfxCommand("cache", "show");
+      }
+      
+      const cacheDir = path.dirname(activeVersionPath.trim());
+      
+      // Get all version folders from cache directory
+      const versions: string[] = [];
+      if (fs.existsSync(cacheDir)) {
+        const folders = fs.readdirSync(cacheDir, { withFileTypes: true })
+          .filter(dirent => dirent.isDirectory())
+          .map(dirent => dirent.name);
+        
+        versions.push(...folders);
+      }
+
+      const deletePromises = versions.map(async (version: string) => {
+        try {
+          if (useBundledDfx) {
+            await executeBundledDfxCommand(bundledDfxPath, "cache", "delete", [], ["--version", version]);
+          } else {
+            await executeDfxCommand("cache", "delete", [], ["--version", version]);
+          }
+        } catch (error) {
+          console.warn(`Failed to delete version ${version}:`, error);
+        }
+      });
+
+      await Promise.allSettled(deletePromises);
+
+      return { success: true, data: "Cache cleared successfully" };
+    } catch (error) {
+      console.error("Error clearing cache:", error);
+      return { success: false, error: error.message };
+    }
+  });
+
   if (isProd) {
     await mainWindow.loadURL("app://./projects");
   } else {

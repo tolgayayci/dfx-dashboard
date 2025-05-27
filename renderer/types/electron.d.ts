@@ -174,6 +174,38 @@ interface Versions {
     enable: boolean
   ) => Promise<{ success: boolean; data?: string; error?: string }>;
 
+  // Cache operations
+  cacheListVersions: () => Promise<{
+    success: boolean;
+    data?: Array<{
+      version: string;
+      isActive: boolean;
+      path: string;
+      size: string;
+    }>;
+    error?: string;
+  }>;
+
+  cacheGetPath: () => Promise<{
+    success: boolean;
+    data?: {
+      currentPath: string;
+      cacheDir: string;
+      totalSize: string;
+    };
+    error?: string;
+  }>;
+
+  cacheDeleteVersion: (
+    version: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cacheInstallVersion: (
+    version?: string
+  ) => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  cacheClearAll: () => Promise<{ success: boolean; data?: string; error?: string }>;
+
   // Wallet operations
   walletGetBalance: (options?: {
     network?: string;
