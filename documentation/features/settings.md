@@ -1,6 +1,6 @@
 # Settings
 
-The Settings page allows you to customize your DFX Dashboard environment and manage important DFX-related configurations, including automated shell completion setup.
+The Settings page allows you to customize your DFX Dashboard environment and manage important DFX-related configurations, including automated shell completion setup and comprehensive cache management.
 
 ## Overview
 
@@ -10,10 +10,23 @@ The Settings page allows you to customize your DFX Dashboard environment and man
 
 </div>
 
-The Settings page provides options to:
+The Settings page is organized into multiple tabs:
+- **General**: DFX version selection and environment variables
+- **Shell Completion**: Automated dfx command completion setup
+- **Cache**: Manage DFX version cache and installations
+
+### General Tab Features:
 - Choose between **bundled DFX** and **system DFX**
 - **Configure** various DFX **environment variables**
+
+### Shell Completion Tab Features:
 - **Set up shell completion** for dfx commands automatically
+- **Cross-platform support** for bash, zsh, and fish
+
+### Cache Tab Features:
+- **Version Management**: Install and remove DFX versions
+- **Cache Monitoring**: View installed versions and disk usage
+- **Bulk Operations**: Clear entire cache or selective removal
 
 ## DFX Version Selection
 
@@ -141,6 +154,108 @@ Watch out for these common issues:
 - **Windows WSL issues**: Ensure you're running the dashboard within the WSL environment for proper shell detection
 :::
 
+## Cache Management Tab
+
+<div class="image-border">
+
+![Cache Management](/features/settings/cache-management.png)
+
+</div>
+
+The Cache tab provides comprehensive management of your DFX version cache, allowing you to install, remove, and monitor different DFX versions.
+
+### Cache Overview
+
+<div class="image-border">
+
+![Cache Overview](/features/settings/cache-overview.png)
+
+</div>
+
+View important cache information:
+- **Cache Location**: Shows the path where DFX versions are stored
+- **Total Cache Size**: Displays disk space used by all cached versions
+- **Active Version**: Indicates which DFX version is currently in use
+- **Available Versions**: Lists all installed DFX versions
+
+### Version Management
+
+<div class="image-border">
+
+![Version Management](/features/settings/version-management.png)
+
+</div>
+
+Manage your DFX version installations:
+
+#### Install New Versions
+1. **Version Input**: Enter the DFX version to install (e.g., "0.25.0")
+2. **Validation**: Ensures version format is correct
+3. **Install Button**: Downloads and installs the specified version
+4. **Progress Tracking**: Shows installation progress and status
+
+#### Remove Versions
+1. **Version List**: View all installed versions in a table
+2. **Delete Action**: Click the trash icon to remove a version
+3. **Confirmation**: Confirm deletion to prevent accidental removal
+4. **Space Recovery**: Frees up disk space after removal
+
+#### Version Information
+Each version entry displays:
+- **Version Number**: The DFX version identifier
+- **Installation Date**: When the version was installed
+- **File Size**: Disk space used by this version
+- **Status**: Active, available, or installing
+- **Actions**: Install or delete buttons
+
+### Cache Operations
+
+<div class="image-border">
+
+![Cache Operations](/features/settings/cache-operations.png)
+
+</div>
+
+Perform bulk cache operations:
+
+#### Clear All Cache
+1. **Clear Cache Button**: Removes all cached DFX versions
+2. **Confirmation Dialog**: Prevents accidental deletion
+3. **Space Recovery**: Frees up all cache disk space
+4. **Fresh Start**: Useful for troubleshooting or cleanup
+
+#### Refresh Cache
+1. **Refresh Button**: Updates the cache information
+2. **Rescan**: Detects newly installed or removed versions
+3. **Status Update**: Updates version statuses and sizes
+
+### Cache Best Practices
+
+:::tip
+Optimize your DFX cache management:
+
+- **Regular Cleanup**: Remove unused versions to save disk space
+- **Version Strategy**: Keep only the versions you actively use
+- **Backup Important Versions**: Keep stable versions for production work
+- **Monitor Disk Usage**: Check cache size regularly
+- **Update Regularly**: Install latest versions for new features
+- **Test Before Cleanup**: Ensure projects work with remaining versions
+:::
+
+### Cache Troubleshooting
+
+:::warning
+Common cache issues and solutions:
+
+- **Installation Failures**: Check internet connection and disk space
+- **Permission Errors**: Ensure write access to cache directory
+- **Corrupted Versions**: Delete and reinstall problematic versions
+- **Disk Space Issues**: Clear unused versions to free space
+- **Version Not Found**: Verify version number format and availability
+- **Cache Location Issues**: Check if cache directory is accessible
+- **Network Problems**: Verify internet connection for downloads
+:::
+
 ## Additional Resources
 
 - [DFX Configuration Documentation](https://internetcomputer.org/docs/current/references/dfx-json-reference/)
@@ -148,6 +263,7 @@ Watch out for these common issues:
 - [DFX Shell Completion Documentation](https://internetcomputer.org/docs/current/references/cli-reference/dfx-completion/)
 - [Troubleshooting DFX Issues](https://internetcomputer.org/docs/current/developer-docs/setup/troubleshoot)
 - [DFX Version Management](https://internetcomputer.org/docs/current/developer-docs/setup/manage-dfx-versions)
+- [DFX Cache Management](https://internetcomputer.org/docs/current/developer-docs/setup/manage-dfx-versions#managing-dfx-cache)
 
 <style>
 .image-border img {

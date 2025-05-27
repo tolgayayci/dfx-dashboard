@@ -30,12 +30,13 @@ export default defineConfig({
         items: [
           { text: "Projects", link: "/features/projects" },
           { text: "Canisters", link: "/features/canisters" },
-          { text: "Identities", link: "/features/identities" },
+          { text: "Identities & Ledger", link: "/features/identities" },
+          { text: "Wallet", link: "/features/wallet" },
           { text: "Cycles", link: "/features/cycles" },
           { text: "Network", link: "/features/network" },
           { text: "Logs", link: "/features/logs" },
           { text: "About", link: "/features/about" },
-          { text: "Settings", link: "/features/settings" },
+          { text: "Settings & Cache", link: "/features/settings" },
         ],
       },
       {

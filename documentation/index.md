@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "DFX Dashboard"
   text: "Streamline Your Internet Computer Development"
-  tagline: Manage projects, canisters, cycles, and NNS interactions with our professional GUI for dfx 0.25.0
+  tagline: Manage projects, canisters, cycles, wallets, and NNS interactions with our professional GUI for dfx 0.25.0 - Now with v0.3.0 enhancements
   image:
     src: /features/canisters/canister-actions.png
     alt: DFX Dashboard Interface
@@ -27,11 +27,17 @@ features:
     title: NNS Integration
     details: Query and interact with Network Nervous System canisters directly from the dashboard with dedicated method calling interfaces.
   - icon: 🔑
-    title: Simplified Identity Management
-    details: Easily create, import, and switch between multiple identities for secure and efficient development workflows.
+    title: Enhanced Identity & Ledger Management
+    details: Comprehensive identity management with integrated ICP ledger functionality for transfers, canister creation, and transaction history.
   - icon: 💰
     title: Professional Cycle Management
     details: Complete cycles workflow with balance checking, transfers, approvals, ICP conversion, and faucet operations in a modern tabbed interface.
+  - icon: 🏦
+    title: Advanced Wallet Operations
+    details: Full wallet management with controller/custodian administration, address book, cycle transfers, and faucet coupon redemption.
+  - icon: 🗂️
+    title: Smart Cache Management
+    details: Intelligent DFX version management with installation, removal, and cache monitoring for optimal development environment control.
   - icon: ⚙️
     title: Smart Shell Completion
     details: Auto-configure dfx shell completion with one-click setup for bash, zsh, and fish shells, or use manual instructions.
