@@ -1,0 +1,608 @@
+---
+title: Cycles
+description: 'Comprehensive cycle management for Internet Computer - Balance checking, transfers, top-ups, ICP conversion, and faucet operations with dfx 0.25.0 compatibility'
+---
+
+The Cycles page is a comprehensive component of the DFX Dashboard, providing a professional interface for managing cycles on the Internet Computer. Built with dfx 0.25.0 compatibility, it offers all essential cycle operations in an organized, tabbed interface for optimal developer experience.
+
+## Overview
+
+<img
+  src="/images/features/cycles/cycles-overview.png"
+  alt="Cycles Overview"
+  className="rounded-lg border"
+/>
+
+The redesigned Cycles page features a modern tabbed interface with three main sections designed for comprehensive cycle management:
+
+<CardGroup cols={3}>
+  <Card title="Balance & Approvals" icon="scale">
+    Check cycle balances and manage cycle spending approvals
+  </Card>
+  <Card title="Transfers & Top-ups" icon="arrow-right-arrow-left">
+    Transfer cycles between accounts and top up canisters
+  </Card>
+  <Card title="Convert & Faucet" icon="coins">
+    Convert ICP to cycles and redeem faucet coupons
+  </Card>
+</CardGroup>
+
+## Interface Design Features
+
+<AccordionGroup>
+  <Accordion title="Professional Layout">
+    - **Fixed header** with current balance display and refresh functionality
+    - **Tabbed navigation** with colored icons for easy identification
+    - **Scrollable content areas** for each tab section
+    - **Professional form layouts** with comprehensive error handling
+  </Accordion>
+  
+  <Accordion title="User Experience">
+    - **Toast notifications** for operation feedback
+    - **Real-time balance updates** with manual refresh capability
+    - **Network-aware operations** with automatic network detection
+    - **Responsive design** for different screen sizes
+  </Accordion>
+</AccordionGroup>
+
+## Cycle Management Operations
+
+<Tabs>
+  <Tab title="Balance & Approvals">
+    ## Balance & Approvals Tab
+    
+    Manage your cycle balances and configure spending approvals for automated systems and other principals.
+    
+    ### Checking Cycle Balance
+    
+    <img
+      src="/images/features/cycles/cycles-balance.png"
+      alt="Cycles Balance"
+      className="rounded-lg border"
+    />
+    
+    The balance checking functionality provides comprehensive balance monitoring:
+    
+    <CardGroup cols={2}>
+      <Card title="Balance Queries" icon="search">
+        Check current balance for any principal or subaccount
+      </Card>
+      <Card title="Network Support" icon="network-wired">
+        Query balances across local, IC, or custom networks
+      </Card>
+      <Card title="Precision Options" icon="calculator">
+        Use precise balance option for exact cycle counts
+      </Card>
+      <Card title="Format Display" icon="eye">
+        View balance in TC (trillion cycles) format
+      </Card>
+    </CardGroup>
+    
+    #### Balance Check Options
+    
+    <CodeGroup>
+    ```bash Network Selection
+    --network local    # Local development network
+    --network ic       # Internet Computer mainnet
+    --network custom   # Custom configured networks
+    ```
+    
+    ```bash Precision Control
+    --precise          # Get exact cycle count
+    # Default: Human-readable format (e.g., 1.5T)
+    ```
+    </CodeGroup>
+    
+    ### Managing Cycle Approvals
+    
+    Configure spending approvals to enable automated systems or other principals to spend cycles on your behalf:
+    
+    <Steps>
+      <Step title="Set Spender">
+        **Spender Principal**: Enter the principal authorized to spend cycles
+      </Step>
+      <Step title="Define Limits">
+        **Amount**: Set maximum cycles that can be spent
+      </Step>
+      <Step title="Add Context">
+        **Memo**: Optional memo for transaction tracking
+      </Step>
+      <Step title="Set Expiration">
+        **Expires At**: Set expiration timestamp for the approval
+      </Step>
+    </Steps>
+    
+    #### Approval Configuration Options
+    
+    <AccordionGroup>
+      <Accordion title="Spender Configuration">
+        - `--spender`: Principal authorized to spend cycles
+        - Supports both user principals and canister principals
+        - Validation ensures proper principal format
+      </Accordion>
+      
+      <Accordion title="Amount and Limits">
+        - `--amount`: Maximum cycles that can be spent
+        - Support for different cycle units (T, G, M, K)
+        - Automatic validation against available balance
+      </Accordion>
+      
+      <Accordion title="Tracking and Expiration">
+        - `--memo`: Optional memo for the approval
+        - `--expires-at`: Expiration timestamp for the approval
+        - Automatic cleanup of expired approvals
+      </Accordion>
+    </AccordionGroup>
+    
+    <Tip>
+    Use cycle approvals to enable automated systems or other principals to spend cycles on your behalf within defined limits. This is particularly useful for automated canister management and CI/CD systems.
+    </Tip>
+  </Tab>
+  
+  <Tab title="Transfers & Top-ups">
+    ## Transfers & Top-ups Tab
+    
+    Execute cycle transfers between accounts and top up canisters with comprehensive transfer management.
+    
+    ### Transferring Cycles
+    
+    <img
+      src="/images/features/cycles/transfer-cycles.png"
+      alt="Transfer Cycles"
+      className="rounded-lg border"
+    />
+    
+    The transfer functionality provides flexible cycle movement between accounts:
+    
+    <CardGroup cols={2}>
+      <Card title="Flexible Transfers" icon="arrow-right">
+        Transfer cycles to any principal with subaccount support
+      </Card>
+      <Card title="Source Control" icon="map-pin">
+        Specify source subaccount for organized fund management
+      </Card>
+      <Card title="Destination Options" icon="target">
+        Set destination subaccount for precise delivery
+      </Card>
+      <Card title="Transaction Records" icon="file-text">
+        Add transaction memos for comprehensive record keeping
+      </Card>
+    </CardGroup>
+    
+    #### Transfer Configuration
+    
+    <Steps>
+      <Step title="Destination">
+        **To**: Enter destination principal for the cycles
+      </Step>
+      <Step title="Amount">
+        **Amount**: Specify number of cycles to transfer
+      </Step>
+      <Step title="Source Account">
+        **From Subaccount**: Optional source subaccount specification
+      </Step>
+      <Step title="Destination Account">
+        **To Subaccount**: Optional destination subaccount specification
+      </Step>
+      <Step title="Documentation">
+        **Memo**: Optional memo for transfer documentation
+      </Step>
+    </Steps>
+    
+    ### Topping Up Canisters
+    
+    <img
+      src="/images/features/cycles/top-up-canister.png"
+      alt="Top Up Canister"
+      className="rounded-lg border"
+    />
+    
+    The canister top-up feature enables efficient canister funding:
+    
+    <CardGroup cols={3}>
+      <Card title="Canister Selection" icon="server">
+        Top up any canister with cycles
+      </Card>
+      <Card title="Source Management" icon="wallet">
+        Specify source subaccount for funding
+      </Card>
+      <Card title="Precise Control" icon="target">
+        Set exact amounts for top-ups
+      </Card>
+    </CardGroup>
+    
+    #### Top-up Configuration
+    
+    <AccordionGroup>
+      <Accordion title="Canister Targeting">
+        - `--canister`: Target canister ID for top-up
+        - Manual entry or selection from projects
+        - Automatic canister ID validation
+      </Accordion>
+      
+      <Accordion title="Amount Specification">
+        - `--amount`: Number of cycles to add
+        - Support for different cycle units
+        - Balance validation before transfer
+      </Accordion>
+      
+      <Accordion title="Source Account">
+        - `--from-subaccount`: Source subaccount for the cycles
+        - Optional parameter for organized funding
+        - Automatic balance checking
+      </Accordion>
+    </AccordionGroup>
+    
+    <Warning>
+    Double-check canister IDs before topping up, as cycle transfers cannot be reversed. Sending cycles to an incorrect canister will result in permanent loss. Always verify the canister ID matches your intended target.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Convert & Faucet">
+    ## Convert & Faucet Tab
+    
+    Convert ICP to cycles and redeem faucet coupons for development and testing purposes.
+    
+    ### Converting ICP to Cycles
+    
+    <img
+      src="/images/features/cycles/convert-icp.png"
+      alt="Convert ICP"
+      className="rounded-lg border"
+    />
+    
+    The ICP conversion feature provides efficient cycle acquisition:
+    
+    <CardGroup cols={2}>
+      <Card title="Rate Monitoring" icon="trending-up">
+        Convert ICP to cycles at current exchange rates
+      </Card>
+      <Card title="Source Control" icon="wallet">
+        Specify source subaccount for ICP
+      </Card>
+      <Card title="Transaction Tracking" icon="file-text">
+        Add transaction memos for tracking
+      </Card>
+      <Card title="Rate Transparency" icon="eye">
+        Monitor conversion rates before proceeding
+      </Card>
+    </CardGroup>
+    
+    #### Conversion Process
+    
+    <Steps>
+      <Step title="Amount Selection">
+        **Amount**: Specify amount of ICP to convert
+      </Step>
+      <Step title="Source Account">
+        **From Subaccount**: Optional source subaccount containing ICP
+      </Step>
+      <Step title="Documentation">
+        **Memo**: Optional memo for the conversion
+      </Step>
+      <Step title="Rate Confirmation">
+        Review current exchange rate before confirming
+      </Step>
+    </Steps>
+    
+    #### Conversion Options
+    
+    <CodeGroup>
+    ```bash Basic Conversion
+    --amount 1.5       # Amount of ICP to convert
+    --memo "Canister funding"  # Optional tracking memo
+    ```
+    
+    ```bash Subaccount Conversion
+    --amount 2.0
+    --from-subaccount 1234567890abcdef...  # 32-byte hex
+    --memo "Project cycles"
+    ```
+    </CodeGroup>
+    
+    ### Redeeming Faucet Coupons
+    
+    The faucet redemption feature enables free cycle acquisition for development:
+    
+    <CardGroup cols={2}>
+      <Card title="Coupon Redemption" icon="ticket">
+        Redeem faucet coupons for free cycles
+      </Card>
+      <Card title="Code Entry" icon="keyboard">
+        Enter coupon codes from official sources
+      </Card>
+      <Card title="Direct Delivery" icon="zap">
+        Receive cycles directly to your account
+      </Card>
+      <Card title="History Tracking" icon="history">
+        Track redemption history and usage
+      </Card>
+    </CardGroup>
+    
+    #### Faucet Redemption Process
+    
+    <Steps>
+      <Step title="Coupon Code">
+        **Coupon**: Enter faucet coupon code to redeem
+      </Step>
+      <Step title="Validation">
+        System validates coupon code and availability
+      </Step>
+      <Step title="Redemption">
+        Cycles are added directly to your account
+      </Step>
+      <Step title="Confirmation">
+        Receive confirmation with cycle amount received
+      </Step>
+    </Steps>
+    
+    <Tip>
+    Faucet coupons are typically available for development and testing purposes. Check official DFINITY channels, community forums, and developer events for available coupons.
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Advanced Features
+
+### Network Selection Support
+
+All cycle operations support comprehensive network selection for flexible development and production workflows:
+
+<AccordionGroup>
+  <Accordion title="Local Network">
+    - **Development Environment**: Your local dfx development network
+    - **Fast Operations**: Quick cycle operations for testing
+    - **No Real Costs**: Use fabricated cycles for development
+  </Accordion>
+  
+  <Accordion title="Internet Computer">
+    - **Production Environment**: Internet Computer mainnet
+    - **Real Cycles**: Actual cycle costs and transfers
+    - **Live Operations**: Production cycle management
+  </Accordion>
+  
+  <Accordion title="Custom Networks">
+    - **Flexible Configuration**: Any custom networks you've configured
+    - **Testnet Support**: Connect to various testnets
+    - **Development Networks**: Custom development environments
+  </Accordion>
+</AccordionGroup>
+
+### Subaccount Support
+
+Most operations support subaccount specification for organized fund management:
+
+<CardGroup cols={3}>
+  <Card title="Source Subaccounts" icon="arrow-up">
+    Specify where cycles/ICP come from
+  </Card>
+  <Card title="Destination Subaccounts" icon="arrow-down">
+    Specify where cycles should go
+  </Card>
+  <Card title="Account Isolation" icon="shield">
+    Keep different purposes separated
+  </Card>
+</CardGroup>
+
+### Error Handling & Validation
+
+Comprehensive error handling ensures reliable operations:
+
+<AccordionGroup>
+  <Accordion title="Network Validation">
+    - **Connectivity Detection**: Network connectivity error detection
+    - **Network Status**: Real-time network status monitoring
+    - **Automatic Retry**: Intelligent retry mechanisms for transient failures
+  </Accordion>
+  
+  <Accordion title="Balance Validation">
+    - **Insufficient Balance**: Warnings for insufficient cycle/ICP balance
+    - **Balance Checking**: Pre-operation balance verification
+    - **Fee Calculation**: Automatic fee calculation and validation
+  </Accordion>
+  
+  <Accordion title="Input Validation">
+    - **Principal Validation**: Invalid principal format detection
+    - **Amount Validation**: Proper amount format and range checking
+    - **Subaccount Validation**: 32-byte hex format verification
+  </Accordion>
+  
+  <Accordion title="Recovery Guidance">
+    - **Transaction Failure**: Recovery guidance for failed operations
+    - **Clear Error Messages**: Detailed error descriptions and solutions
+    - **Help Resources**: Links to relevant documentation and support
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Balance Management">
+    **Optimize your cycle monitoring:**
+    - **Regular Monitoring**: Use the balance checker to track cycle consumption patterns
+    - **Automated Alerts**: Set up monitoring for low cycle balances
+    - **Consumption Analysis**: Track usage patterns to predict future needs
+    - **Buffer Maintenance**: Keep adequate cycle buffers for operations
+  </Accordion>
+  
+  <Accordion title="Approval Strategy">
+    **Optimize cycle approvals:**
+    - **Strategic Approvals**: Use cycle approvals for automated systems with appropriate limits
+    - **Limit Management**: Set conservative spending limits for security
+    - **Regular Audits**: Review and update approvals regularly
+    - **Expiration Management**: Use expiration dates for temporary approvals
+  </Accordion>
+  
+  <Accordion title="Conversion Planning">
+    **Optimize ICP to cycle conversions:**
+    - **Advance Planning**: Convert ICP to cycles before critical operations to avoid delays
+    - **Rate Monitoring**: Check ICP-to-cycles rates before large conversions
+    - **Batch Conversions**: Consider larger, less frequent conversions for efficiency
+    - **Market Timing**: Monitor market conditions for optimal conversion timing
+  </Accordion>
+  
+  <Accordion title="Organization & Records">
+    **Optimize cycle organization:**
+    - **Subaccount Usage**: Use subaccounts for organization by project or purpose
+    - **Transaction Records**: Use memos to track the purpose of transfers and conversions
+    - **Documentation**: Maintain clear records of cycle operations and purposes
+    - **Testing Protocol**: Test operations on local networks before using mainnet
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Balance Issues">
+    **Common balance problems and solutions:**
+    
+    **Problem**: Balance not updating or showing incorrect amounts
+    - Click the refresh button to update manually
+    - Check network connectivity and status
+    - Verify you're querying the correct network
+    - Ensure proper principal/subaccount format
+    
+    **Problem**: Insufficient balance errors
+    - Verify actual balance before operations
+    - Account for transaction fees in calculations
+    - Check if cycles are in the correct subaccount
+  </Accordion>
+  
+  <Accordion title="Transfer Problems">
+    **Common transfer issues:**
+    
+    **Problem**: Transfer failures or timeouts
+    - Double-check recipient principals and available cycle balance
+    - Verify network connectivity and status
+    - Ensure sufficient cycles for transfer and fees
+    - Check destination principal format and validity
+    
+    **Problem**: Canister top-up issues
+    - Verify canister ID correctness and existence
+    - Check canister can receive cycles (not stopped)
+    - Ensure sufficient cycle availability for top-up
+  </Accordion>
+  
+  <Accordion title="Conversion Issues">
+    **Common conversion problems:**
+    
+    **Problem**: Failed ICP conversions
+    - Ensure sufficient ICP balance and verify network status
+    - Check current conversion rates and limits
+    - Verify ICP is in the correct subaccount
+    - Monitor network congestion affecting conversions
+    
+    **Problem**: Faucet redemption failures
+    - Verify coupon code validity and format
+    - Check redemption limits and expiration
+    - Ensure network supports faucet operations
+    - Verify account can receive cycles
+  </Accordion>
+  
+  <Accordion title="Configuration Problems">
+    **Common configuration issues:**
+    
+    **Problem**: Approval problems
+    - Check spender principal format and validity
+    - Verify expiration settings and current time
+    - Ensure sufficient cycles for approval amount
+    - Review approval limits and permissions
+    
+    **Problem**: Network errors
+    - Verify dfx network configuration and connectivity
+    - Check network status and availability
+    - Ensure proper network selection in operations
+    - Validate custom network configurations
+    
+    **Problem**: Subaccount issues
+    - Ensure subaccount format is correct (32-byte hex)
+    - Verify subaccount exists and has sufficient balance
+    - Check subaccount permissions and access
+  </Accordion>
+</AccordionGroup>
+
+## dfx 0.25.0 Compatibility
+
+This interface is fully compatible with dfx 0.25.0 and includes enhanced features:
+
+<CardGroup cols={2}>
+  <Card title="Updated Commands" icon="terminal">
+    Updated command syntax for all cycle operations
+  </Card>
+  <Card title="Enhanced Errors" icon="alert-circle">
+    Enhanced error messages with detailed feedback
+  </Card>
+  <Card title="Network Handling" icon="network-wired">
+    Improved network handling for multiple network types
+  </Card>
+  <Card title="Performance" icon="zap">
+    Optimized performance for faster operation execution
+  </Card>
+</CardGroup>
+
+### New dfx 0.25.0 Features
+
+<AccordionGroup>
+  <Accordion title="Command Improvements">
+    - **Better Subaccount Support**: Enhanced subaccount handling across all operations
+    - **Improved Validation**: More comprehensive input validation and error checking
+    - **Network Flexibility**: Better support for custom and multiple networks
+  </Accordion>
+  
+  <Accordion title="Performance Enhancements">
+    - **Faster Operations**: Optimized command execution for better performance
+    - **Better Caching**: Improved caching for frequently accessed data
+    - **Reduced Latency**: Lower latency for common operations
+  </Accordion>
+</AccordionGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="DFX Cycles Commands"
+    icon="terminal"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-cycles/"
+  >
+    Complete command reference for cycle operations
+  </Card>
+  <Card
+    title="Understanding Cycles"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/concepts/tokens-cycles"
+  >
+    Comprehensive guide to cycles on the Internet Computer
+  </Card>
+  <Card
+    title="ICP to Cycles Conversion"
+    icon="coins"
+    href="https://internetcomputer.org/docs/current/developer-docs/build/project-setup/cycles"
+  >
+    Detailed guide to ICP-to-cycles conversion
+  </Card>
+  <Card
+    title="Cycle Wallet Management"
+    icon="wallet"
+    href="https://internetcomputer.org/docs/current/developer-docs/build/project-setup/manage-cycles"
+  >
+    Cycle wallet and management best practices
+  </Card>
+  <Card
+    title="Cycles Economy"
+    icon="chart-line"
+    href="https://internetcomputer.org/whitepaper.pdf"
+  >
+    Cycles economy whitepaper and technical details
+  </Card>
+  <Card
+    title="Developer Economics"
+    icon="calculator"
+    href="https://internetcomputer.org/docs/current/developer-docs/gas-cost"
+  >
+    Understanding computation and storage costs
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to explore network configuration? Continue to the [Network](/features/network) page to learn about network management, configuration, and connectivity options.
+</Note> 

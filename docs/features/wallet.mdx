@@ -1,0 +1,592 @@
+---
+title: Wallet
+description: 'Comprehensive Internet Computer wallet management - Controllers, address book, custodians, cycle transfers, settings, and faucet operations'
+---
+
+The Wallet page provides comprehensive management of your Internet Computer wallet, including controller management, address book functionality, custodian operations, and cycle transfers. This page centralizes all wallet-related operations in a professional tabbed interface with full dfx 0.25.0 compatibility.
+
+## Overview
+
+<img
+  src="/images/features/wallet/wallet-overview.png"
+  alt="Wallet Overview"
+  className="rounded-lg border"
+/>
+
+The Wallet page is organized into six main functional areas, each designed to handle specific aspects of wallet management:
+
+<CardGroup cols={3}>
+  <Card title="Controllers" icon="shield">
+    Manage wallet controllers with administrative access
+  </Card>
+  <Card title="Address Book" icon="address-book">
+    Store and manage addresses locally with DFX integration
+  </Card>
+  <Card title="Custodians" icon="users">
+    Authorize and manage custodians with limited permissions
+  </Card>
+  <Card title="Cycle Transfers" icon="arrow-right-arrow-left">
+    Send cycles between canisters and wallets
+  </Card>
+  <Card title="Wallet Settings" icon="gear">
+    Configure wallet name and perform upgrades
+  </Card>
+  <Card title="Faucet" icon="droplet">
+    Redeem faucet coupons for development cycles
+  </Card>
+</CardGroup>
+
+<Tip>
+The wallet functionality requires an active wallet canister. Ensure you have a wallet set up before using these features. You can create a wallet using the `dfx identity deploy-wallet` command.
+</Tip>
+
+## Wallet Management Tabs
+
+<Tabs>
+  <Tab title="Controllers">
+    ## Controllers Tab
+    
+    <img
+      src="/images/features/wallet/controllers-tab.png"
+      alt="Controllers Management"
+      className="rounded-lg border"
+    />
+    
+    Controllers have administrative access to your wallet canister. This tab provides comprehensive controller management capabilities:
+    
+    ### Controller Overview
+    
+    <CardGroup cols={2}>
+      <Card title="View Controllers" icon="eye">
+        List all current controllers with their principals and copy functionality
+      </Card>
+      <Card title="Controller Status" icon="chart-line">
+        Display controller count and authorization status
+      </Card>
+    </CardGroup>
+    
+    ### Adding Controllers
+    
+    <Steps>
+      <Step title="Initiate Addition">
+        Click the **"Add Controller"** button to start the process
+      </Step>
+      <Step title="Enter Principal">
+        Enter the **principal ID** of the new controller in the input field
+      </Step>
+      <Step title="Select Network">
+        Choose the appropriate **network** (local or IC) for the operation
+      </Step>
+      <Step title="Authorize">
+        Click **"Add"** to authorize the new controller with administrative access
+      </Step>
+    </Steps>
+    
+    ### Removing Controllers
+    
+    <Steps>
+      <Step title="Locate Controller">
+        Find the controller you want to remove from the list
+      </Step>
+      <Step title="Initiate Removal">
+        Click the **trash icon** next to their principal
+      </Step>
+      <Step title="Confirm Action">
+        Confirm the removal in the confirmation dialog
+      </Step>
+      <Step title="Complete Removal">
+        The controller will be removed from your wallet
+      </Step>
+    </Steps>
+    
+    <Warning>
+    Be very careful when managing controllers. Removing all controllers can make your wallet inaccessible. Always ensure you maintain at least one controller with administrative access.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Address Book">
+    ## Address Book Tab
+    
+    <img
+      src="/images/features/wallet/address-book-tab.png"
+      alt="Address Book"
+      className="rounded-lg border"
+    />
+    
+    The Address Book provides local storage for frequently used addresses and principals with DFX integration:
+    
+    ### Key Features
+    
+    <CardGroup cols={2}>
+      <Card title="Local Storage" icon="database">
+        Addresses are stored locally in the app for quick access
+      </Card>
+      <Card title="DFX Integration" icon="terminal">
+        Also displays addresses from `dfx wallet addresses`
+      </Card>
+      <Card title="Search & Filter" icon="magnifying-glass">
+        Find addresses quickly with advanced filtering
+      </Card>
+      <Card title="Import/Export" icon="arrow-up-down">
+        Manage your address collection with backup capabilities
+      </Card>
+    </CardGroup>
+    
+    ### Adding New Addresses
+    
+    <Steps>
+      <Step title="Start Creation">
+        Click the **"Add Address"** button to open the form
+      </Step>
+      <Step title="Fill Details">
+        Complete the address information:
+        - **Label**: Descriptive name for easy identification
+        - **Address**: Principal ID or account identifier
+        - **Type**: Select "Principal" or "Account"
+        - **Notes**: Optional description for context
+      </Step>
+      <Step title="Save Address">
+        Click **"Save"** to store the address in your local collection
+      </Step>
+    </Steps>
+    
+    ### Address Management
+    
+    <AccordionGroup>
+      <Accordion title="Edit Addresses">
+        - Click the **edit icon** to modify address details
+        - Update labels, notes, or address information
+        - Save changes to maintain current information
+      </Accordion>
+      
+      <Accordion title="Delete Addresses">
+        - Remove addresses you no longer need
+        - Confirm deletion to prevent accidental removal
+        - Clean up your address book regularly
+      </Accordion>
+      
+      <Accordion title="Copy & Search">
+        - **One-click copying** of addresses to clipboard
+        - **Search functionality** to filter by label or address
+        - **Quick access** to frequently used addresses
+      </Accordion>
+    </AccordionGroup>
+    
+    <Tip>
+    Use descriptive labels for your addresses to make them easy to find. Consider organizing by project or purpose (e.g., "Main Canister", "Test Account", "Production Wallet").
+    </Tip>
+  </Tab>
+  
+  <Tab title="Custodians">
+    ## Custodians Tab
+    
+    <img
+      src="/images/features/wallet/custodians-tab.png"
+      alt="Custodians Management"
+      className="rounded-lg border"
+    />
+    
+    Custodians can perform operations on behalf of your wallet but have more limited permissions than controllers:
+    
+    ### Custodian Overview
+    
+    <CardGroup cols={2}>
+      <Card title="View Custodians" icon="users">
+        List authorized custodians with their principals and permissions
+      </Card>
+      <Card title="Authorization Status" icon="shield-check">
+        Show authorization status and permission levels
+      </Card>
+    </CardGroup>
+    
+    ### Authorizing Custodians
+    
+    <Steps>
+      <Step title="Start Authorization">
+        Click the **"Authorize Custodian"** button
+      </Step>
+      <Step title="Enter Principal">
+        Enter the **principal ID** to authorize as custodian
+      </Step>
+      <Step title="Select Network">
+        Choose the appropriate **network** for the operation
+      </Step>
+      <Step title="Grant Permissions">
+        Click **"Authorize"** to grant custodian permissions
+      </Step>
+    </Steps>
+    
+    ### Deauthorizing Custodians
+    
+    <Steps>
+      <Step title="Locate Custodian">
+        Find the custodian to remove from the authorized list
+      </Step>
+      <Step title="Initiate Removal">
+        Click the **"Deauthorize"** button next to their entry
+      </Step>
+      <Step title="Confirm Action">
+        Confirm the deauthorization action
+      </Step>
+      <Step title="Complete Removal">
+        The custodian will lose wallet permissions
+      </Step>
+    </Steps>
+    
+    <Info>
+    Custodians can send cycles and perform basic wallet operations but cannot add/remove controllers or other custodians. This provides a secure way to grant limited access.
+    </Info>
+  </Tab>
+  
+  <Tab title="Cycle Transfers">
+    ## Cycle Transfers Tab
+    
+    <img
+      src="/images/features/wallet/cycle-transfers-tab.png"
+      alt="Cycle Transfers"
+      className="rounded-lg border"
+    />
+    
+    Send cycles from your wallet to canisters or other wallets with comprehensive transfer management:
+    
+    ### Wallet Balance Management
+    
+    <CardGroup cols={3}>
+      <Card title="Current Balance" icon="coins">
+        Balance displayed prominently with proper formatting
+      </Card>
+      <Card title="Refresh Function" icon="refresh-cw">
+        Update balance with real-time refresh capability
+      </Card>
+      <Card title="Unit Display" icon="calculator">
+        Balance shown in cycles with appropriate unit scaling
+      </Card>
+    </CardGroup>
+    
+    ### Sending Cycles
+    
+    <Steps>
+      <Step title="Enter Destination">
+        **Destination**: Enter the canister ID or principal to receive cycles
+      </Step>
+      <Step title="Specify Amount">
+        **Amount**: Specify cycles to send with unit selector (T, G, M, K)
+      </Step>
+      <Step title="Select Network">
+        **Network**: Choose local or IC network for the transfer
+      </Step>
+      <Step title="Add Memo">
+        **Memo**: Optional transaction note for record keeping
+      </Step>
+      <Step title="Execute Transfer">
+        Click **"Send Cycles"** to execute the transfer
+      </Step>
+    </Steps>
+    
+    ### Transfer Features
+    
+    <AccordionGroup>
+      <Accordion title="Amount Validation">
+        - **Balance Verification**: Ensures sufficient balance before transfer
+        - **Minimum Amount**: Validates minimum transfer requirements
+        - **Fee Calculation**: Accounts for network fees in validation
+      </Accordion>
+      
+      <Accordion title="Unit Conversion">
+        - **Multiple Units**: Support for T (Trillion), G (Billion), M (Million), K (Thousand)
+        - **Automatic Conversion**: Seamless conversion between units
+        - **Precision Handling**: Accurate handling of large cycle amounts
+      </Accordion>
+      
+      <Accordion title="Transaction Management">
+        - **Transaction History**: View recent transfers with details
+        - **Error Handling**: Clear feedback for failed operations
+        - **Status Tracking**: Monitor transfer completion status
+      </Accordion>
+    </AccordionGroup>
+    
+    <Tip>
+    Always verify the destination address before sending cycles. Transactions cannot be reversed once confirmed. Use the memo field to track the purpose of transfers.
+    </Tip>
+  </Tab>
+  
+  <Tab title="Wallet Settings">
+    ## Wallet Settings Tab
+    
+    <img
+      src="/images/features/wallet/wallet-settings-tab.png"
+      alt="Wallet Settings"
+      className="rounded-lg border"
+    />
+    
+    Configure your wallet name and perform maintenance operations:
+    
+    ### Wallet Information Display
+    
+    <CardGroup cols={3}>
+      <Card title="Wallet Name" icon="tag">
+        Current wallet name with edit functionality
+      </Card>
+      <Card title="Wallet Principal" icon="key">
+        Wallet principal with copy-to-clipboard feature
+      </Card>
+      <Card title="Network Status" icon="wifi">
+        Network status indicator and connection info
+      </Card>
+    </CardGroup>
+    
+    ### Renaming Your Wallet
+    
+    <Steps>
+      <Step title="Start Rename">
+        Click the **"Set Name"** button to begin renaming
+      </Step>
+      <Step title="Enter New Name">
+        Enter the **new wallet name** in the input field
+      </Step>
+      <Step title="Save Changes">
+        Click **"Update"** to save the new name
+      </Step>
+      <Step title="Confirm Update">
+        The new name will be applied to your wallet
+      </Step>
+    </Steps>
+    
+    ### Wallet Upgrade Management
+    
+    <AccordionGroup>
+      <Accordion title="Update Checking">
+        - **Version Detection**: Check for updates to wallet canister code
+        - **Compatibility**: Ensure compatibility with current dfx version
+        - **Update Notifications**: Alerts for available upgrades
+      </Accordion>
+      
+      <Accordion title="Upgrade Process">
+        - **One-click Upgrade**: Simple upgrade to latest wallet version
+        - **Progress Tracking**: Monitor upgrade status and completion
+        - **Rollback Options**: Safety measures for upgrade issues
+      </Accordion>
+    </AccordionGroup>
+    
+    <Warning>
+    Wallet upgrades should be performed carefully. Ensure you have backups of important data before upgrading. Test upgrades on development networks first.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Faucet">
+    ## Faucet Tab
+    
+    <img
+      src="/images/features/wallet/faucet-tab.png"
+      alt="Faucet Coupon"
+      className="rounded-lg border"
+    />
+    
+    Redeem faucet coupons to receive free cycles for development and testing:
+    
+    ### Coupon Redemption Process
+    
+    <Steps>
+      <Step title="Enter Coupon">
+        **Enter coupon code** in the designated input field
+      </Step>
+      <Step title="Select Network">
+        **Select network** (typically local for development purposes)
+      </Step>
+      <Step title="Redeem Coupon">
+        Click **"Redeem Coupon"** to claim your free cycles
+      </Step>
+      <Step title="Confirm Success">
+        **Success confirmation** with cycle amount received
+      </Step>
+    </Steps>
+    
+    ### Faucet Features
+    
+    <CardGroup cols={2}>
+      <Card title="Coupon Validation" icon="check-circle">
+        Validation before submission to prevent errors
+      </Card>
+      <Card title="Network Selection" icon="network-wired">
+        Choose appropriate network for redemption
+      </Card>
+      <Card title="Balance Update" icon="refresh-cw">
+        Automatic balance update after successful redemption
+      </Card>
+      <Card title="Error Handling" icon="alert-circle">
+        Clear feedback for invalid or expired coupons
+      </Card>
+    </CardGroup>
+    
+    <Info>
+    Faucet coupons are typically used for development and testing. They provide free cycles to help you get started with Internet Computer development without initial investment.
+    </Info>
+  </Tab>
+</Tabs>
+
+## Network Support
+
+All wallet operations support multiple network configurations for flexible development and production workflows:
+
+<AccordionGroup>
+  <Accordion title="Local Network">
+    - **Development Environment**: Perfect for testing and development
+    - **Fast Operations**: Quick cycle transfers and operations
+    - **No Real Costs**: Use fabricated cycles for testing
+  </Accordion>
+  
+  <Accordion title="Internet Computer">
+    - **Production Environment**: Live network operations
+    - **Real Cycles**: Actual cycle costs and transfers
+    - **Mainnet Operations**: Production wallet management
+  </Accordion>
+  
+  <Accordion title="Custom Networks">
+    - **Custom Configurations**: As configured in your dfx.json
+    - **Testnet Support**: Connect to various testnets
+    - **Flexible Setup**: Adapt to different network requirements
+  </Accordion>
+</AccordionGroup>
+
+The network selector is available in each tab where applicable, ensuring you're always operating on the intended network.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Security Management">
+    **Optimize your wallet security:**
+    - **Regular Backups**: Keep secure backups of your wallet information
+    - **Controller Management**: Maintain multiple controllers for redundancy
+    - **Access Control**: Regularly review and audit controller/custodian access
+    - **Secure Storage**: Store sensitive information in encrypted locations
+  </Accordion>
+  
+  <Accordion title="Operational Excellence">
+    **Optimize your wallet operations:**
+    - **Address Organization**: Use clear, descriptive labels in your address book
+    - **Cycle Monitoring**: Regularly check your wallet balance and set alerts
+    - **Network Verification**: Always verify you're on the correct network
+    - **Transaction Records**: Keep detailed records of important transactions
+  </Accordion>
+  
+  <Accordion title="Development Workflow">
+    **Optimize your development process:**
+    - **Testing Environment**: Use local network for development and testing
+    - **Faucet Usage**: Leverage faucet coupons for development cycles
+    - **Upgrade Testing**: Test wallet upgrades on development networks first
+    - **Documentation**: Maintain clear documentation of wallet configurations
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Wallet Access Issues">
+    **Common wallet access problems:**
+    
+    **Problem**: Wallet not found or inaccessible
+    - Ensure you have a wallet canister deployed
+    - Verify you're using the correct identity
+    - Check network connectivity and configuration
+    
+    **Problem**: Permission denied errors
+    - Ensure you have appropriate controller/custodian permissions
+    - Verify identity matches wallet controller
+    - Check network selection matches wallet deployment
+  </Accordion>
+  
+  <Accordion title="Transaction Issues">
+    **Common transaction problems:**
+    
+    **Problem**: Insufficient cycles for operations
+    - Check your wallet balance before operations
+    - Ensure sufficient cycles for transaction fees
+    - Consider topping up wallet from other sources
+    
+    **Problem**: Transfer failures
+    - Verify destination addresses are correct
+    - Check network connectivity and status
+    - Ensure recipient can receive cycles
+  </Accordion>
+  
+  <Accordion title="Configuration Problems">
+    **Common configuration issues:**
+    
+    **Problem**: Balance not updating
+    - Use the refresh button to update manually
+    - Check network connectivity
+    - Restart the application if issues persist
+    
+    **Problem**: Upgrade failures
+    - Check network status and connectivity
+    - Verify sufficient cycles for upgrade
+    - Try again after network issues resolve
+    
+    **Problem**: Coupon redemption fails
+    - Verify coupon code is correct and not expired
+    - Check network selection matches coupon requirements
+    - Ensure wallet can receive cycles
+  </Accordion>
+</AccordionGroup>
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Access Control">
+    **Critical security practices:**
+    - **Controller Access**: Only add trusted principals as controllers
+    - **Custodian Permissions**: Regularly review and audit custodian access
+    - **Principle of Least Privilege**: Grant minimum necessary permissions
+  </Accordion>
+  
+  <Accordion title="Transaction Security">
+    **Safe transaction practices:**
+    - **Address Verification**: Always double-check addresses before transfers
+    - **Network Selection**: Ensure you're using the correct network for operations
+    - **Amount Verification**: Verify transfer amounts before confirmation
+  </Accordion>
+  
+  <Accordion title="Data Protection">
+    **Information security measures:**
+    - **Backup Strategy**: Maintain secure backups of wallet credentials
+    - **Regular Audits**: Periodically review controllers and custodians
+    - **Secure Storage**: Store sensitive information in encrypted locations
+  </Accordion>
+</AccordionGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="IC Wallet Documentation"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-wallet"
+  >
+    Complete Internet Computer wallet documentation
+  </Card>
+  <Card
+    title="Cycle Management Guide"
+    icon="coins"
+    href="https://internetcomputer.org/docs/current/developer-docs/setup/cycles/"
+  >
+    Comprehensive guide to cycle management
+  </Card>
+  <Card
+    title="DFX Wallet Commands"
+    icon="terminal"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-wallet"
+  >
+    Command line reference for wallet operations
+  </Card>
+  <Card
+    title="Security Best Practices"
+    icon="shield"
+    href="https://internetcomputer.org/docs/current/developer-docs/security/"
+  >
+    Security guidelines for wallet management
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to explore cycle management? Continue to the [Cycles](/features/cycles) page to learn about cycle monitoring, management, and optimization strategies.
+</Note> 

@@ -1,0 +1,379 @@
+---
+title: Logs
+description: 'Command history and log management - Review, re-execute, and analyze DFX Dashboard command history with advanced filtering and search capabilities'
+---
+
+The Logs page provides comprehensive logging capabilities for your DFX Dashboard activities, featuring both command history tracking and canister log viewing. This powerful tool enables efficient debugging, workflow optimization, and development process documentation.
+
+## Overview
+
+The Logs page is organized into two main tabs designed for comprehensive log management:
+
+<CardGroup cols={2}>
+  <Card title="Command History" icon="history">
+    Complete history of dfx commands executed through the dashboard
+  </Card>
+  <Card title="Canister Logs" icon="file-text">
+    Real-time canister logs with filtering and search capabilities
+  </Card>
+</CardGroup>
+
+<Info>
+The Logs page tracks commands executed through the DFX Dashboard and provides access to canister logs across all your projects for comprehensive debugging and monitoring.
+</Info>
+
+## Log Management Features
+
+<Tabs>
+  <Tab title="Command History">
+    ## Command History Tab
+    
+    <img
+      src="/images/features/logs/command-history.png"
+      alt="Command History"
+      className="rounded-lg border"
+    />
+    
+    The Command History tab provides a comprehensive view of all dfx commands executed through the DFX Dashboard, allowing you to review, analyze, and re-execute past commands.
+    
+    ### Table Structure
+    
+    The command history table includes the following columns:
+    
+    <AccordionGroup>
+      <Accordion title="Temporal Information">
+        - **Date**: The date when the command was executed (sortable)
+        - **Time**: The specific time of command execution with precision
+        - Commands are sorted by date/time in descending order (newest first)
+      </Accordion>
+      
+      <Accordion title="Command Classification">
+        - **Subcommand**: The dfx subcommand type (e.g., "canister")
+        - **Command**: The actual dfx command that was executed
+        - Color-coded subcommands for easy identification
+      </Accordion>
+      
+      <Accordion title="Action Controls">
+        - **Info Button**: View detailed command output and execution details
+        - **Copy Button**: Copy command text to clipboard
+        - **Re-execute Button**: Run the command again (if applicable)
+      </Accordion>
+    </AccordionGroup>
+    
+    ### Command Filtering
+    
+    <CardGroup cols={2}>
+      <Card title="Subcommand Filter" icon="filter">
+        Filter commands by type (All, Canister, etc.)
+      </Card>
+      <Card title="Date Sorting" icon="calendar">
+        Commands automatically sorted by execution time
+      </Card>
+    </CardGroup>
+    
+    ### Command Actions
+    
+    <Steps>
+      <Step title="View Output">
+        Click the **Info** button to see detailed command output in a modal
+      </Step>
+      <Step title="Copy Command">
+        Click the **Copy** button to copy the command text to clipboard
+      </Step>
+      <Step title="Re-execute">
+        Click the **Play** button to run the command again (when available)
+      </Step>
+    </Steps>
+    
+    ### Command Output Modal
+    
+    <img
+      src="/images/features/logs/command-output.png"
+      alt="Command Output Modal"
+      className="rounded-lg border"
+    />
+    
+    The command output modal provides:
+    
+    <CardGroup cols={2}>
+      <Card title="Command Details" icon="terminal">
+        - Full command text with parameters
+        - Execution path context
+        - Command type classification
+      </Card>
+      <Card title="Execution Results" icon="scroll">
+        - Complete command output with syntax highlighting
+        - Error messages and warnings
+        - Scrollable output area for long results
+      </Card>
+    </CardGroup>
+    
+    <Tip>
+    Use the command history to track your development workflow and quickly re-execute successful commands. The output modal helps with debugging by showing complete command results.
+    </Tip>
+  </Tab>
+  
+  <Tab title="Canister Logs">
+    ## Canister Logs Tab
+    
+    <img
+      src="/images/features/logs/canister-logs.png"
+      alt="Canister Logs"
+      className="rounded-lg border"
+    />
+    
+    The Canister Logs tab provides real-time access to canister logs across all your projects, with powerful search and filtering capabilities.
+    
+    ### Canister Selection
+    
+    <CardGroup cols={2}>
+      <Card title="Project Integration" icon="folder">
+        Automatically discovers canisters from all loaded projects
+      </Card>
+      <Card title="Canister Dropdown" icon="list">
+        Select any canister from any project to view its logs
+      </Card>
+    </CardGroup>
+    
+    ### Log Features
+    
+    <AccordionGroup>
+      <Accordion title="Real-time Logs">
+        - **Live Updates**: Fetch the latest logs from selected canisters
+        - **Automatic Parsing**: Structured log parsing with timestamps
+        - **Message Formatting**: Clean, readable log message display
+      </Accordion>
+      
+      <Accordion title="Search and Filter">
+        - **Text Search**: Search through log messages for specific content
+        - **Real-time Filtering**: Instant filtering as you type
+        - **Case-insensitive**: Search works regardless of case
+      </Accordion>
+      
+      <Accordion title="Log Structure">
+        - **Count**: Sequential log entry number
+        - **Date**: Date of the log entry
+        - **Time**: Precise timestamp with milliseconds
+        - **Message**: The actual log message content
+      </Accordion>
+    </AccordionGroup>
+    
+    ### Canister Discovery
+    
+    The system automatically:
+    
+    <Steps>
+      <Step title="Project Scanning">
+        Scans all loaded projects for available canisters
+      </Step>
+      <Step title="Canister Detection">
+        Identifies deployed canisters across different networks
+      </Step>
+      <Step title="Dropdown Population">
+        Populates the canister selection dropdown with project context
+      </Step>
+      <Step title="Log Fetching">
+        Retrieves logs using `dfx canister logs` command
+      </Step>
+    </Steps>
+    
+    ### Error Handling
+    
+    <CardGroup cols={2}>
+      <Card title="Connection Issues" icon="wifi-off">
+        Graceful handling of network connectivity problems
+      </Card>
+      <Card title="Canister Errors" icon="alert-circle">
+        Clear error messages for canister-specific issues
+      </Card>
+      <Card title="Empty Logs" icon="file-x">
+        Appropriate messaging when no logs are available
+      </Card>
+      <Card title="Retry Mechanism" icon="refresh-cw">
+        Easy retry options for failed log fetches
+      </Card>
+    </CardGroup>
+    
+    <Warning>
+    Canister logs are fetched in real-time from the network. Ensure your canisters are running and accessible on the selected network for successful log retrieval.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Log Data Structure
+
+Understanding the log data structure helps with effective debugging and analysis:
+
+### Command History Format
+
+<AccordionGroup>
+  <Accordion title="Log Entry Structure">
+    Each command history entry contains:
+    - **Timestamp**: Date and time of execution
+    - **Command**: Full dfx command with parameters
+    - **Path**: Working directory context
+    - **Result**: Complete command output
+    - **Subcommand**: Command category for filtering
+  </Accordion>
+  
+  <Accordion title="Parsing Logic">
+    - Commands are parsed from log files automatically
+    - Timestamps are extracted and formatted for display
+    - Results are cleaned and formatted for readability
+    - Paths are extracted for context information
+  </Accordion>
+</AccordionGroup>
+
+### Canister Log Format
+
+<AccordionGroup>
+  <Accordion title="Log Message Structure">
+    Canister logs follow the format:
+    ```
+    [count. YYYY-MM-DDTHH:mm:ss.sssZ]: message
+    ```
+    - **Count**: Sequential log entry number
+    - **ISO Timestamp**: Precise timestamp in ISO format
+    - **Message**: The actual log content
+  </Accordion>
+  
+  <Accordion title="Message Processing">
+    - Automatic parsing of timestamp components
+    - Message content preserved exactly as logged
+    - Empty lines and malformed entries handled gracefully
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Command History Usage">
+    **Optimize your command history workflow:**
+    - **Regular Review**: Periodically review command history for workflow optimization
+    - **Error Analysis**: Use command outputs to debug failed operations
+    - **Command Reuse**: Copy and modify successful commands for similar tasks
+    - **Timeline Tracking**: Use timestamps to understand development progression
+  </Accordion>
+  
+  <Accordion title="Canister Log Monitoring">
+    **Effective canister log monitoring:**
+    - **Regular Checks**: Monitor canister logs regularly for issues
+    - **Search Utilization**: Use search functionality to find specific events
+    - **Error Identification**: Look for error patterns in log messages
+    - **Performance Monitoring**: Track performance-related log entries
+  </Accordion>
+  
+  <Accordion title="Debugging Strategies">
+    **Leverage logs for debugging:**
+    - **Command Correlation**: Correlate command history with canister logs
+    - **Timeline Analysis**: Use timestamps to understand event sequences
+    - **Error Tracing**: Trace errors from commands to canister responses
+    - **Pattern Recognition**: Identify recurring issues through log analysis
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Command History Issues">
+    **Common command history problems:**
+    
+    **Problem**: Commands not appearing in history
+    - Ensure commands are executed through the DFX Dashboard
+    - Check if the command log file is accessible
+    - Verify the command completed execution
+    - Restart the dashboard if logs aren't updating
+    
+    **Problem**: Command output is incomplete
+    - Check if the command is still running
+    - Verify network connectivity for network commands
+    - Look for error messages in the output modal
+    - Try re-executing the command for complete output
+  </Accordion>
+  
+  <Accordion title="Canister Log Issues">
+    **Common canister log problems:**
+    
+    **Problem**: No logs appearing for canister
+    - Verify the canister is deployed and running
+    - Check network connectivity to the canister
+    - Ensure the canister has generated log entries
+    - Try refreshing by selecting the canister again
+    
+    **Problem**: Canister not appearing in dropdown
+    - Verify the project is loaded in the dashboard
+    - Check if the canister is properly deployed
+    - Ensure dfx.json configuration is correct
+    - Try refreshing the projects list
+  </Accordion>
+  
+  <Accordion title="Search and Filter Issues">
+    **Common search and filter problems:**
+    
+    **Problem**: Search not finding expected results
+    - Check search term spelling and case
+    - Verify the logs contain the expected content
+    - Try broader search terms
+    - Clear search and try again
+    
+    **Problem**: Filters not working correctly
+    - Ensure the filter criteria match available data
+    - Try resetting filters to default
+    - Check if data is loading properly
+    - Refresh the page if filters seem stuck
+  </Accordion>
+</AccordionGroup>
+
+## Performance Considerations
+
+<CardGroup cols={2}>
+  <Card title="Log Volume Management" icon="database">
+    Large log volumes may impact performance - consider regular cleanup
+  </Card>
+  <Card title="Network Efficiency" icon="wifi">
+    Canister logs are fetched over network - monitor for connectivity issues
+  </Card>
+  <Card title="Search Optimization" icon="search">
+    Use specific search terms for faster results in large log sets
+  </Card>
+  <Card title="Memory Usage" icon="cpu">
+    Large command histories may use significant memory - restart if needed
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="DFX Logging Documentation"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-canister#dfx-canister-logs"
+  >
+    Official documentation for dfx canister logs command
+  </Card>
+  <Card
+    title="Canister Development Guide"
+    icon="code"
+    href="https://internetcomputer.org/docs/current/developer-docs/build/cdks/"
+  >
+    Guide to canister development and logging best practices
+  </Card>
+  <Card
+    title="Debugging Techniques"
+    icon="bug"
+    href="https://internetcomputer.org/docs/current/developer-docs/build/troubleshooting"
+  >
+    Comprehensive debugging techniques for IC development
+  </Card>
+  <Card
+    title="DFX Command Reference"
+    icon="terminal"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-parent"
+  >
+    Complete reference for all dfx commands
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to explore application settings and configuration? Continue to the [Settings](/features/settings) page to learn about DFX version management, environment variables, and application preferences.
+</Note> 

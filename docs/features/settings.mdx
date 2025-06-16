@@ -1,0 +1,537 @@
+---
+title: Settings
+description: 'DFX Dashboard configuration and environment management - DFX version selection, shell completion setup, environment variables, and cache management'
+---
+
+The Settings page allows you to customize your DFX Dashboard environment and manage important DFX-related configurations, including automated shell completion setup and comprehensive cache management. This centralized configuration hub ensures optimal development workflow and system performance.
+
+## Overview
+
+The Settings page is organized into four main configuration tabs designed for comprehensive environment management:
+
+<CardGroup cols={2}>
+  <Card title="Version Manager" icon="package">
+    DFX version selection between bundled and system installations
+  </Card>
+  <Card title="Cache Management" icon="hard-drive">
+    DFX version cache management and installation control
+  </Card>
+  <Card title="Environment Variables" icon="settings">
+    DFX environment variables configuration and management
+  </Card>
+  <Card title="Shell Completion" icon="terminal">
+    Automated dfx command completion setup for enhanced productivity
+  </Card>
+</CardGroup>
+
+## Configuration Management
+
+<Tabs>
+  <Tab title="Version Manager">
+    ## Version Manager Tab
+    
+    <img
+      src="/images/features/settings/version-manager.png"
+      alt="Version Manager"
+      className="rounded-lg border"
+    />
+    
+    The Version Manager tab provides comprehensive DFX version management capabilities, allowing you to switch between bundled and system DFX installations.
+    
+    ### DFX Version Selection
+    
+    <CardGroup cols={2}>
+      <Card title="Bundled DFX" icon="package">
+        Utilizes dfx v0.25.0 that comes packaged with the DFX Dashboard app
+      </Card>
+      <Card title="System DFX" icon="computer">
+        Uses the DFX version installed on your system via dfxvm
+      </Card>
+    </CardGroup>
+    
+    ### Bundled DFX Features
+    
+    <img
+      src="/images/features/settings/version-manager-bundled-dfx.png"
+      alt="Bundled DFX Configuration"
+      className="rounded-lg border"
+    />
+    
+    <AccordionGroup>
+      <Accordion title="Bundled DFX Advantages">
+        - **Guaranteed Compatibility**: Ensures compatibility with all dashboard features
+        - **No Installation Required**: Works even if dfx is not installed on your system
+        - **Quick Setup**: Ideal for quick setups or testing environments
+        - **Version Consistency**: Consistent experience across different systems
+      </Accordion>
+      
+      <Accordion title="System DFX Advantages">
+        - **Latest Features**: Access to the newest dfx features and improvements
+        - **Custom Versions**: Use specific versions required by your projects
+        - **System Integration**: Better integration with existing development workflows
+        - **Flexibility**: Switch between different dfx versions as needed
+      </Accordion>
+    </AccordionGroup>
+    
+    ### Installing New Versions
+    
+    <img
+      src="/images/features/settings/version-manager-install-new-version.png"
+      alt="Install New DFX Version"
+      className="rounded-lg border"
+    />
+    
+    The Version Manager allows you to install new DFX versions directly from the interface:
+    
+    <Steps>
+      <Step title="Select Version">
+        Choose from available DFX versions in the dropdown
+      </Step>
+      <Step title="Install">
+        Click "Install" to download and install the selected version
+      </Step>
+      <Step title="Monitor Progress">
+        Track installation progress with the progress indicator
+      </Step>
+      <Step title="Set as Default">
+        Optionally set the newly installed version as default
+      </Step>
+    </Steps>
+    
+    <Tip>
+    The bundled DFX option allows you to use the Dashboard even if dfx is not installed on your system, which can be useful for quick setups or testing. The current system dfx version is displayed next to the toggle (e.g., "dfx 0.25.0").
+    </Tip>
+  </Tab>
+  
+  <Tab title="Cache Management">
+    ## Cache Management Tab
+    
+    <img
+      src="/images/features/settings/cache-management.png"
+      alt="Cache Management"
+      className="rounded-lg border"
+    />
+    
+    The Cache Management tab provides comprehensive control over your DFX version cache, allowing you to manage disk space and installed versions efficiently.
+    
+    ### Cache Overview
+    
+    <CardGroup cols={3}>
+      <Card title="Cache Directory" icon="folder">
+        View the location of your DFX cache directory
+      </Card>
+      <Card title="Total Size" icon="hard-drive">
+        Monitor total disk space used by cached versions
+      </Card>
+      <Card title="Version Count" icon="layers">
+        Track the number of cached DFX versions
+      </Card>
+    </CardGroup>
+    
+    ### Cache Management Features
+    
+    <AccordionGroup>
+      <Accordion title="Version Management">
+        - **View All Versions**: See all cached DFX versions with size information
+        - **Active Status**: Identify which version is currently active
+        - **Individual Deletion**: Remove specific versions to free up space
+        - **Bulk Operations**: Clear all cached versions at once
+      </Accordion>
+      
+      <Accordion title="Installation Control">
+        - **Install Current**: Add the current system DFX version to cache
+        - **Version Filtering**: Filter versions by status (active/cached)
+        - **Search Functionality**: Find specific versions quickly
+        - **Size Monitoring**: Track disk usage per version
+      </Accordion>
+      
+      <Accordion title="Cache Operations">
+        - **Refresh Cache**: Update cache information and status
+        - **Open Cache Folder**: Direct access to cache directory
+        - **Clear All**: Remove all cached versions (with confirmation)
+        - **Selective Cleanup**: Remove only inactive versions
+      </Accordion>
+    </AccordionGroup>
+    
+    <Warning>
+    Be careful when clearing cache versions, especially active ones. Removing the active version may cause issues with current projects. Always ensure you have the necessary versions available before clearing cache.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Environment Variables">
+    ## Environment Variables Tab
+    
+    <img
+      src="/images/features/settings/environment-variables.png"
+      alt="Environment Variables"
+      className="rounded-lg border"
+    />
+    
+    The Environment Variables tab allows you to view and update important DFX environment variables that control various aspects of your development environment.
+    
+    ### Variable Categories
+    
+    <AccordionGroup>
+      <Accordion title="Canister Configuration">
+        **Canister-related environment variables:**
+        - `CANISTER_CANDID_PATH`: Path to the Candid description file for canisters listed as dependencies
+        - `CANISTER_ID`: Reference to canister identifiers for each canister in your project
+        - These variables help DFX locate and interact with your canisters correctly
+      </Accordion>
+      
+      <Accordion title="DFX Installation Settings">
+        **DFX installation and configuration:**
+        - `DFX_CONFIG_ROOT`: Specifies a custom location for storing `.cache` and `.config` subdirectories
+        - `DFX_INSTALLATION_ROOT`: Sets a custom location for the `dfx` binary
+        - `DFX_VERSION`: Identifies a specific version of the SDK to install
+        - These variables control where DFX stores its files and which version to use
+      </Accordion>
+      
+      <Accordion title="Development Tools">
+        **Development and compilation settings:**
+        - `DFX_MOC_PATH`: Specifies a custom version of the Motoko compiler
+        - `DFX_WARNING`: Disables specific DFX warnings
+        - `DFX_DISABLE_QUERY_VERIFICATION`: Disables verification of replica-signed queries when set
+        - These variables fine-tune the development and compilation process
+      </Accordion>
+    </AccordionGroup>
+    
+    ### Updating Environment Variables
+    
+    <Steps>
+      <Step title="Select Variable">
+        Click the **Update** button next to the variable you wish to modify
+      </Step>
+      <Step title="Enter New Value">
+        Enter the new value in the prompt that appears
+      </Step>
+      <Step title="Confirm Change">
+        Confirm the change to apply the new setting
+      </Step>
+      <Step title="Verify Application">
+        Restart terminal or dashboard if needed for changes to take effect
+      </Step>
+    </Steps>
+    
+    <Warning>
+    These changes affect your DFX environment. Ensure you understand the implications before making changes, as incorrect settings can impact your project's functionality. Use absolute paths for path-related variables to avoid ambiguity.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Shell Completion">
+    ## Shell Completion Setup
+    
+    <img
+      src="/images/features/settings/dfx-shell-completion.png"
+      alt="DFX Shell Completion"
+      className="rounded-lg border"
+    />
+    
+    The Shell Completion tab provides automated setup for dfx command completion in your terminal, significantly improving your command-line productivity.
+    
+    ### Automatic Setup Features
+    
+    The dashboard provides intelligent shell completion setup with comprehensive automation:
+    
+    <CardGroup cols={2}>
+      <Card title="Shell Detection" icon="search">
+        Automatically identifies your current shell environment
+      </Card>
+      <Card title="Support Status" icon="circle-check">
+        Shows whether auto-setup is supported for your shell
+      </Card>
+      <Card title="One-Click Setup" icon="mouse-pointer-click">
+        Automatically configures completion for supported shells
+      </Card>
+      <Card title="Cross-Platform" icon="globe">
+        Works on macOS, Linux, and Windows (WSL)
+      </Card>
+    </CardGroup>
+    
+    ### Supported Shell Environments
+    
+    <AccordionGroup>
+      <Accordion title="Bash Shell">
+        **Bash completion configuration:**
+        - **Auto-configures** completion in `~/.bashrc` or `~/.bash_profile`
+        - **macOS Support**: Uses `~/.bash_profile` as fallback on macOS
+        - **Linux Support**: Primarily uses `~/.bashrc` on Linux systems
+        - **Verification**: Checks for existing configuration before adding
+      </Accordion>
+      
+      <Accordion title="Zsh Shell">
+        **Zsh completion configuration:**
+        - **Auto-configures** completion in `~/.zshrc`
+        - **Oh My Zsh Compatible**: Works with Oh My Zsh installations
+        - **Framework Support**: Compatible with various zsh frameworks
+        - **Custom Locations**: Handles custom zsh configuration locations
+      </Accordion>
+      
+      <Accordion title="Fish Shell">
+        **Fish completion configuration:**
+        - **Auto-configures** completion in fish completion directory
+        - **Directory Creation**: Creates completion directory if needed
+        - **Function-based**: Uses fish's function-based completion system
+        - **Syntax Highlighting**: Integrates with fish's syntax highlighting
+      </Accordion>
+    </AccordionGroup>
+    
+    ### Manual Setup Options
+    
+    For unsupported shells or manual configuration preference:
+    
+    <CardGroup cols={3}>
+      <Card title="Copy Commands" icon="copy">
+        Copy-to-clipboard commands for manual setup
+      </Card>
+      <Card title="Shell Instructions" icon="file-text">
+        Shell-specific instructions with proper syntax
+      </Card>
+      <Card title="Documentation Links" icon="external-link">
+        External documentation links for advanced configuration
+      </Card>
+    </CardGroup>
+    
+    ### Setup Process and Features
+    
+    <Steps>
+      <Step title="Shell Detection">
+        The dashboard automatically detects your current shell environment
+      </Step>
+      <Step title="Compatibility Check">
+        Verifies if auto-setup is supported for your shell
+      </Step>
+      <Step title="One-Click Setup">
+        Use the toggle switch to enable/disable completion automatically
+      </Step>
+      <Step title="Manual Fallback">
+        Copy manual setup commands for unsupported shells
+      </Step>
+    </Steps>
+    
+    <Tip>
+    After enabling shell completion, restart your terminal or run `source ~/.{shell}rc` to activate the completion. The completion provides auto-suggestions for dfx commands, subcommands, and options.
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Profile File Management
+
+When you update environment variables or set up shell completion through the DFX Dashboard, it intelligently manages your shell profile files:
+
+### Cross-Platform Profile Support
+
+<AccordionGroup>
+  <Accordion title="macOS and Linux">
+    **Profile files checked and managed:**
+    - `~/.bashrc` - Primary bash configuration file
+    - `~/.bash_profile` - macOS fallback for bash
+    - `~/.zshrc` - Zsh shell configuration
+    - `~/.profile` - Generic shell profile
+    - `~/.config/fish/completions/` - Fish completion directory
+  </Accordion>
+  
+  <Accordion title="Windows (WSL)">
+    **Windows Subsystem for Linux support:**
+    - Uses Linux-style profile files within WSL environment
+    - Supports bash, zsh, and fish shells in WSL
+    - Handles Windows-specific path considerations
+    - Integrates with WSL environment variables
+  </Accordion>
+  
+  <Accordion title="File Management Strategy">
+    **Intelligent file handling:**
+    - Updates the first existing file found in priority order
+    - Creates appropriate files if none exist
+    - Prevents duplicate entries in profile files
+    - Maintains proper file permissions and ownership
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+The Dashboard will attempt to update the first existing file it finds in the order listed above, or create the appropriate file if none exist. This ensures compatibility across different system configurations.
+</Info>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Environment Configuration">
+    **Optimize your DFX environment configuration:**
+    - **Shell Completion**: Enable shell completion for improved command-line productivity
+    - **Version Management**: Regularly check your DFX version to ensure compatibility (0.25.0+ recommended)
+    - **Documentation**: Keep a record of any custom paths or configurations you set
+    - **Team Consistency**: Ensure all team members use consistent environment settings
+  </Accordion>
+  
+  <Accordion title="Cache Management">
+    **Optimize your DFX cache management:**
+    - **Regular Cleanup**: Remove unused versions to save disk space
+    - **Version Strategy**: Keep only the versions you actively use
+    - **Backup Important Versions**: Keep stable versions for production work
+    - **Monitor Disk Usage**: Check cache size regularly to prevent storage issues
+  </Accordion>
+  
+  <Accordion title="Development Workflow">
+    **Enhance your development workflow:**
+    - **Version Control**: Use version control for your project's dfx.json file
+    - **Environment Variables**: Regularly review and clean up unused variables
+    - **Testing**: Test shell completion setup in new terminal sessions
+    - **Updates**: Install latest versions for new features and improvements
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Configuration Issues">
+    **Common configuration problems and solutions:**
+    
+    **Problem**: Changes don't take effect
+    - Restart your terminal or the DFX Dashboard
+    - Source your profile file manually (e.g., `source ~/.bashrc`)
+    - Check if changes were properly written to profile files
+    - Verify environment variable syntax and values
+    
+    **Problem**: Shell completion not working
+    - Open a new terminal session to load new configuration
+    - Manually source the appropriate profile file
+    - Verify shell detection with `echo $SHELL` command
+    - Check completion file permissions and accessibility
+  </Accordion>
+  
+  <Accordion title="Version and Cache Issues">
+    **Version management problems:**
+    
+    **Problem**: Version compatibility problems
+    - Ensure dfx version is 0.25.0+ for full feature support
+    - Check project requirements against installed versions
+    - Verify version installation completed successfully
+    - Clear cache and reinstall if version appears corrupted
+    
+    **Problem**: Cache management issues
+    - Check internet connection for version downloads
+    - Verify write permissions to cache directory
+    - Ensure sufficient disk space for installations
+    - Clear corrupted cache entries and reinstall
+  </Accordion>
+  
+  <Accordion title="Environment Variable Issues">
+    **Environment variable problems:**
+    
+    **Problem**: Canister operation issues
+    - Verify `CANISTER_ID` and `CANISTER_CANDID_PATH` are set correctly
+    - Check that paths exist and are accessible
+    - Ensure proper file permissions for referenced files
+    - Validate canister configuration in dfx.json
+    
+    **Problem**: Environment variables not recognized
+    - Check the appropriate profile file to ensure changes were saved
+    - Verify variable syntax and formatting
+    - Restart terminal or source profile files manually
+    - Check for conflicts with existing environment variables
+  </Accordion>
+  
+  <Accordion title="Platform-Specific Issues">
+    **Platform-specific problems:**
+    
+    **Problem**: Windows WSL issues
+    - Ensure you're running the dashboard within the WSL environment
+    - Verify WSL shell detection is working correctly
+    - Check WSL file system permissions and access
+    - Ensure proper integration between Windows and WSL environments
+    
+    **Problem**: Permission errors during setup
+    - Ensure write permissions to home directory and profile files
+    - Check file ownership and group permissions
+    - Verify sudo access if needed for system-wide changes
+    - Use appropriate user context for file modifications
+  </Accordion>
+</AccordionGroup>
+
+## Advanced Configuration
+
+### Custom Cache Locations
+
+<AccordionGroup>
+  <Accordion title="Cache Directory Configuration">
+    - **Custom Paths**: Configure custom cache directory locations
+    - **Network Storage**: Use network-attached storage for shared caches
+    - **Symbolic Links**: Use symbolic links for flexible cache management
+    - **Backup Integration**: Integrate cache with backup systems
+  </Accordion>
+  
+  <Accordion title="Performance Optimization">
+    - **SSD Storage**: Use SSD storage for faster cache access
+    - **Memory Caching**: Configure memory-based caching for frequently used versions
+    - **Parallel Downloads**: Enable parallel downloads for faster installation
+    - **Compression**: Use compression to reduce cache storage requirements
+  </Accordion>
+</AccordionGroup>
+
+### Environment Variable Templates
+
+<CardGroup cols={2}>
+  <Card title="Development Template" icon="code">
+    Pre-configured environment variables for development workflows
+  </Card>
+  <Card title="Production Template" icon="server">
+    Environment variables optimized for production deployments
+  </Card>
+  <Card title="Team Template" icon="users">
+    Shared environment configurations for team collaboration
+  </Card>
+  <Card title="Custom Template" icon="settings">
+    Create custom environment variable templates
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="DFX Configuration Reference"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/references/dfx-json-reference/"
+  >
+    Complete reference for DFX configuration options
+  </Card>
+  <Card
+    title="Environment Variables Guide"
+    icon="settings"
+    href="https://internetcomputer.org/docs/current/references/environment-variables"
+  >
+    Comprehensive guide to DFX environment variables
+  </Card>
+  <Card
+    title="Shell Completion Documentation"
+    icon="terminal"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-completion/"
+  >
+    Official documentation for DFX shell completion
+  </Card>
+  <Card
+    title="Version Management Guide"
+    icon="package"
+    href="https://internetcomputer.org/docs/current/developer-docs/setup/manage-dfx-versions"
+  >
+    Guide to managing multiple DFX versions
+  </Card>
+  <Card
+    title="Cache Management Documentation"
+    icon="hard-drive"
+    href="https://internetcomputer.org/docs/current/developer-docs/setup/manage-dfx-versions#managing-dfx-cache"
+  >
+    Detailed cache management documentation
+  </Card>
+  <Card
+    title="Troubleshooting Guide"
+    icon="wrench"
+    href="https://internetcomputer.org/docs/current/developer-docs/setup/troubleshoot"
+  >
+    Comprehensive troubleshooting for DFX issues
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to learn more about the DFX Dashboard? Continue to the [About](/features/about) page for information about the application, version details, and additional resources.
+</Note> 

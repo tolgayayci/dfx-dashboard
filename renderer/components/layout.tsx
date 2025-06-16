@@ -75,7 +75,7 @@ export default function Layout({ children }: LayoutProps) {
             <IdentitySwitcher />
             <Button
               variant="outline"
-              onClick={() => window.awesomeApi.openExternalLink("https://dfx-dashboard-docs.netlify.app/getting-started/quick-start")}
+              onClick={() => window.awesomeApi.openExternalLink("https://docs.dfx-board.org")}
               className="h-10"
             >
               <BookOpenIcon className="h-4 w-4 mr-2" />

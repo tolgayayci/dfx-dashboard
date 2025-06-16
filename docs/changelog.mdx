@@ -1,0 +1,282 @@
+---
+title: Changelog
+description: 'DFX Dashboard release notes and version history - Track new features, improvements, and bug fixes across all releases'
+---
+
+Stay up-to-date with the latest changes, improvements, and new features in the DFX Dashboard. This page provides a comprehensive history of all releases with detailed information about what's new in each version.
+
+## Latest Release
+
+### Version 0.2.1-beta (Current)
+*Released: December 2024*
+
+<CardGroup cols={2}>
+  <Card title="New Features" icon="plus">
+    Enhanced NNS canister support and improved wallet management
+  </Card>
+  <Card title="Improvements" icon="trending-up">
+    Better error handling and performance optimizations
+  </Card>
+</CardGroup>
+
+#### 🚀 New Features
+- **Enhanced NNS Integration**: Complete NNS canister listing and management
+- **Advanced Filtering**: Improved canister filtering with search capabilities
+- **Wallet Management**: Comprehensive wallet operations with multi-tab interface
+- **Cycle Management**: Enhanced cycle transfer and conversion features
+- **Network Configuration**: Advanced network management with custom configurations
+
+#### 🔧 Improvements
+- **Performance**: Faster command execution and improved responsiveness
+- **UI/UX**: Enhanced user interface with better navigation and visual feedback
+- **Error Handling**: More descriptive error messages and recovery suggestions
+- **Documentation**: Comprehensive in-app help and documentation
+- **Accessibility**: Improved keyboard navigation and screen reader support
+
+#### 🐛 Bug Fixes
+- Fixed canister deployment issues on custom networks
+- Resolved identity switching problems in multi-identity setups
+- Fixed cycle balance display inconsistencies
+- Corrected network configuration validation errors
+- Resolved shell completion setup issues on certain systems
+
+#### 🔄 Breaking Changes
+- Updated minimum dfx version requirement to 0.25.0
+- Changed default network configuration format
+- Modified environment variable handling for better security
+
+---
+
+## Previous Releases
+
+### Version 0.2.0-beta
+*Released: November 2024*
+
+#### 🚀 New Features
+- **Project Management**: Complete project lifecycle management
+- **Identity System**: Advanced identity and principal management
+- **Logs and Monitoring**: Comprehensive command history and log management
+- **Settings Management**: Centralized configuration and cache management
+
+#### 🔧 Improvements
+- **Cross-Platform**: Enhanced support for macOS, Linux, and Windows (WSL)
+- **Shell Integration**: Automated shell completion setup
+- **Cache Management**: Intelligent dfx version caching and management
+- **Network Support**: Multi-network support with custom configurations
+
+#### 🐛 Bug Fixes
+- Fixed project creation and initialization issues
+- Resolved identity management edge cases
+- Corrected log display and filtering problems
+- Fixed cache corruption issues
+
+### Version 0.1.0-beta
+*Released: October 2024*
+
+#### 🚀 Initial Release Features
+- **Core Dashboard**: Basic DFX Dashboard functionality
+- **Canister Management**: Essential canister operations
+- **Basic Identity**: Simple identity management
+- **Local Development**: Local network support
+
+#### 🔧 Foundation
+- **Electron Framework**: Cross-platform desktop application
+- **Next.js Frontend**: Modern React-based user interface
+- **DFX Integration**: Direct integration with dfx CLI
+- **Basic UI**: Initial user interface design
+
+---
+
+## Upcoming Features
+
+<Tip>
+These features are planned for future releases. Timelines may change based on community feedback and development priorities.
+</Tip>
+
+### Version 0.3.0 (Planned)
+- **Advanced Analytics**: Detailed project and canister analytics
+- **Team Collaboration**: Multi-user project management features
+- **Plugin System**: Extensible plugin architecture
+- **Advanced Debugging**: Enhanced debugging and profiling tools
+
+### Version 0.4.0 (Planned)
+- **Cloud Integration**: Cloud-based project synchronization
+- **Advanced Security**: Enhanced security features and audit tools
+- **Performance Monitoring**: Real-time performance monitoring
+- **Custom Themes**: Customizable UI themes and layouts
+
+---
+
+## Migration Guides
+
+### Upgrading to 0.2.1-beta
+
+<AccordionGroup>
+  <Accordion title="dfx Version Requirements">
+    **Update your dfx installation:**
+    - Minimum required version: dfx 0.25.0
+    - Recommended: Latest stable release
+    - Use `dfx --version` to check your current version
+    - Update using `dfxvm install latest` or download from DFINITY
+  </Accordion>
+  
+  <Accordion title="Configuration Updates">
+    **Update your configuration files:**
+    - Review and update `dfx.json` files for new features
+    - Check network configurations in `networks.json`
+    - Update environment variables if using custom paths
+    - Backup existing configurations before upgrading
+  </Accordion>
+  
+  <Accordion title="Project Compatibility">
+    **Ensure project compatibility:**
+    - Test existing projects with new dashboard version
+    - Update project dependencies if needed
+    - Review canister configurations for new options
+    - Check identity and wallet configurations
+  </Accordion>
+</AccordionGroup>
+
+### Upgrading from 0.1.x to 0.2.x
+
+<Steps>
+  <Step title="Backup Data">
+    Create backups of your projects, identities, and configurations
+  </Step>
+  <Step title="Update dfx">
+    Ensure you have dfx 0.25.0 or later installed
+  </Step>
+  <Step title="Install Dashboard">
+    Download and install the latest dashboard version
+  </Step>
+  <Step title="Migrate Settings">
+    Review and update your dashboard settings and preferences
+  </Step>
+  <Step title="Test Projects">
+    Test your existing projects with the new dashboard version
+  </Step>
+</Steps>
+
+---
+
+## Known Issues
+
+### Current Known Issues
+
+<Warning>
+These are known issues in the current release. Workarounds are provided where available.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Performance Issues">
+    **Large project handling:**
+    - **Issue**: Slow performance with projects containing many canisters
+    - **Workaround**: Use project filtering and pagination features
+    - **Status**: Fix planned for version 0.2.2
+  </Accordion>
+  
+  <Accordion title="Network Connectivity">
+    **Custom network configurations:**
+    - **Issue**: Some custom network configurations may not save properly
+    - **Workaround**: Manually edit networks.json file
+    - **Status**: Fix in development
+  </Accordion>
+  
+  <Accordion title="Shell Completion">
+    **Windows WSL compatibility:**
+    - **Issue**: Shell completion setup may fail on some WSL configurations
+    - **Workaround**: Manual completion setup using provided commands
+    - **Status**: Investigating WSL-specific issues
+  </Accordion>
+</AccordionGroup>
+
+### Resolved Issues
+
+<AccordionGroup>
+  <Accordion title="Version 0.2.1 Fixes">
+    - ✅ Fixed canister status display inconsistencies
+    - ✅ Resolved identity switching edge cases
+    - ✅ Corrected cycle balance calculation errors
+    - ✅ Fixed network configuration validation
+  </Accordion>
+  
+  <Accordion title="Version 0.2.0 Fixes">
+    - ✅ Fixed project initialization failures
+    - ✅ Resolved log display formatting issues
+    - ✅ Corrected cache management problems
+    - ✅ Fixed cross-platform compatibility issues
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Community Contributions
+
+We appreciate all community contributions that help make the DFX Dashboard better:
+
+### Contributors
+
+<CardGroup cols={2}>
+  <Card title="Core Team" icon="users">
+    DFINITY Foundation development team
+  </Card>
+  <Card title="Community" icon="heart">
+    Open source contributors and beta testers
+  </Card>
+</CardGroup>
+
+### How to Contribute
+
+<Steps>
+  <Step title="Report Issues">
+    Use GitHub Issues to report bugs or request features
+  </Step>
+  <Step title="Submit PRs">
+    Submit pull requests for bug fixes and improvements
+  </Step>
+  <Step title="Test Releases">
+    Help test beta releases and provide feedback
+  </Step>
+  <Step title="Documentation">
+    Contribute to documentation and user guides
+  </Step>
+</Steps>
+
+---
+
+## Support and Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="GitHub Repository"
+    icon="github"
+    href="https://github.com/tolgayayci/dfx-dashboard"
+  >
+    View source code, report issues, and contribute to development
+  </Card>
+  <Card
+    title="Documentation"
+    icon="book"
+    href="/introduction"
+  >
+    Complete user documentation
+  </Card>
+  <Card
+    title="Community Forum"
+    icon="message-circle"
+    href="https://forum.dfinity.org/"
+  >
+    Community discussions and support
+  </Card>
+  <Card
+    title="Developer Discord"
+    icon="message-square"
+    href="https://discord.gg/cA7y6ezyE2"
+  >
+    Real-time developer chat
+  </Card>
+</CardGroup>
+
+<Note>
+For the most up-to-date information about releases and known issues, visit our [GitHub repository](https://github.com/tolgayayci/dfx-dashboard) and check the latest release notes.
+</Note> 

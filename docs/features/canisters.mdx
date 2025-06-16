@@ -1,0 +1,335 @@
+---
+title: Canisters
+description: 'Manage and interact with Internet Computer canisters - Deploy, monitor, and control your smart contracts with advanced filtering and NNS support'
+---
+
+The Canisters page in the DFX Dashboard provides a centralized interface for viewing and managing all your canisters across different projects, including both user canisters and Network Nervous System (NNS) canisters. This powerful tool allows you to interact with and monitor your Internet Computer canisters efficiently with full dfx 0.25.0 compatibility.
+
+## Overview
+
+<img
+  src="/images/features/canisters/canisters-overview.png"
+  alt="Canisters Overview"
+  className="rounded-lg border"
+/>
+
+The Canisters page displays:
+
+<CardGroup cols={2}>
+  <Card title="Unified Table" icon="table">
+    A unified table listing all user and NNS canisters from all your projects
+  </Card>
+  <Card title="Advanced Filtering" icon="filter">
+    Advanced filtering options to find specific canisters by type, network, or search terms
+  </Card>
+  <Card title="Visual Indicators" icon="eye">
+    Visual indicators to distinguish between user and NNS canisters
+  </Card>
+  <Card title="Canister Actions" icon="gear">
+    Direct access to canister management and interaction tools
+  </Card>
+</CardGroup>
+
+## Canister Types
+
+The dashboard supports two types of canisters:
+
+<Tabs>
+  <Tab title="User Canisters">
+    ### User Canisters
+    
+    <CardGroup cols={1}>
+      <Card title="Your Deployed Canisters" icon="user">
+        - Canisters deployed by you in your projects
+        - Full management capabilities available
+        - Complete control over lifecycle and configuration
+        - Interactive command interface for all operations
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="NNS Canisters">
+    ### NNS Canisters
+    
+    <CardGroup cols={1}>
+      <Card title="Network Nervous System" icon="network-wired">
+        - Network Nervous System canisters (governance, ledger, etc.)
+        - Special NNS badges and indicators
+        - Query-only operations for safety
+        - Available on both local and IC networks
+      </Card>
+    </CardGroup>
+  </Tab>
+</Tabs>
+
+## Advanced Filtering
+
+Efficiently manage large numbers of canisters with powerful filtering:
+
+<AccordionGroup>
+  <Accordion title="Search Functionality">
+    **Real-time search** by canister name or canister ID - results update as you type
+  </Accordion>
+  
+  <Accordion title="Filter by Type">
+    - **All Canisters**: Show both user and NNS canisters
+    - **User Canisters**: Show only your deployed canisters
+    - **NNS Canisters**: Show only Network Nervous System canisters
+  </Accordion>
+  
+  <Accordion title="Filter by Network">
+    - **All Networks**: Show canisters from all networks
+    - **Local**: Canisters on your local dfx network
+    - **IC**: Canisters on the Internet Computer mainnet
+  </Accordion>
+</AccordionGroup>
+
+## Canister List Table
+
+The table displays essential canister information:
+
+<Steps>
+  <Step title="Canister Name">
+    Canister name with NNS badge for Network Nervous System canisters
+  </Step>
+  <Step title="Type">
+    "User", "Network Nervous System", or other canister types
+  </Step>
+  <Step title="Project Name">
+    Project association (clickable for user canisters, "Network Nervous System" for NNS)
+  </Step>
+  <Step title="Action">
+    "Canister Actions" button leading to the detail page
+  </Step>
+</Steps>
+
+<Tip>
+Click column headers to sort canisters by name, type, or project for easier management across multiple networks.
+</Tip>
+
+## Canister Detail Pages
+
+Click any canister to access comprehensive management tools with two main tabs:
+
+<Tabs>
+  <Tab title="User Canisters">
+    ### User Canister Detail View
+    
+    <img
+      src="/images/features/canisters/user-canister-detail.png"
+      alt="User Canister Detail"
+      className="rounded-lg border"
+    />
+    
+    **Interface:**
+    - **Methods Tab**: Interactive command interface for canister operations
+    - **Metadata Tab**: Comprehensive canister metadata and configuration
+    
+    **Management Actions:**
+    - Top Up, Status, Config, Remove buttons in header
+    - Full control over canister lifecycle
+  </Tab>
+  
+  <Tab title="NNS Canisters">
+    ### NNS Canister Detail View
+    
+    <img
+      src="/images/features/canisters/nns-canister-detail.png"
+      alt="NNS Canister Detail"
+      className="rounded-lg border"
+    />
+    
+    **Interface:**
+    - **Methods Tab**: Query-only operations for NNS interactions
+    - **Metadata Tab**: System canister metadata and network information
+    
+    **Read-Only Access:**
+    - No action buttons (safety for system canisters)
+    - Query operations only
+  </Tab>
+</Tabs>
+
+## Canister Actions
+
+Comprehensive management capabilities for user canisters:
+
+<CardGroup cols={2}>
+  <Card title="Top Up" icon="coins">
+    Add cycles to keep the canister running
+  </Card>
+  <Card title="Status" icon="chart-line">
+    View current status, cycle balance, and health metrics
+  </Card>
+  <Card title="Config" icon="gear">
+    View and edit canister configuration
+  </Card>
+  <Card title="Remove" icon="trash">
+    Delete canister (irreversible - use with caution)
+  </Card>
+</CardGroup>
+
+<Warning>
+The "Remove" action permanently deletes the canister and all associated data. Always ensure you have backups before proceeding.
+</Warning>
+
+## Command Interface (dfx 0.25.0)
+
+The Methods tab provides direct access to dfx commands with full 0.25.0 compatibility:
+
+### Key Features
+
+<CardGroup cols={2}>
+  <Card title="Updated Commands" icon="terminal">
+    All dfx 0.25.0 commands with latest options
+  </Card>
+  <Card title="Dynamic Interface" icon="sliders">
+    Command-specific options appear automatically
+  </Card>
+  <Card title="Direct Execution" icon="play">
+    Execute commands directly from the dashboard
+  </Card>
+  <Card title="Real-time Output" icon="file-text">
+    View command results immediately
+  </Card>
+</CardGroup>
+
+### Available Commands
+
+<CodeGroup>
+```bash Core Operations
+dfx canister call
+dfx canister create
+dfx canister delete
+dfx canister status
+dfx canister install
+```
+
+```bash Management
+dfx canister deposit-cycles
+dfx canister metadata
+dfx canister update-settings
+dfx canister logs
+dfx canister url
+```
+</CodeGroup>
+
+### Command Execution
+
+<img
+  src="/images/features/canisters/canister-command-output.png"
+  alt="Command Output"
+  className="rounded-lg border"
+/>
+
+After execution, view:
+- **Executed Command**: Exact command with timestamp
+- **Output**: Command results and data
+- **Errors**: Detailed error messages if command fails
+
+## Canister Status & Configuration
+
+<Tabs>
+  <Tab title="Status Information">
+    <img
+      src="/images/features/canisters/user-canister-status.png"
+      alt="Canister Status"
+      className="rounded-lg border"
+    />
+    
+    **Status Details:**
+    - Controller information and permissions
+    - Runtime status (Running, Stopped)
+    - Cycle balance and memory usage
+    - Performance metrics
+  </Tab>
+  
+  <Tab title="Configuration">
+    <img
+      src="/images/features/canisters/user-canister-config.png"
+      alt="Canister Configuration"
+      className="rounded-lg border"
+    />
+    
+    **Configuration Details:**
+    - Canister name and type
+    - Dependencies and source files
+    - Build configuration
+    - Editable settings
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Efficient Management">
+    - Use filtering to quickly locate specific canisters
+    - Monitor cycle balances regularly
+    - Use descriptive naming conventions
+  </Accordion>
+  
+  <Accordion title="NNS Integration">
+    - Leverage NNS canisters for network monitoring
+    - Use query interfaces for governance insights
+    - Monitor system canister health
+  </Accordion>
+  
+  <Accordion title="Development Workflow">
+    - Backup critical data before major changes
+    - Test commands in development environments first
+    - Keep dfx version at 0.25.0 or newer
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Canister Issues">
+    **Not responding**: Check status, cycles, and network connectivity
+    **Command failures**: Review output for error details and verify parameters
+  </Accordion>
+  
+  <Accordion title="Filtering Problems">
+    **Can't find canisters**: Clear filters and search terms, verify correct type/network selection
+  </Accordion>
+  
+  <Accordion title="NNS Access">
+    **NNS errors**: Ensure query-only operations and verify network connectivity
+  </Accordion>
+</AccordionGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="IC Canister Development"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/developer-docs/build/cdks/"
+  >
+    Complete canister development guide
+  </Card>
+  <Card
+    title="DFX Commands Reference"
+    icon="terminal"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-canister/"
+  >
+    Official dfx canister command documentation
+  </Card>
+  <Card
+    title="Cycles & Computation"
+    icon="coins"
+    href="https://internetcomputer.org/docs/current/concepts/computation-and-storage-costs/"
+  >
+    Understanding cycles and costs
+  </Card>
+  <Card
+    title="Network Nervous System"
+    icon="network-wired"
+    href="https://internetcomputer.org/docs/current/concepts/governance/network-nervous-system-nns/"
+  >
+    NNS documentation and governance
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to manage your digital identities? Continue to the [Identities & Ledger](/features/identities) page to learn about identity management and ICP operations.
+</Note> 

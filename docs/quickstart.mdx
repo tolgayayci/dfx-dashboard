@@ -1,0 +1,303 @@
+---
+title: Quick Start Guide
+description: 'Get up and running with DFX Dashboard in minutes - Essential features and workflows for Internet Computer development'
+---
+
+Welcome to the DFX Dashboard, your all-in-one tool for managing Internet Computer projects with full dfx 0.25.0 compatibility. This guide will walk you through the essential features to help you start developing quickly and efficiently with our latest v0.3.0 enhancements.
+
+## Prerequisites
+
+Before diving into the features, ensure you have the DFX Dashboard installed on your system. For detailed installation instructions, please refer to our [Installation Guide](/installation).
+
+<Tip>
+Make sure you have DFX Dashboard v0.3.0 or later installed to access all features including wallet management, ledger operations, cache management, NNS canister support, advanced filtering, and shell completion.
+</Tip>
+
+## Dashboard Overview
+
+Upon launching the DFX Dashboard, you'll see a sidebar with the following main sections:
+
+<CardGroup cols={2}>
+  <Card title="Projects" icon="folder-tree" href="/features/projects">
+    Unified project management
+  </Card>
+  <Card title="Canisters" icon="server" href="/features/canisters">
+    User and NNS canister management with advanced filtering
+  </Card>
+  <Card title="Identities & Ledger" icon="key" href="/features/identities">
+    Identity management with integrated ICP operations
+  </Card>
+  <Card title="Wallet" icon="wallet" href="/features/wallet">
+    Comprehensive wallet management with controllers and custodians
+  </Card>
+  <Card title="Cycles" icon="coins" href="/features/cycles">
+    Professional cycle operations with tabbed interface
+  </Card>
+  <Card title="Network" icon="globe" href="/features/network">
+    Network configuration management
+  </Card>
+  <Card title="Logs" icon="file-lines" href="/features/logs">
+    Command history and execution logs
+  </Card>
+  <Card title="Settings & Cache" icon="gear" href="/features/settings">
+    Environment configuration, shell completion, and cache management
+  </Card>
+</CardGroup>
+
+The top right corner shows your active identity and provides options for refreshing, closing, and adjusting display settings.
+
+<Tip>
+Take a moment to familiarize yourself with the layout. The sidebar is your main navigation tool for accessing different features of the Dashboard.
+</Tip>
+
+## Getting Started Workflow
+
+<Steps>
+  <Step title="Configure Your Environment">
+    Start by setting up your development environment and shell completion.
+    
+    ### Settings, Shell Completion, and Cache Management
+    
+    1. Navigate to the [Settings & Cache](/features/settings) page
+    2. **General Tab**: Choose between bundled DFX (v0.25.0) and system DFX
+    3. **Shell Completion Tab**: Set up shell completion for enhanced command-line productivity:
+       - The dashboard automatically detects your shell (bash, zsh, fish)
+       - Use one-click setup for supported shells
+       - Copy manual setup commands for unsupported shells
+    4. **Cache Tab**: Manage your DFX version installations:
+       - View all installed DFX versions
+       - Install new versions or remove unused ones
+       - Monitor cache size and clear when needed
+    5. Configure important environment variables like `CANISTER_CANDID_PATH` and `DFX_VERSION`
+    
+    <Tip>
+    Enable shell completion to get tab completion for dfx commands, options, and canister names in your terminal.
+    </Tip>
+    
+    <Warning>
+    Ensure you understand the implications of changing environment variables, as they can affect your project's functionality.
+    </Warning>
+  </Step>
+  
+  <Step title="Create or Import a Project">
+    Set up your first Internet Computer project.
+    
+    ### Managing Projects
+    
+    1. Go to the [Projects](/features/projects) page
+    2. Click **Create New Project** to start a new Internet Computer project
+    3. Fill in the project details:
+       - Project name
+       - Project path
+       - Frontend type (e.g., React, Vue)
+       - Canister type (e.g., Motoko, Rust)
+    4. Use the **Open With** button to launch your project in your preferred code editor
+    
+    <Tip>
+    Use descriptive names for your projects to easily identify them in the dashboard and leverage the enhanced filtering capabilities.
+    </Tip>
+  </Step>
+  
+  <Step title="Manage Identities and ICP">
+    Set up your digital identities and handle ICP operations.
+    
+    ### Identities and Ledger Operations
+    
+    1. Visit the [Identities & Ledger](/features/identities) page
+    2. **Identities Tab**: Manage your digital identities:
+       - Click **Create New Identity** to add a new identity
+       - Choose between creating a new identity, importing an existing one, or using Internet Identity
+       - Use the **Select** button to set an active identity for your operations
+    3. **Ledger Tab**: Handle ICP operations with three sub-tabs:
+       - **Account Management**: View balances and convert principals to account IDs
+       - **ICP Operations**: Transfer ICP, create canisters, top-up operations, and fabricate cycles
+       - **Transaction History**: Monitor and track all your ICP transactions
+    
+    <Tip>
+    Use different identities for development and production environments to enhance security. The integrated ledger functionality allows you to manage ICP directly from the identity page.
+    </Tip>
+  </Step>
+  
+  <Step title="Deploy and Manage Canisters">
+    Work with both user and NNS canisters using advanced filtering.
+    
+    ### Working with Canisters (Enhanced with NNS Support)
+    
+    1. Navigate to the [Canisters](/features/canisters) page to view all canisters across your projects
+    2. **Use advanced filtering** to manage large numbers of canisters:
+       - Filter by type: All, User, or NNS canisters
+       - Filter by network: Local, IC, or custom networks
+       - Search by name, ID, or project
+    3. **Explore NNS canisters** for network-level operations:
+       - View governance, ledger, and other system canisters
+       - Use specialized NNS query interfaces
+       - Access read-only operations for safety
+    4. Use the **Canister Actions** button to:
+       - View comprehensive metadata
+       - Check canister status
+       - Top up with cycles
+       - Access method calling interfaces
+    5. Utilize the command interface for advanced canister operations with dfx 0.25.0 compatibility
+    
+    <Tip>
+    Use the filtering options to quickly find specific canisters in large deployments, and explore NNS canisters to understand network-level operations.
+    </Tip>
+    
+    <Warning>
+    Be cautious when performing actions like stopping or deleting canisters, as these can affect your application's functionality. NNS canisters are read-only for safety.
+    </Warning>
+  </Step>
+</Steps>
+
+## Advanced Features
+
+<Tabs>
+  <Tab title="Wallet Management">
+    ### Comprehensive Wallet Operations
+    
+    Navigate to the [Wallet](/features/wallet) page for complete wallet operations:
+    
+    <AccordionGroup>
+      <Accordion title="Controllers Tab">
+        - **View and manage wallet controllers** with administrative access
+        - **Add new controllers** by entering principal IDs
+        - **Remove controllers** with confirmation dialogs
+      </Accordion>
+      
+      <Accordion title="Address Book Tab">
+        - **Store frequently used addresses** locally in the app
+        - **Add, edit, and delete addresses** with descriptive labels
+        - **View DFX wallet addresses** alongside your local collection
+      </Accordion>
+      
+      <Accordion title="Custodians Tab">
+        - **Authorize and deauthorize custodians** for limited wallet operations
+        - **View custodian permissions** and status
+        - **Manage custodian access** for collaborative workflows
+      </Accordion>
+      
+      <Accordion title="Cycle Transfers Tab">
+        - **Send cycles** from your wallet to canisters or other wallets
+        - **Monitor wallet balance** with refresh functionality
+        - **Use amount validation** and unit conversion
+      </Accordion>
+    </AccordionGroup>
+    
+    <Warning>
+    Be very careful when managing controllers and custodians. Always verify addresses before transfers and maintain secure backups of wallet credentials.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Cycle Management">
+    ### Professional Cycle Operations
+    
+    On the [Cycles](/features/cycles) page, explore the new tabbed interface:
+    
+    <AccordionGroup>
+      <Accordion title="Balance & Approvals Tab">
+        - **Check cycle balances** for any principal or subaccount
+        - **Set up cycle approvals** for automated systems
+        - **Specify networks** and use precise balance options
+      </Accordion>
+      
+      <Accordion title="Transfers & Top-ups Tab">
+        - **Transfer cycles** between accounts with subaccount support
+        - **Top up canisters** with precise amounts
+        - **Use memos** for transaction tracking
+      </Accordion>
+      
+      <Accordion title="Convert & Faucet Tab">
+        - **Convert ICP to cycles** with subaccount support
+        - **Redeem faucet coupons** for development cycles
+        - **Monitor conversion rates** before proceeding
+      </Accordion>
+    </AccordionGroup>
+    
+    <Tip>
+    Use subaccounts to organize cycles for different projects or purposes, and leverage cycle approvals for automated systems.
+    </Tip>
+    
+    <Warning>
+    Always double-check recipient addresses and amounts when transferring cycles, as these transactions cannot be reversed.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Network & Logs">
+    ### Network Configuration and Monitoring
+    
+    **Configure Networks:**
+    1. Access the [Network](/features/network) page to view and edit your `networks.json` configuration
+    2. Modify the JSON directly in the editor to add or change network settings
+    3. Define custom networks for different development stages or environments
+    
+    **Review Logs:**
+    1. Check the [Logs](/features/logs) page for a history of commands executed in the Dashboard
+    2. Use the action buttons to:
+       - View command outputs
+       - Re-execute commands
+       - Copy command text
+    
+    <Tip>
+    Use descriptive names for custom networks to easily identify their purpose within the Dashboard and leverage network filtering in the canisters page.
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Security" icon="shield">
+    - Use different identities for development and production
+    - Regularly backup your wallet credentials
+    - Verify addresses before making transfers
+    - Keep your dfx version updated
+  </Card>
+  <Card title="Organization" icon="folder-open">
+    - Use descriptive project and canister names
+    - Leverage filtering to manage large deployments
+    - Organize cycles using subaccounts
+    - Maintain an address book for frequent contacts
+  </Card>
+  <Card title="Development" icon="code">
+    - Enable shell completion for better CLI experience
+    - Use the bundled dfx for consistency
+    - Monitor logs for troubleshooting
+    - Test on local networks before mainnet deployment
+  </Card>
+  <Card title="Monitoring" icon="chart-line">
+    - Regularly check canister status and cycles
+    - Monitor transaction history
+    - Use the logs page for debugging
+    - Keep track of wallet balances
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card
+    title="Explore Features"
+    icon="compass"
+    href="/features/projects"
+  >
+    Dive deeper into each feature
+  </Card>
+  <Card
+    title="Join Community"
+    icon="users"
+    href="https://github.com/tolgayayci/dfx-dashboard/discussions"
+  >
+    Connect with other developers
+  </Card>
+  <Card
+    title="Report Issues"
+    icon="bug"
+    href="https://github.com/tolgayayci/dfx-dashboard/issues"
+  >
+    Help improve the dashboard
+  </Card>
+</CardGroup>
+
+<Note>
+This quick start guide covers the essential workflows. For detailed information about each feature, explore the individual feature documentation pages.
+</Note> 

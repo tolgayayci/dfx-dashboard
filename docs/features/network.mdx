@@ -1,0 +1,471 @@
+---
+title: Network Configuration
+description: 'Manage DFX network configurations - View and edit networks.json, configure custom networks, and optimize development workflows'
+---
+
+The Network page in the DFX Dashboard provides comprehensive network management capabilities through two powerful interfaces: a user-friendly Network Manager and a direct JSON Editor. This dual approach allows you to manage your global `networks.json` file with both guided forms and direct configuration editing.
+
+## Overview
+
+The Network page is organized into two main tabs designed for comprehensive network management:
+
+<CardGroup cols={2}>
+  <Card title="Network Manager" icon="table">
+    Table-based interface for adding, editing, and managing networks
+  </Card>
+  <Card title="JSON Editor" icon="code">
+    Direct JSON editor for advanced configuration and bulk editing
+  </Card>
+</CardGroup>
+
+<Info>
+The Network page manages your global `networks.json` file, which defines networks available to all DFX projects on your system. Changes made here affect all projects using these network configurations.
+</Info>
+
+## Network Manager Interface
+
+<img
+  src="/images/features/network/network-manager-ui.png"
+  alt="Network Manager Interface"
+  className="rounded-lg border"
+/>
+
+The Network Manager provides a table-based interface for managing your network configurations with the following features:
+
+### Table Structure
+
+The network table displays the following information:
+
+<AccordionGroup>
+  <Accordion title="Network Information">
+    - **Name**: Unique identifier for the network (e.g., "local", "ic", "testnet")
+    - **Type**: Network type specification ("ephemeral" for temporary, "persistent" for permanent)
+    - **Subnet Type**: Type of subnet ("application", "system", "verified_application")
+  </Accordion>
+  
+  <Accordion title="Management Features">
+    - **Search**: Real-time search across network names and properties
+    - **Sorting**: Click column headers to sort by name or type
+    - **Actions**: Edit and delete buttons for each network entry
+  </Accordion>
+</AccordionGroup>
+
+### Network Management Actions
+
+<CardGroup cols={3}>
+  <Card title="Add Network" icon="plus">
+    Create new network configurations with guided forms
+  </Card>
+  <Card title="Edit Network" icon="edit">
+    Modify existing network settings through type-specific forms
+  </Card>
+  <Card title="Delete Network" icon="trash-2">
+    Remove networks with confirmation dialog for safety
+  </Card>
+</CardGroup>
+
+## Adding Networks
+
+<img
+  src="/images/features/network/network-manager-add-network.png"
+  alt="Add Network Dialog"
+  className="rounded-lg border"
+/>
+
+The Add Network feature provides guided forms for different network types:
+
+### Network Types
+
+<Tabs>
+  <Tab title="Local Networks">
+    ### Local Network Configuration
+    
+    Local networks are used for development and testing on your local machine:
+    
+    **Configuration Options:**
+    - **Network Name**: Unique identifier for the local network
+    - **Bind Address**: IP address and port (e.g., "127.0.0.1:4943")
+    - **Subnet Type**: Application, system, or verified application
+    - **Type**: Typically "ephemeral" for local development
+    
+    **Use Cases:**
+    - Primary development environment
+    - Feature-specific testing networks
+    - Isolated development sandboxes
+    - Team collaboration environments
+  </Tab>
+  
+  <Tab title="IC Networks">
+    ### Internet Computer Network Configuration
+    
+    IC networks connect to the Internet Computer mainnet or testnets:
+    
+    **Configuration Options:**
+    - **Network Name**: Descriptive name for the IC network
+    - **Providers**: Array of IC provider URLs (e.g., ["https://ic0.app"])
+    - **Type**: Typically "persistent" for IC networks
+    
+    **Use Cases:**
+    - Production deployments
+    - Mainnet testing
+    - Testnet development
+    - Multi-provider redundancy
+  </Tab>
+  
+  <Tab title="Custom Networks">
+    ### Custom Network Configuration
+    
+    Custom networks allow for specialized configurations:
+    
+    **Configuration Options:**
+    - **Network Name**: Custom identifier
+    - **Flexible Configuration**: Any valid network configuration
+    - **Advanced Settings**: Custom providers, binding, and replica settings
+    
+    **Use Cases:**
+    - Private IC nodes
+    - Custom development environments
+    - Specialized testing scenarios
+    - Enterprise configurations
+  </Tab>
+</Tabs>
+
+## Editing Networks
+
+<img
+  src="/images/features/network/network-manager-edit-network.png"
+  alt="Edit Network Dialog"
+  className="rounded-lg border"
+/>
+
+The Edit Network feature allows you to modify existing network configurations:
+
+### Editing Process
+
+<Steps>
+  <Step title="Select Network">
+    Click the Edit button for the network you want to modify
+  </Step>
+  <Step title="Modify Settings">
+    Update the network configuration using the appropriate form
+  </Step>
+  <Step title="Save Changes">
+    Apply changes to update the networks.json file
+  </Step>
+  <Step title="Verification">
+    Verify the changes are reflected in the network table
+  </Step>
+</Steps>
+
+### Edit Features
+
+<CardGroup cols={2}>
+  <Card title="Form Validation" icon="check-circle">
+    Real-time validation ensures configuration correctness
+  </Card>
+  <Card title="Type Detection" icon="search">
+    Automatically detects network type for appropriate form display
+  </Card>
+  <Card title="Conflict Prevention" icon="shield">
+    Prevents duplicate names and conflicting configurations
+  </Card>
+  <Card title="Auto-Save" icon="save">
+    Changes are automatically saved to the networks.json file
+  </Card>
+</CardGroup>
+
+## JSON Editor Interface
+
+<img
+  src="/images/features/network/network-json-editor.png"
+  alt="JSON Editor Interface"
+  className="rounded-lg border"
+/>
+
+The JSON Editor provides direct access to the networks.json file with advanced editing capabilities:
+
+### Editor Features
+
+<CardGroup cols={3}>
+  <Card title="Syntax Highlighting" icon="code">
+    JSON syntax highlighting for better readability
+  </Card>
+  <Card title="Real-time Validation" icon="check-circle">
+    Immediate validation of JSON syntax and structure
+  </Card>
+  <Card title="Auto-formatting" icon="align-left">
+    Automatic code formatting and indentation
+  </Card>
+  <Card title="Error Detection" icon="alert-triangle">
+    Clear error messages for invalid configurations
+  </Card>
+  <Card title="Theme Support" icon="palette">
+    Light and dark theme support matching dashboard theme
+  </Card>
+  <Card title="File Path Display" icon="folder">
+    Shows the exact location of the networks.json file
+  </Card>
+</CardGroup>
+
+### Editor Controls
+
+<AccordionGroup>
+  <Accordion title="Save Changes">
+    - **Save Button**: Manually save changes to the networks.json file
+    - **Validation**: Ensures JSON is valid before saving
+    - **Feedback**: Toast notifications confirm successful saves
+    - **Error Handling**: Clear error messages for save failures
+  </Accordion>
+  
+  <Accordion title="Reset Changes">
+    - **Reset Button**: Revert to the last saved state
+    - **Confirmation**: Toast notification confirms reset action
+    - **Safety**: Prevents accidental loss of unsaved changes
+    - **Quick Recovery**: Easily undo unwanted modifications
+  </Accordion>
+</AccordionGroup>
+
+### Advanced Editing
+
+<Tabs>
+  <Tab title="Bulk Operations">
+    ### Bulk Configuration Management
+    
+    The JSON editor excels at bulk operations:
+    
+    - **Multiple Networks**: Add or modify multiple networks simultaneously
+    - **Copy/Paste**: Copy configurations between environments
+    - **Template Application**: Apply configuration templates
+    - **Batch Updates**: Update common settings across networks
+  </Tab>
+  
+  <Tab title="Complex Configurations">
+    ### Advanced Network Settings
+    
+    Direct JSON editing enables complex configurations:
+    
+    - **Custom Properties**: Add non-standard configuration options
+    - **Advanced Replica Settings**: Configure detailed replica parameters
+    - **Provider Arrays**: Manage multiple provider endpoints
+    - **Nested Configurations**: Handle complex nested settings
+  </Tab>
+  
+  <Tab title="Import/Export">
+    ### Configuration Portability
+    
+    JSON editor facilitates configuration sharing:
+    
+    - **Export Configurations**: Copy entire configurations for sharing
+    - **Import Settings**: Paste configurations from other environments
+    - **Backup Creation**: Create backups before major changes
+    - **Team Synchronization**: Share configurations across team members
+  </Tab>
+</Tabs>
+
+## Understanding networks.json
+
+The `networks.json` file is a crucial configuration file that defines the networks available for your DFX projects:
+
+### Default Configuration
+
+<CodeGroup>
+```json Minimal Local Setup
+{
+  "local": {
+    "bind": "127.0.0.1:4943",
+    "type": "ephemeral",
+    "replica": {
+      "subnet_type": "application"
+    }
+  }
+}
+```
+
+```json Multi-Environment Setup
+{
+  "local": {
+    "bind": "127.0.0.1:4943",
+    "type": "ephemeral",
+    "replica": {
+      "subnet_type": "application"
+    }
+  },
+  "development": {
+    "bind": "127.0.0.1:4944",
+    "type": "ephemeral",
+    "replica": {
+      "subnet_type": "application"
+    }
+  },
+  "ic": {
+    "providers": ["https://ic0.app"],
+    "type": "persistent"
+  }
+}
+```
+
+```json Production-Ready Setup
+{
+  "local": {
+    "bind": "127.0.0.1:4943",
+    "type": "ephemeral",
+    "replica": {
+      "subnet_type": "application"
+    }
+  },
+  "staging": {
+    "bind": "127.0.0.1:4944",
+    "type": "ephemeral",
+    "replica": {
+      "subnet_type": "verified_application"
+    }
+  },
+  "ic": {
+    "providers": [
+      "https://ic0.app",
+      "https://icp-api.io"
+    ],
+    "type": "persistent"
+  }
+}
+```
+</CodeGroup>
+
+### Configuration Components
+
+<AccordionGroup>
+  <Accordion title="Network Identification">
+    - **Network Name**: Unique identifier for the network
+    - **Type**: Network persistence ("ephemeral" or "persistent")
+    - **Purpose**: Defines the intended use and behavior
+  </Accordion>
+  
+  <Accordion title="Connection Settings">
+    - **Bind Address**: IP and port for local networks
+    - **Providers**: URL endpoints for remote networks
+    - **Timeout**: Connection timeout configurations
+  </Accordion>
+  
+  <Accordion title="Replica Configuration">
+    - **Subnet Type**: Type of subnet for the network
+    - **Replica Settings**: Advanced replica parameters
+    - **Performance Tuning**: Optimization settings
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Network Organization">
+    **Organize networks effectively:**
+    - **Descriptive Names**: Use clear, purpose-driven network names
+    - **Consistent Patterns**: Establish naming conventions across environments
+    - **Environment Alignment**: Match network names to deployment stages
+    - **Documentation**: Document the purpose of each network configuration
+  </Accordion>
+  
+  <Accordion title="Configuration Management">
+    **Manage configurations efficiently:**
+    - **Regular Reviews**: Periodically review and clean up unused networks
+    - **Backup Strategy**: Maintain backups before major changes
+    - **Version Control**: Consider versioning network configurations
+    - **Team Coordination**: Communicate changes to team members
+  </Accordion>
+  
+  <Accordion title="Security Considerations">
+    **Ensure secure network configurations:**
+    - **Access Control**: Configure binding addresses appropriately
+    - **Port Management**: Use unique ports and avoid conflicts
+    - **Provider Security**: Use trusted provider endpoints
+    - **Authentication**: Implement authentication for shared networks
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Configuration Issues">
+    **Common configuration problems:**
+    
+    **Problem**: Changes don't take effect
+    - Use the Save button in the JSON editor
+    - Verify JSON syntax is valid
+    - Check for error messages in the interface
+    - Restart DFX Dashboard if needed
+    
+    **Problem**: JSON syntax errors
+    - Use the editor's syntax highlighting
+    - Check for missing commas, brackets, or quotes
+    - Validate JSON structure in the editor
+    - Use the Reset button to revert to last saved state
+  </Accordion>
+  
+  <Accordion title="Network Connectivity">
+    **Network connection problems:**
+    
+    **Problem**: Port conflicts
+    - Ensure unique ports for each local network
+    - Check for other services using the same ports
+    - Use network diagnostic tools to verify port availability
+    - Consider using different port ranges for different purposes
+    
+    **Problem**: Provider connectivity
+    - Test provider URLs for accessibility
+    - Check network connectivity to remote providers
+    - Verify provider endpoints are correct and active
+    - Consider using multiple providers for redundancy
+  </Accordion>
+  
+  <Accordion title="Interface Issues">
+    **User interface problems:**
+    
+    **Problem**: Table not updating
+    - Refresh the Network Manager tab
+    - Check if changes were saved properly
+    - Verify the networks.json file was updated
+    - Restart the application if the issue persists
+    
+    **Problem**: Form validation errors
+    - Check for duplicate network names
+    - Verify all required fields are filled
+    - Ensure port numbers are valid and available
+    - Review error messages for specific guidance
+  </Accordion>
+</AccordionGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="DFX Network Configuration"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/developer-docs/deploy/networks"
+  >
+    Complete guide to understanding DFX network configuration
+  </Card>
+  <Card
+    title="IC Interface Specification"
+    icon="file-text"
+    href="https://internetcomputer.org/docs/current/references/ic-interface-spec/#http-interface"
+  >
+    Advanced network configuration options and specifications
+  </Card>
+  <Card
+    title="Mainnet Deployment"
+    icon="cloud"
+    href="https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet"
+  >
+    Best practices for network management in production
+  </Card>
+  <Card
+    title="Troubleshooting Guide"
+    icon="wrench"
+    href="https://internetcomputer.org/docs/current/developer-docs/deploy/troubleshoot-get-help"
+  >
+    Comprehensive troubleshooting for network issues
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to explore application logs and monitoring? Continue to the [Logs](/features/logs) page to learn about log management, monitoring, and debugging capabilities.
+</Note> 
