@@ -1,0 +1,266 @@
+---
+title: Projects
+description: 'Project management interface for Internet Computer development - Initialize new dfx projects, import existing project directories, and manage project configurations through the DFX Dashboard GUI'
+---
+
+## Overview
+
+<img
+  src="/images/features/projects/projects-overview.png"
+  alt="Projects Overview"
+  className="rounded-lg border"
+/>
+
+The Projects page displays a list of all your projects, each represented by a card showing its name and location. Key features include:
+
+<CardGroup cols={2}>
+  <Card title="View Projects" icon="eye">
+    See all your projects at a glance with clear project cards
+  </Card>
+  <Card title="Create Projects" icon="plus">
+    Create new projects with customizable templates
+  </Card>
+  <Card title="Import Projects" icon="download">
+    Import existing projects seamlessly
+  </Card>
+  <Card title="Manage Projects" icon="gear">
+    Manage individual projects with detailed controls
+  </Card>
+</CardGroup>
+
+## Creating a New Project
+
+<Steps>
+  <Step title="Start project creation">
+    Click the **"Create New Project"** button in the top right corner.
+  </Step>
+  <Step title="Select project type">
+    In the modal that appears, select the **"New Project"** tab.
+    
+    <img
+      src="/images/features/projects/create-new-project.png"
+      alt="Create New Project"
+      className="rounded-lg border"
+    />
+  </Step>
+  <Step title="Configure project details">
+    Fill in the project details:
+    - **Project Name**: Enter a unique name for your project
+    - **Project Path**: Choose where to save your project on your local machine
+    - **Frontend Type**: Select your preferred frontend framework (e.g., React, Vue, Svelte)
+    - **Canister Type**: Choose the backend canister type (e.g., Motoko, Rust)
+  </Step>
+  <Step title="Create the project">
+    Click **"Create"** to set up your new project.
+  </Step>
+</Steps>
+
+<Tip>
+When creating a new project, use a descriptive name that reflects its purpose or main functionality. This will make it easier to identify and manage your projects as your portfolio grows.
+</Tip>
+
+## Importing an Existing Project
+
+<Steps>
+  <Step title="Start import process">
+    Click the **"Create New Project"** button.
+  </Step>
+  <Step title="Select import option">
+    Select the **"Import Existing"** tab in the modal.
+    
+    <img
+      src="/images/features/projects/import-existing-project.png"
+      alt="Import Existing Project"
+      className="rounded-lg border"
+    />
+  </Step>
+  <Step title="Configure import details">
+    Enter the project details:
+    - **Project Name**: Provide a name for the imported project
+    - **Project Path**: Select the directory of your existing project
+  </Step>
+  <Step title="Complete import">
+    Click **"Import"** to add the project to DFX Dashboard.
+  </Step>
+</Steps>
+
+<Tip>
+Before importing, ensure your existing project's structure is compatible with the current version of dfx to avoid potential issues during the import process.
+</Tip>
+
+## Managing Projects
+
+Take control of your projects with our powerful management tools.
+
+Each project card on the main Projects page has two primary actions:
+
+<Tabs>
+  <Tab title="Open With">
+    ### Launch in Code Editor
+    
+    <img
+      src="/images/features/projects/open-with-editor.png"
+      alt="Open With Editor"
+      className="rounded-lg border"
+    />
+    
+    - Click **"Open With"** to see a list of installed code editors on your system
+    - Select your preferred editor to open the project
+    - Supports popular editors like VS Code, WebStorm, Sublime Text, and more
+  </Tab>
+  
+  <Tab title="Manage">
+    ### Project Details and Controls
+    
+    <img
+      src="/images/features/projects/project-details.png"
+      alt="Project Details"
+      className="rounded-lg border"
+    />
+    
+    Access detailed project information and controls:
+    
+    <AccordionGroup>
+      <Accordion title="Canister Information">
+        View information about the project's **canisters** including:
+        - Canister names and IDs
+        - Deployment status
+        - Network configurations
+      </Accordion>
+      
+      <Accordion title="dfx.json Configuration">
+        Inspect and edit the **`dfx.json`** file for the project:
+        - View current configuration
+        - Edit project settings
+        - Manage canister definitions
+      </Accordion>
+      
+      <Accordion title="Canister Actions">
+        Perform various actions on individual canisters:
+        - Building canisters
+        - Deploying to networks
+        - Starting and stopping canisters
+        - Viewing canister logs
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
+</Tabs>
+
+<Warning>
+Be cautious when editing the `dfx.json` file directly. Incorrect modifications can lead to project configuration issues.
+</Warning>
+
+## Project List Features
+
+Navigate and organize your projects effortlessly with these built-in features:
+
+<CardGroup cols={3}>
+  <Card title="Search" icon="magnifying-glass">
+    Use the search bar to quickly filter projects by name
+  </Card>
+  <Card title="Project Count" icon="hashtag">
+    The top of the page displays the total number of projects for easy reference
+  </Card>
+  <Card title="Pagination" icon="arrows-left-right">
+    For larger project collections, use pagination controls to navigate between pages
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Project Organization">
+    - Use descriptive names for your projects to easily identify them in the dashboard
+    - Organize your projects into logical folders to maintain a clean workspace
+    - Group related projects together for better workflow management
+  </Accordion>
+  
+  <Accordion title="Version Management">
+    - Regularly update your projects to ensure compatibility with the latest Internet Computer SDK
+    - Utilize version control systems like Git to track changes and collaborate effectively
+    - Keep your dfx version consistent across projects for better compatibility
+  </Accordion>
+  
+  <Accordion title="Backup and Security">
+    - Backup your projects regularly, especially before making major changes
+    - Store sensitive configuration separately from your main project files
+    - Use environment variables for network-specific configurations
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Import Issues">
+    **Problem**: Project fails to import
+    
+    **Solutions**:
+    - Ensure the project directory contains a valid `dfx.json` file
+    - Check that the project structure follows dfx conventions
+    - Verify file permissions in the project directory
+  </Accordion>
+  
+  <Accordion title="Editor Integration">
+    **Problem**: Issues opening a project in an editor
+    
+    **Solutions**:
+    - Verify that the editor is properly installed on your system
+    - Check that the editor is in your system PATH
+    - Try refreshing the DFX Dashboard and attempting again
+  </Accordion>
+  
+  <Accordion title="Project Actions">
+    **Problem**: Project actions are unresponsive
+    
+    **Solutions**:
+    - Try reloading the DFX Dashboard from the top menu by clicking the reload button
+    - Check the DFX Dashboard logs for any error messages or warnings
+    - Ensure your dfx installation is up to date and compatible
+  </Accordion>
+  
+  <Accordion title="Configuration Issues">
+    **Problem**: dfx.json configuration errors
+    
+    **Solutions**:
+    - Validate your JSON syntax using a JSON validator
+    - Check the dfx documentation for correct configuration format
+    - Restore from backup if available, or recreate the configuration
+  </Accordion>
+</AccordionGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Internet Computer Developer Documentation"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/developer-docs/"
+  >
+    Complete guide to IC development
+  </Card>
+  <Card
+    title="DFX CLI Reference"
+    icon="terminal"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-parent"
+  >
+    Official dfx command documentation
+  </Card>
+  <Card
+    title="GitHub Repository"
+    icon="github"
+    href="https://github.com/tolgayayci/dfx-dashboard"
+  >
+    Source code and issue tracking
+  </Card>
+  <Card
+    title="Community Forum"
+    icon="users"
+    href="https://forum.dfinity.org/"
+  >
+    Get help from the community
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to start working with canisters? Continue to the [Canisters](/features/canisters) page to learn about managing your deployed code.
+</Note> 

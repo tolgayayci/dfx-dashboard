@@ -1,0 +1,191 @@
+---
+title: Installation
+description: 'Install DFX Dashboard and its prerequisites to start developing on the Internet Computer'
+---
+
+This guide will walk you through installing DFX Dashboard and its prerequisite, `dfx`.
+
+## Installing `dfx` via `dfxvm`
+
+Before installing DFX Dashboard, you need to install `dfx`, which is part of the Internet Computer SDK.
+
+<Info>
+`dfx` is natively supported on Linux or macOS 12.* Monterey or later. For Windows users, you can run `dfx` using Windows Subsystem for Linux (WSL 2), although not all features may be supported.
+</Info>
+
+To install `dfx`, we'll use `dfxvm`, a tool for managing different versions of `dfx`.
+
+<Steps>
+  <Step title="Open your terminal">
+    Launch your terminal application on macOS or Linux.
+  </Step>
+  <Step title="Install dfxvm">
+    Run the following command to download and install the latest version of `dfxvm`:
+    
+    ```bash
+    sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+    ```
+  </Step>
+  <Step title="Verify installation">
+    After installation, you can verify the installation by running:
+    
+    ```bash
+    dfx --version
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+If you're using a machine with Apple silicon, you'll need to have Rosetta installed. You can install Rosetta by running `softwareupdate --install-rosetta` in your terminal.
+</Tip>
+
+## System Requirements
+
+Before installing DFX Dashboard, ensure your system meets these requirements:
+
+<CardGroup cols={2}>
+  <Card title="Operating System" icon="desktop">
+    - macOS 10.15+
+    - Ubuntu 20.04+
+  </Card>
+  <Card title="Dependencies" icon="gear">
+    - dfx v0.25.0 or newer
+    - Node.js v14.0.0 or newer
+  </Card>
+</CardGroup>
+
+## Installing DFX Dashboard
+
+<Tabs>
+  <Tab title="macOS">
+    ### 🍎 macOS (Apple Silicon | Intel)
+
+    <Steps>
+      <Step title="Download the release">
+        Download the latest release for macOS:
+        - [Apple Silicon](https://github.com/tolgayayci/dfx-dashboard/releases)
+        - [Intel](https://github.com/tolgayayci/dfx-dashboard/releases)
+      </Step>
+      <Step title="Install the application">
+        1. Open the downloaded file
+        2. Drag the DFX Dashboard icon to the Applications directory
+      </Step>
+    </Steps>
+  </Tab>
+  
+  <Tab title="Linux">
+    ### 🐧 Linux
+
+    <Steps>
+      <Step title="Download the release">
+        Download the latest release for Linux:
+        - [App Image](https://github.com/tolgayayci/dfx-dashboard/releases)
+        - [Snap](https://github.com/tolgayayci/dfx-dashboard/releases)
+      </Step>
+      <Step title="Install the application">
+        Follow the general instructions to install the application on your Linux distribution:
+        - [App Image Installation Guide](https://docs.appimage.org/introduction/quickstart.html#ref-quickstart)
+        - [Snap Installation Guide](https://snapcraft.io/docs/installing-snapd)
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Using Bundled `dfx`
+
+While it's recommended to install `dfx` separately as described above, DFX Dashboard also provides a bundled version of `dfx`.
+
+<Tip>
+If you prefer not to install `dfx` separately or need to use a specific version, you can use the bundled `dfx` version in DFX Dashboard.
+</Tip>
+
+To use the bundled version:
+
+<Steps>
+  <Step title="Open DFX Dashboard">
+    Launch DFX Dashboard from your applications menu.
+  </Step>
+  <Step title="Navigate to Settings">
+    Go to the **Settings page** in the sidebar.
+  </Step>
+  <Step title="Toggle dfx version">
+    Look for the option to **toggle between** system `dfx` and bundled `dfx`.
+  </Step>
+  <Step title="Select bundled dfx">
+    Choose **"Use Bundled DFX"** to use the included version.
+  </Step>
+</Steps>
+
+## Verifying the Installation
+
+After installation, follow these steps to verify that DFX Dashboard is correctly installed:
+
+<Steps>
+  <Step title="Launch the application">
+    Open **DFX Dashboard** from your applications menu.
+  </Step>
+  <Step title="Check the About section">
+    **Navigate** to the **"About"** section in the sidebar.
+  </Step>
+  <Step title="Verify version">
+    **Check the version number** displayed to ensure it matches the version you downloaded.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="DFX Dashboard won't start">
+    - Ensure your system meets the minimum requirements
+    - Check that dfx is properly installed and accessible
+    - Try restarting your system after installation
+  </Accordion>
+  
+  <Accordion title="Permission denied on Linux">
+    - Make sure the AppImage file has execute permissions: `chmod +x DFX-Dashboard.AppImage`
+    - For Snap installations, ensure snapd is properly installed and running
+  </Accordion>
+  
+  <Accordion title="macOS security warning">
+    - If you see a security warning, go to System Preferences > Security & Privacy
+    - Click "Open Anyway" for DFX Dashboard
+    - This is normal for applications not distributed through the Mac App Store
+  </Accordion>
+</AccordionGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="DFX Documentation"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-parent"
+  >
+    Official dfx command line reference
+  </Card>
+  <Card
+    title="IC Developer Docs"
+    icon="code"
+    href="https://internetcomputer.org/docs/current/developer-docs/"
+  >
+    Complete Internet Computer development guide
+  </Card>
+  <Card
+    title="Community Forum"
+    icon="users"
+    href="https://forum.dfinity.org/"
+  >
+    Get help from the community
+  </Card>
+  <Card
+    title="GitHub Issues"
+    icon="github"
+    href="https://github.com/tolgayayci/dfx-dashboard/issues"
+  >
+    Report bugs and request features
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to get started? Continue to the [Quick Start Guide](/quickstart) to set up your first project.
+</Note> 

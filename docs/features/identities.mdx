@@ -1,0 +1,500 @@
+---
+title: Identities & Ledger
+description: 'Manage digital identities and ICP ledger operations - Create, import, and manage identities with comprehensive ICP functionality'
+---
+
+The Identities page is a crucial component of the DFX Dashboard, providing comprehensive identity management and ICP ledger functionality. This powerful interface allows you to create, import, and manage digital identities while performing various ICP operations and tracking transaction history.
+
+## Overview
+
+The Identities page is organized into two main tabs with comprehensive functionality:
+
+<CardGroup cols={2}>
+  <Card title="Identities" icon="users">
+    Create, import, and manage digital identities for Internet Computer development
+  </Card>
+  <Card title="Ledger" icon="coins">
+    Comprehensive ICP operations including account management, transfers, and transaction history
+  </Card>
+</CardGroup>
+
+<Info>
+Identities you create are global and not confined to a specific project context. They can be used across all your Internet Computer projects and are essential for interacting with the IC network.
+</Info>
+
+## Identities Management
+
+<img
+  src="/images/features/identities/identities-list.png"
+  alt="Identities List"
+  className="rounded-lg border"
+/>
+
+The Identities tab provides a comprehensive interface for managing your digital identities with the following features:
+
+### Identity List Features
+
+<CardGroup cols={3}>
+  <Card title="Identity Count" icon="hash">
+    Displays total number of identities at the top of the page
+  </Card>
+  <Card title="Search Functionality" icon="search">
+    Real-time search across all identity names
+  </Card>
+  <Card title="Grid Layout" icon="grid-3x3">
+    Clean 3-column grid layout for easy identity browsing
+  </Card>
+</CardGroup>
+
+### Identity Card Features
+
+Each identity is displayed as a card with the following information and actions:
+
+<AccordionGroup>
+  <Accordion title="Identity Information">
+    - **Avatar**: Unique avatar generated for each identity
+    - **Name**: Identity name (truncated for Internet Identity)
+    - **Type**: Local Identity or Internet Identity
+    - **Status**: Active badge for currently selected identity
+  </Accordion>
+  
+  <Accordion title="Available Actions">
+    - **Select**: Set identity as active for current session
+    - **Edit/Details**: Rename local identities or view Internet Identity details
+    - **Delete**: Remove identity (with protection for system identities)
+    - **Protected Identities**: "anonymous" and "default" cannot be deleted
+  </Accordion>
+</AccordionGroup>
+
+## Creating a New Identity
+
+<img
+  src="/images/features/identities/identities-create-new-identity.png"
+  alt="Create New Identity"
+  className="rounded-lg border"
+/>
+
+The identity creation process provides multiple options through a tabbed interface:
+
+### New Identity Tab
+
+<Steps>
+  <Step title="Open Creation Dialog">
+    Click the **"Create New Identity"** button in the top right corner
+  </Step>
+  <Step title="Select New Identity Tab">
+    The "New Identity" tab is selected by default in the modal
+  </Step>
+  <Step title="Enter Identity Details">
+    - **Identity Name**: Enter a descriptive name (e.g., "alice")
+    - **Options**: Expand for advanced configuration options
+  </Step>
+  <Step title="Configure Advanced Options">
+    - **HSM Key ID**: Hardware Security Module key identifier (optional)
+    - **Storage Mode**: Choose password-protected, plain-text, or no storage mode
+    - **Force**: Overwrite existing identity if it exists
+  </Step>
+  <Step title="Create Identity">
+    Click **"Create"** to generate the new identity with cryptographic keys
+  </Step>
+</Steps>
+
+<Warning>
+Always safeguard the private keys associated with your identities. Never share them or store them in unsecured locations. Consider using hardware wallets for high-value identities.
+</Warning>
+
+## Importing an Existing Identity
+
+<img
+  src="/images/features/identities/identities-import-identity.png"
+  alt="Import Existing Identity"
+  className="rounded-lg border"
+/>
+
+Import existing identities from PEM files with comprehensive configuration options:
+
+### Import Process
+
+<Steps>
+  <Step title="Open Import Tab">
+    Click **"Create New Identity"** and select the **"Import Existing"** tab
+  </Step>
+  <Step title="Provide Identity Information">
+    - **Identity Name**: Enter a descriptive name for the imported identity
+    - **PEM File**: Select the PEM file containing the identity's key information
+  </Step>
+  <Step title="Configure Import Options">
+    - **Storage Mode**: Choose how the identity should be stored
+    - **Force**: Overwrite existing identity if name conflicts occur
+  </Step>
+  <Step title="Complete Import">
+    Click **"Import"** to add the identity to DFX Dashboard
+  </Step>
+</Steps>
+
+### Storage Mode Options
+
+<AccordionGroup>
+  <Accordion title="Password Protected">
+    - **Security**: Highest security level with password encryption
+    - **Use Case**: Recommended for production and sensitive identities
+    - **Access**: Requires password for each use
+  </Accordion>
+  
+  <Accordion title="Plain Text">
+    - **Security**: Lower security, keys stored in plain text
+    - **Use Case**: Development and CI environments
+    - **Risk**: Keys are accessible without additional protection
+  </Accordion>
+  
+  <Accordion title="No Storage Mode">
+    - **Behavior**: Uses default dfx storage behavior
+    - **Flexibility**: Allows dfx to determine appropriate storage method
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Before importing, ensure your PEM file is stored in a secure location. After successful import, consider moving the file to encrypted or offline storage for added security.
+</Tip>
+
+## Internet Identity Integration
+
+The DFX Dashboard supports Internet Identity for enhanced security and seamless IC integration:
+
+### Internet Identity Login
+
+<Steps>
+  <Step title="Access Internet Identity Tab">
+    Click **"Create New Identity"** and select **"Internet Identity"**
+  </Step>
+  <Step title="Review Current Status">
+    The dialog shows your current login status and principal if already logged in
+  </Step>
+  <Step title="Authenticate">
+    Click **"Login"** to authenticate using your Internet Identity
+  </Step>
+  <Step title="Complete Authentication">
+    Follow the browser-based authentication flow to complete setup
+  </Step>
+</Steps>
+
+<Info>
+Internet Identity provides biometric authentication and device-based security. The login process opens in your browser and automatically creates the identity in DFX Dashboard upon successful authentication.
+</Info>
+
+## Ledger Functionality
+
+The Ledger tab provides comprehensive ICP (Internet Computer Protocol) token management through three specialized sub-tabs:
+
+### Account Management Tab
+
+<img
+  src="/images/features/identities/ledger-account-tab.png"
+  alt="Ledger Account Management"
+  className="rounded-lg border"
+/>
+
+Manage your current identity's ICP account with comprehensive tools:
+
+<AccordionGroup>
+  <Accordion title="Current Identity Account">
+    **Account Information Display:**
+    - **Principal Display**: Shows your current identity's principal ID with copy functionality
+    - **Account ID**: Displays the corresponding account identifier with copy functionality
+    - **ICP Balance**: Real-time balance checking with manual refresh capability
+    - **Network Status**: Shows which network the balance is fetched from
+  </Accordion>
+  
+  <Accordion title="Principal to Account ID Converter">
+    **Conversion Tools:**
+    - **Input Field**: Enter any principal to convert to account ID
+    - **Validation**: Ensures valid principal format before conversion
+    - **Copy Result**: One-click copying of converted account IDs
+    - **Batch Processing**: Convert multiple principals efficiently
+  </Accordion>
+</AccordionGroup>
+
+### Operations Tab
+
+<img
+  src="/images/features/identities/ledger-operations-tab.png"
+  alt="Ledger Operations"
+  className="rounded-lg border"
+/>
+
+Perform various ICP-related operations with comprehensive functionality:
+
+<Tabs>
+  <Tab title="Transfer ICP">
+    ### Send ICP to Other Accounts
+    
+    **Transfer Process:**
+    1. **Recipient**: Enter destination account ID or principal
+    2. **Amount**: Specify ICP amount to transfer (with fee calculation)
+    3. **Network**: Select local or Internet Computer network
+    4. **Execute**: Send the transfer with confirmation dialog
+    
+    **Features:**
+    - Real-time fee calculation
+    - Address validation
+    - Network selection
+    - Transaction confirmation
+  </Tab>
+  
+  <Tab title="Create Canister">
+    ### Deploy New Canisters Funded with ICP
+    
+    **Creation Process:**
+    1. **Amount**: Specify ICP amount to convert to cycles
+    2. **Network**: Choose target network for deployment
+    3. **Create**: Deploy new canister funded with converted cycles
+    4. **Configuration**: Set initial canister parameters
+    
+    **Features:**
+    - ICP to cycles conversion
+    - Network-specific deployment
+    - Automatic canister creation
+    - Initial funding setup
+  </Tab>
+  
+  <Tab title="Top Up Canister">
+    ### Add Cycles to Existing Canisters
+    
+    **Top-up Process:**
+    1. **Canister ID**: Enter the canister identifier to top up
+    2. **Amount**: Specify ICP amount for cycle conversion
+    3. **Network**: Select appropriate network
+    4. **Top Up**: Add cycles to the specified canister
+    
+    **Features:**
+    - Canister ID validation
+    - Cycle calculation
+    - Network compatibility check
+    - Balance verification
+  </Tab>
+  
+  <Tab title="Fabricate Cycles">
+    ### Generate Cycles for Local Development
+    
+    **Fabrication Process:**
+    1. **Amount**: Specify cycles to fabricate
+    2. **Local Only**: Available only on local development networks
+    3. **Generate**: Create cycles for development and testing
+    4. **Testing**: Use for canister development and debugging
+    
+    **Features:**
+    - Local network only
+    - Development-focused
+    - No real ICP cost
+    - Testing environment support
+  </Tab>
+</Tabs>
+
+### Transaction History Tab
+
+<img
+  src="/images/features/identities/ledger-history-tab.png"
+  alt="Transaction History"
+  className="rounded-lg border"
+/>
+
+Track and monitor all your ICP transactions with detailed information:
+
+<AccordionGroup>
+  <Accordion title="Transaction Tracking Features">
+    **Comprehensive transaction monitoring:**
+    - **Real-time Updates**: Fetches latest transaction data automatically
+    - **Transaction Details**: Shows type, amount, fees, and status
+    - **Block Heights**: Links to blockchain records for verification
+    - **Search and Filter**: Find specific transactions quickly
+    - **Export Options**: Download transaction history for records
+  </Accordion>
+  
+  <Accordion title="Transaction Information">
+    **Detailed transaction data:**
+    - **Transaction Hash**: Unique identifier for each transaction
+    - **Type**: Transfer, canister creation, top-up, etc.
+    - **Amount**: ICP amount involved in the transaction
+    - **Fees**: Network fees paid for the transaction
+    - **Status**: Completed, pending, or failed status
+    - **Timestamp**: When the transaction occurred
+    - **Block Height**: Blockchain block containing the transaction
+  </Accordion>
+</AccordionGroup>
+
+## Identity Management Best Practices
+
+<AccordionGroup>
+  <Accordion title="Organization and Naming">
+    **Optimize your identity workflow:**
+    - **Descriptive Names**: Use clear, purpose-driven names for easy identification
+    - **Environment Separation**: Use different identities for development and production
+    - **Project Context**: Consider creating project-specific identities
+    - **Regular Cleanup**: Remove unused identities to maintain organization
+  </Accordion>
+  
+  <Accordion title="Security Practices">
+    **Maintain security best practices:**
+    - **Backup Strategy**: Regularly backup important identity information
+    - **Private Key Security**: Never share private keys or seed phrases
+    - **Hardware Wallets**: Consider hardware wallets for high-value identities
+    - **Access Control**: Use appropriate storage modes for different use cases
+  </Accordion>
+  
+  <Accordion title="Active Identity Management">
+    **Manage active identity effectively:**
+    - **Context Switching**: Switch identities based on current task
+    - **Verification**: Always verify active identity before operations
+    - **Session Management**: Understand identity persistence across sessions
+    - **Network Awareness**: Ensure identity compatibility with target networks
+  </Accordion>
+</AccordionGroup>
+
+## ICP Operations Best Practices
+
+<AccordionGroup>
+  <Accordion title="Transaction Management">
+    **Optimize your ICP operations:**
+    - **Balance Monitoring**: Regularly check ICP balance and set up alerts
+    - **Fee Awareness**: Account for network fees in all transfer calculations
+    - **Address Verification**: Always verify recipient addresses before transfers
+    - **Network Selection**: Ensure you're using the correct network for operations
+  </Accordion>
+  
+  <Accordion title="Development Workflow">
+    **Streamline development operations:**
+    - **Local Testing**: Use local network and fabricate cycles for development
+    - **Staging Environment**: Test operations on testnets before mainnet
+    - **Cycle Management**: Monitor canister cycle consumption patterns
+    - **Backup Funding**: Maintain backup funding sources for critical canisters
+  </Accordion>
+  
+  <Accordion title="Record Keeping">
+    **Maintain comprehensive records:**
+    - **Transaction History**: Regularly review transaction history
+    - **Documentation**: Document important transactions and their purposes
+    - **Audit Trail**: Maintain audit trails for compliance and debugging
+    - **Export Data**: Regularly export transaction data for external records
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Identity Issues">
+    **Common identity problems and solutions:**
+    
+    **Problem**: Unable to create identity
+    - Check if identity name already exists
+    - Verify identity name follows naming conventions
+    - Ensure sufficient permissions for identity creation
+    - Try using a different identity name
+    
+    **Problem**: Import identity fails
+    - Verify PEM file format and validity
+    - Check file permissions and accessibility
+    - Ensure PEM file contains correct key information
+    - Try different storage mode options
+    
+    **Problem**: Internet Identity login issues
+    - Clear browser cache and restart DFX Dashboard
+    - Ensure stable internet connection
+    - Try using different browser or incognito mode
+    - Check Internet Identity service status
+  </Accordion>
+  
+  <Accordion title="Ledger Issues">
+    **Common ledger problems and solutions:**
+    
+    **Problem**: Balance not showing or incorrect
+    - Ensure you're connected to the correct network
+    - Use the refresh button to manually update balance
+    - Check network connectivity for IC operations
+    - Verify identity has been used for transactions
+    
+    **Problem**: Transfer failures
+    - Check recipient address format and validity
+    - Ensure sufficient balance for transfer and fees
+    - Verify network selection matches intended destination
+    - Check for network congestion or maintenance
+    
+    **Problem**: Canister operations fail
+    - Verify canister ID format and existence
+    - Ensure sufficient ICP balance for cycle conversion
+    - Check network compatibility and status
+    - Verify canister permissions and controllers
+  </Accordion>
+  
+  <Accordion title="Network Issues">
+    **Network-related problems:**
+    
+    **Problem**: Local network errors
+    - ICP Ledger may not be installed on local network
+    - Ensure local dfx network is running properly
+    - Check dfx version compatibility (requires 0.25.0+)
+    - Restart local replica if operations fail
+    
+    **Problem**: Transaction delays
+    - IC transactions may take time to confirm on mainnet
+    - Check transaction status in the history tab
+    - Verify network congestion status
+    - Monitor block height progression
+    
+    **Problem**: Account ID conversion issues
+    - Verify principal format is correct
+    - Check for typos in principal string
+    - Ensure principal is valid IC principal
+    - Try copying principal directly from source
+  </Accordion>
+</AccordionGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Digital Identity on IC"
+    icon="shield"
+    href="https://internetcomputer.org/docs/current/tokenomics/identity-auth/"
+  >
+    Understanding digital identity concepts and authentication
+  </Card>
+  <Card
+    title="Internet Identity Specification"
+    icon="file-text"
+    href="https://internetcomputer.org/docs/current/references/ii-spec/"
+  >
+    Technical specification for Internet Identity integration
+  </Card>
+  <Card
+    title="ICP Ledger Documentation"
+    icon="book"
+    href="https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/"
+  >
+    Complete ICP ledger integration and operation guide
+  </Card>
+  <Card
+    title="DFX Identity Commands"
+    icon="terminal"
+    href="https://internetcomputer.org/docs/current/references/cli-reference/dfx-identity"
+  >
+    Command line reference for identity management
+  </Card>
+  <Card
+    title="Security Best Practices"
+    icon="lock"
+    href="https://internetcomputer.org/docs/current/developer-docs/security/general-security-best-practices"
+  >
+    Comprehensive security guidelines for IC development
+  </Card>
+  <Card
+    title="Cycle Management Guide"
+    icon="coins"
+    href="https://internetcomputer.org/docs/current/developer-docs/setup/cycles/"
+  >
+    Understanding cycles and canister funding strategies
+  </Card>
+</CardGroup>
+
+<Note>
+Ready to explore wallet management? Continue to the [Wallet](/features/wallet) page to learn about advanced wallet operations and management.
+</Note> 

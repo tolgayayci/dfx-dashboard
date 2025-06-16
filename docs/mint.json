@@ -1,0 +1,100 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "DFX Dashboard",
+  "metadata": {
+    "title": "DFX Dashboard Documentation",
+    "description": "Comprehensive documentation for the DFX Dashboard - A desktop GUI for DFINITY's Internet Computer dfx CLI",
+    "og:title": "DFX Dashboard Documentation",
+    "og:description": "Desktop GUI for Internet Computer development with dfx CLI integration",
+    "og:image": "/logo/light.svg"
+  },
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "search": {
+    "prompt": "Search DFX Dashboard docs..."
+  },
+  "analytics": {
+    "ga4": {
+      "measurementId": "G-XXXXXXXXXX"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Docs",
+      "url": "https://docs.dfx-board.org"
+    },
+    {
+      "name": "GitHub",
+      "url": "https://github.com/tolgayayci/dfx-dashboard"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Download",
+    "url": "https://github.com/tolgayayci/dfx-dashboard/releases"
+  },
+
+  "anchors": [
+    {
+      "name": "DFINITY Docs",
+      "icon": "book-open-cover",
+      "url": "https://internetcomputer.org/docs"
+    },
+    {
+      "name": "Community Forum",
+      "icon": "users",
+      "url": "https://forum.dfinity.org/"
+    },
+    {
+      "name": "Developer Discord",
+      "icon": "discord",
+      "url": "https://discord.gg/cA7y6ezyE2"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "installation",
+        "quickstart"
+      ]
+    },
+    {
+      "group": "Core Features",
+      "pages": [
+        "features/projects",
+        "features/canisters",
+        "features/identities",
+        "features/wallet",
+        "features/cycles",
+        "features/network",
+        "features/logs",
+        "features/settings"
+      ]
+    },
+    {
+      "group": "Reference",
+      "pages": [
+        "features/about",
+        "changelog"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/dfinity",
+    "github": "https://github.com/tolgayayci/dfx-dashboard",
+    "discord": "https://discord.gg/cA7y6ezyE2"
+  }
+} 
