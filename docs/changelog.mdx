@@ -7,7 +7,55 @@ Stay up-to-date with the latest changes, improvements, and new features in the D
 
 ## Latest Release
 
-### Version 0.2.1-beta (Current)
+### Version 0.3.0 (Current)
+*Released: June 2025*
+
+<CardGroup cols={2}>
+  <Card title="Major Milestones" icon="rocket">
+    Complete Internet Computer development suite with NNS integration and wallet management
+  </Card>
+  <Card title="New Architecture" icon="code">
+    25+ new IPC handlers with enhanced error handling and type safety
+  </Card>
+</CardGroup>
+
+#### 🚀 Major Features
+
+**🌐 NNS Integration & Advanced Filtering**
+- **Network Nervous System Support**: View and interact with NNS canisters directly from the dashboard
+- **Smart Filtering System**: Manage large canister deployments with powerful filtering capabilities
+- **dfx 0.25.0 Compatibility**: Full support for the latest dfx version with updated command handling
+- **Professional Cycles Management**: Completely redesigned cycles page with comprehensive workflow coverage
+- **One-Click Shell Completion**: Automated setup eliminates manual configuration
+
+**🏦 Wallet Management & Ledger Operations**
+- **Complete Wallet Control**: Full wallet management capabilities integrated into the Identity page
+- **ICP Ledger Operations**: Send, receive, and manage ICP transactions directly from the dashboard
+- **Smart Cache Management**: DFX version control and cache operations made simple
+- **25+ New IPC Handlers**: Robust backend support for wallet, ledger, and cache operations
+
+**📚 Documentation Platform Migration**
+- **Mintlify Integration**: Migrated from VitePress to Mintlify for better documentation experience
+- **Comprehensive Coverage**: Complete documentation for all features including get started guides, core features, and reference materials
+- **Professional Structure**: Organized documentation covering projects, canisters, identities, wallet, cycles, network, logs, and settings
+
+#### 🛠️ Technical Improvements
+- **Enhanced Architecture**: Moved from generic command runners to dedicated IPC handlers for better error handling and type safety
+- **Improved Performance**: More responsive UI, especially when managing multiple canisters
+- **GitHub-Style Design**: Professional card layouts with consistent spacing and modern interface
+- **Network Awareness**: All operations properly handle different network configurations
+- **Real dfx Integration**: All features use actual dfx commands with proper error handling
+
+#### 🔄 Breaking Changes
+- Enhanced IPC communication system may require restart after upgrade
+- Updated wallet management interface with new workflow patterns
+- Cache management system redesigned for better performance
+
+---
+
+## Previous Releases
+
+### Version 0.2.1-beta
 *Released: December 2024*
 
 <CardGroup cols={2}>
@@ -44,10 +92,6 @@ Stay up-to-date with the latest changes, improvements, and new features in the D
 - Updated minimum dfx version requirement to 0.25.0
 - Changed default network configuration format
 - Modified environment variable handling for better security
-
----
-
-## Previous Releases
 
 ### Version 0.2.0-beta
 *Released: November 2024*
@@ -93,21 +137,37 @@ Stay up-to-date with the latest changes, improvements, and new features in the D
 These features are planned for future releases. Timelines may change based on community feedback and development priorities.
 </Tip>
 
-### Version 0.3.0 (Planned)
-- **Advanced Analytics**: Detailed project and canister analytics
-- **Team Collaboration**: Multi-user project management features
-- **Plugin System**: Extensible plugin architecture
-- **Advanced Debugging**: Enhanced debugging and profiling tools
-
-### Version 0.4.0 (Planned)
-- **Cloud Integration**: Cloud-based project synchronization
-- **Advanced Security**: Enhanced security features and audit tools
-- **Performance Monitoring**: Real-time performance monitoring
-- **Custom Themes**: Customizable UI themes and layouts
-
 ---
 
 ## Migration Guides
+
+### Upgrading to 0.3.0
+
+<AccordionGroup>
+  <Accordion title="dfx Version Requirements">
+    **Update your dfx installation:**
+    - Minimum required version: dfx 0.25.0
+    - Recommended: Latest stable release
+    - Use `dfx --version` to check your current version
+    - Update using `dfxvm install latest` or download from DFINITY
+  </Accordion>
+  
+  <Accordion title="Wallet Configuration">
+    **Update wallet configurations:**
+    - Review new wallet management interface
+    - Test ICP operations in safe environment first
+    - Backup wallet configurations before upgrading
+    - Familiarize yourself with new ledger operation features
+  </Accordion>
+  
+  <Accordion title="Cache Management">
+    **Update cache handling:**
+    - New cache management system requires initial setup
+    - Previous cache data will be migrated automatically
+    - Review cache settings in the new interface
+    - Test dfx version management features
+  </Accordion>
+</AccordionGroup>
 
 ### Upgrading to 0.2.1-beta
 
@@ -168,31 +228,39 @@ These are known issues in the current release. Workarounds are provided where av
 </Warning>
 
 <AccordionGroup>
+  <Accordion title="Wallet Operations">
+    **Large transaction handling:**
+    - **Issue**: Very large ICP transactions may require additional confirmation
+    - **Workaround**: Break large transactions into smaller amounts
+    - **Status**: Enhancement planned for version 0.3.1
+  </Accordion>
+  
   <Accordion title="Performance Issues">
     **Large project handling:**
     - **Issue**: Slow performance with projects containing many canisters
     - **Workaround**: Use project filtering and pagination features
-    - **Status**: Fix planned for version 0.2.2
+    - **Status**: Improved in 0.3.0, further optimizations planned
   </Accordion>
   
-  <Accordion title="Network Connectivity">
-    **Custom network configurations:**
-    - **Issue**: Some custom network configurations may not save properly
-    - **Workaround**: Manually edit networks.json file
-    - **Status**: Fix in development
-  </Accordion>
-  
-  <Accordion title="Shell Completion">
-    **Windows WSL compatibility:**
-    - **Issue**: Shell completion setup may fail on some WSL configurations
-    - **Workaround**: Manual completion setup using provided commands
-    - **Status**: Investigating WSL-specific issues
+  <Accordion title="Documentation Migration">
+    **Link redirects:**
+    - **Issue**: Some old documentation links may not redirect properly
+    - **Workaround**: Use the main documentation navigation
+    - **Status**: Being addressed as part of ongoing migration
   </Accordion>
 </AccordionGroup>
 
 ### Resolved Issues
 
 <AccordionGroup>
+  <Accordion title="Version 0.3.0 Fixes">
+    - ✅ Resolved all major IPC communication issues
+    - ✅ Fixed wallet integration edge cases
+    - ✅ Corrected NNS canister display problems
+    - ✅ Enhanced cache management reliability
+    - ✅ Improved filtering performance significantly
+  </Accordion>
+  
   <Accordion title="Version 0.2.1 Fixes">
     - ✅ Fixed canister status display inconsistencies
     - ✅ Resolved identity switching edge cases
@@ -279,4 +347,4 @@ We appreciate all community contributions that help make the DFX Dashboard bette
 
 <Note>
 For the most up-to-date information about releases and known issues, visit our [GitHub repository](https://github.com/tolgayayci/dfx-dashboard) and check the latest release notes.
-</Note> 
+</Note>
